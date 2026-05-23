@@ -1,0 +1,352 @@
+email:
+  Variant 1:
+    framework: PPP — Praise / Picture / Push
+    subject_formula: saw {company}'s {observation}
+    word_count: 130-160
+    ai_fills: '{personalized_hook}, {specific_promise}, {their_business_description},
+      {big_result}, {target_outcome}, {pipeline_or_revenue}'
+    template: 'Hi {first_name}, hope you''re having a great day.
+
+
+      I love the look & feel of {company} — you guys really look the part.
+
+
+      My team and I have taken a look at your {their_business_description}, and we''re
+      confident we can help you {specific_promise} every single month — driving {target_outcome}.
+
+
+      Best part: if we don''t deliver, you don''t pay. Pay-on-results, full stop.
+
+
+      This isn''t automated. I recorded a quick video to introduce myself so you can
+      see I''m not blasting you from software:
+
+
+      {VIDEO_LINK}
+
+
+      We''ve helped over 100 mid-market companies plug AI into their growth motion,
+      sometimes adding {big_result} to their {pipeline_or_revenue} in the first 90
+      days.
+
+
+      {binary_cta_for_motion}
+
+
+      Thanks,
+
+      Frank
+
+
+      p.s. — when I say pay on results, I mean it. No performance, no money out of
+      your pocket.
+
+      '
+  Variant 2:
+    framework: PPP — Compact Warm
+    subject_formula: loving the look of {company}
+    word_count: 70-90
+    ai_fills: '{personalized_hook}, {specific_promise}, {their_business_description},
+      {binary_cta_for_motion}'
+    template: 'Hey {first_name}, loving the look of {company}.
+
+
+      Quick context: my team''s reviewed your {their_business_description}, and we''re
+      confident we can help you {specific_promise} per month, on a complete pay-on-results
+      basis. (If we don''t deliver, we don''t get paid.)
+
+
+      Recorded a quick video for you so you can see I''m not blasting from software:
+
+
+      {VIDEO_LINK}
+
+
+      {binary_cta_for_motion}
+
+
+      Thanks,
+
+      Frank
+
+      '
+  Variant 3:
+    framework: PPP + Average-Lift Proof
+    subject_formula: saw {company}'s {observation}
+    word_count: 100-130
+    ai_fills: '{personalized_hook}, {specific_promise}, {their_business_description},
+      {average_lift}, {target_outcome}'
+    template: 'Hi {first_name},
+
+
+      First — {company} looks great.
+
+
+      We''ve taken a look at your {their_business_description} and we''re confident
+      we can {specific_promise} every month, driving {target_outcome}. Done-for-you,
+      fully guaranteed: if we don''t drive {target_outcome}, we don''t get paid.
+
+
+      I send these personally — not blasting you from bulk software. Recorded a quick
+      video to intro myself:
+
+
+      {VIDEO_LINK}
+
+
+      On average, we add {average_lift} to each mid-market company we work with in
+      the first 8 weeks.
+
+
+      {binary_cta_for_motion}
+
+
+      Thanks,
+
+      Frank
+
+      '
+  Variant 4:
+    framework: AIDA — Niche Authority + Direct Ask
+    subject_formula: quick q for a mid-market {their_industry} co
+    word_count: 80-100
+    ai_fills: '{their_industry}, {motion_appropriate_pain_one_liner}, {binary_cta_for_motion}'
+    template: '{first_name},
+
+
+      Saw {company} is in {their_industry}. Strong ties here — we work with mid-market
+      {their_industry} companies running AI automation across their growth motion.
+      (Attention)
+
+
+      Most run into the same wall: {motion_appropriate_pain_one_liner}. (Interest)
+
+
+      Recorded a video to explain my offer so you know I''m not blasting from a list.
+      (Desire)
+
+
+      {VIDEO_LINK}
+
+
+      {binary_cta_for_motion} (Action)
+
+
+      Cheers,
+
+      Frank
+
+
+      p.s. — personal email. When you reply, it''ll be me.
+
+      '
+  Variant 5:
+    framework: 3 Cs — Compliment / Case Study / CTA
+    subject_formula: results from companies like {company}
+    word_count: 90-120
+    ai_fills: '{their_industry}, {motion_appropriate_results_list}, {binary_cta_for_motion}'
+    template: 'Hey {first_name},
+
+
+      {company} is doing some great things in {their_industry}. (Compliment)
+
+
+      Recent results across companies similar to yours: (Case study)
+
+
+      {motion_appropriate_results_list}
+
+
+      I recorded a personalized video so you can see this isn''t from a big list:
+
+
+      {VIDEO_LINK}
+
+
+      {binary_cta_for_motion} (CTA)
+
+
+      Thanks,
+
+      Frank
+
+      '
+  Variant 6:
+    framework: QVC — Question / Value / CTA
+    subject_formula: open to {specific_outcome}?
+    word_count: 45-65
+    ai_fills: '{specific_promise}, {target_outcome_unit}, {binary_cta_for_motion}'
+    template: 'Hey {first_name}, quick q — open to {specific_promise}? If yes, how
+      many {target_outcome_unit} could you handle per month?
+
+
+      Recorded a video. Under a minute, your site on screen:
+
+
+      {VIDEO_LINK}
+
+
+      {binary_cta_for_motion}
+
+
+      Frank
+
+      '
+  Variant 7:
+    framework: Authority / Aggregate Proof
+    subject_formula: '{company} caught our attention'
+    word_count: 110-140
+    ai_fills: '{company}, {specific_promise}, {binary_cta_for_motion}'
+    template: 'Hi {first_name}, hope all''s well at {company}.
+
+
+      Quick one: Ascentir''s helped mid-market companies generate over $40M in net-new
+      pipeline, lift signup conversion 2-3x across PLG funnels, and protect over $25M
+      in retained ARR through AI automation in the past 18 months. Across B2B SaaS,
+      Cybersecurity, FinTech, and Industrial.
+
+
+      If we don''t deliver, you don''t pay.
+
+
+      I''m Frank, founder of Ascentir, an AI automation platform for mid-market growth.
+
+
+      Before reading further, watch this video I recorded for you:
+
+
+      {VIDEO_LINK}
+
+
+      I came across {company} and I''m confident we can drive real results.
+
+
+      {binary_cta_for_motion}
+
+
+      Cheers,
+
+      Frank
+
+
+      p.s. — real person. Wrote this manually.
+
+      '
+  Variant 8:
+    framework: Inverted Demand / Scarcity
+    subject_formula: heads up — {their_industry} inquiries
+    word_count: 85-110
+    ai_fills: '{their_industry}, {motion_appropriate_growth_lever}, {binary_cta_for_motion}'
+    template: 'Hi {first_name},
+
+
+      Seeing a lot of mid-market {their_industry} companies actively looking for AI
+      automation right now. {company} came up in our research as a fit. Heads-up before
+      we reach out widely.
+
+
+      Open to exploring what AI automation could do for your {motion_appropriate_growth_lever}?
+
+
+      Before responding, check out this video I recorded:
+
+
+      {VIDEO_LINK}
+
+
+      If it''s a fit, hit reply or tap the red button at the end of the video.
+
+
+      Cheers,
+
+      Frank
+
+
+      p.s. — not automated. Real person, scrolling through {company}''s site as I
+      write this.
+
+      '
+  Variant 9:
+    framework: PAS — Problem / Agitate / Solve
+    subject_formula: honest observation about {company}
+    word_count: 95-120
+    ai_fills: '{hook_observation_concerning}, {their_industry}, {agitation_one_liner},
+      {specific_promise}, {binary_cta_for_motion}'
+    template: 'Hey {first_name},
+
+
+      Honest observation about {company}: {hook_observation_concerning} (Problem)
+
+
+      For mid-market {their_industry} companies, that pattern usually means {agitation_one_liner}
+      — and it compounds every quarter you don''t fix it. (Agitate)
+
+
+      Recorded a video showing what we''d actually do about it:
+
+
+      {VIDEO_LINK}
+
+
+      I run Ascentir. We help mid-market companies {specific_promise}. After looking
+      at {company}, I''m confident we could move the needle. (Solve)
+
+
+      {binary_cta_for_motion}
+
+
+      Thanks,
+
+      Frank
+
+
+      p.s. — wrote this personally. You''re not on a list.
+
+      '
+sms:
+  SMS-V1:
+    framework: Direct Value
+    char_limit: 160
+    ai_fills: '{personalized_hook}, {specific_promise}'
+    template: '{first_name} — {personalized_hook}. We {specific_promise}. 60-sec video:
+      {VIDEO_LINK} — worth a chat? Frank'
+  SMS-V2:
+    framework: Social Proof
+    char_limit: 160
+    ai_fills: '{their_industry}, {company}, {proof_result}'
+    template: '{first_name} — a {their_industry} company like {company} just {proof_result}.
+      Quick video: {VIDEO_LINK} — think we could do the same? Frank
+
+      '
+  SMS-V3:
+    framework: Question Hook
+    char_limit: 160
+    ai_fills: '{company}, {specific_outcome}'
+    template: '{first_name} — real Q: what would it mean for {company} if you could
+      {specific_outcome} in 90 days? Short video: {VIDEO_LINK} Frank
+
+      '
+  SMS-V4:
+    framework: PAS
+    char_limit: 170
+    ai_fills: '{hook_observation_one_line}, {their_industry}, {agitation}'
+    template: '{first_name} — {hook_observation_one_line}. For {their_industry} cos
+      that usually means {agitation}. Quick video on the fix: {VIDEO_LINK} — Frank
+
+      '
+  SMS-V5:
+    framework: Compliment + CTA
+    char_limit: 160
+    ai_fills: '{hook_compliment}, {specific_promise}'
+    template: '{first_name} — {hook_compliment}. We help companies at your stage {specific_promise}.
+      Short video: {VIDEO_LINK} — open to it? Frank
+
+      '
+  SMS-V6:
+    framework: Scarcity
+    char_limit: 165
+    ai_fills: '{company}, {their_industry}'
+    template: '{first_name} — heads up: {company} came up as a top fit. Reaching out
+      before we go wider in {their_industry}. Video: {VIDEO_LINK} — Frank
+
+      '

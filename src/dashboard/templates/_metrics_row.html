@@ -1,0 +1,18 @@
+<section class="metrics-row" hx-get="/partial/metrics" hx-trigger="every 60s" hx-swap="outerHTML">
+  <div class="stat-card">
+    <p class="muted">Sent</p>
+    <p class="stat-value">{{ "{:,}".format(total_sent) }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Reply rate</p>
+    <p class="stat-value">{{ "%.2f"|format(blended_reply_rate) }}%</p>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Booked</p>
+    <p class="stat-value">{{ total_booked }}</p>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Cost / booked</p>
+    <p class="stat-value">{% if cost_per_booked %}${{ "%.2f"|format(cost_per_booked) }}{% else %}—{% endif %}</p>
+  </div>
+</section>

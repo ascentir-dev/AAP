@@ -1,0 +1,322 @@
+# =============================================================================
+# Final settings.yaml — 9 Variants grounded in proven cold-email frameworks
+# Sources: Cold Email Manifesto (Berman), Predictable Revenue (Ross),
+# classical AIDA/PAS/BAB literature, gym-marketing On/Off frameworks
+# =============================================================================
+
+your_identity:
+  your_first_name: "Frank"
+  your_company_name: "Ascentir"
+  your_email_signature: "Frank"
+
+# -----------------------------------------------------------------------------
+# THE OFFER — fixed second half of every video, 3 motion variants
+# -----------------------------------------------------------------------------
+offer:
+  transition_target_phrase: "So let me be quick about this."
+
+  fixed_second_half_plg_self_serve: |
+    So let me be quick about this. We help self-serve companies plug AI into
+    the parts of their growth motion that are still being run on hunches and
+    spreadsheets — signup conversion, activation, expansion, retention.
+    Specifically: we lift signup-to-paid conversion 2-3x, cut time-to-activation
+    in half, and predict churn before it happens — all paid on outcomes.
+
+    Here's what I want to offer you: a 14-day command brief — board-ready,
+    fully refundable if it isn't the most useful document you've read this
+    year. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a 20-minute walkthrough this week. No high-pressure sales call.
+    Talk soon.
+
+  fixed_second_half_hybrid_sales_assisted: |
+    So let me be quick about this. We help mid-market companies plug AI into
+    both motions — your self-serve funnel and your AE-led pipeline.
+    Specifically: we lift signup-to-paid conversion, surface high-intent free
+    users to your AEs, predict churn, and surface deal risk weeks before
+    your forecast does.
+
+    Here's what I want to offer you: a 14-day command brief — board-ready,
+    fully refundable if it isn't the most useful document you've read this
+    year. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+  fixed_second_half_sales_led_outbound: |
+    So let me be quick about this. We help mid-market companies plug AI into
+    sales, retention, and ops. Specifically: we book 2-3x more qualified
+    meetings at about half the mid-market average cost, predict churn
+    before it happens, and surface deal risk weeks before your forecast does.
+
+    Here's what I want to offer you: a 14-day command brief — board-ready,
+    fully refundable if it isn't the most useful document you've read this
+    year. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+# -----------------------------------------------------------------------------
+# A/B TESTING — 9-Variant Framework Tournament
+# Each variant maps to a documented cold-email framework
+# -----------------------------------------------------------------------------
+variants:
+  active_test: "framework_tournament_v1"
+  locked: true
+
+  framework_tournament_v1:
+    description: "9 variants, each grounded in a documented cold-email framework"
+    primary_metric: "reply_rate"
+    minimum_sent_per_variant: 1500
+    confidence_target: 0.95
+    started_at: "2026-05-12"
+
+    arms:
+      - id: "Variant 1"
+        weight: 0.111
+        smartlead_campaign_id: "3379547"
+        overrides:
+          email_template_id: "v1_3c_berman"
+          variant_framework: "3C (Berman) — Compliment + Case Study + CTA"
+        description: "Berman's 3C — most-tested modern framework, default high-volume choice"
+
+      - id: "Variant 2"
+        weight: 0.111
+        smartlead_campaign_id: "3379548"
+        overrides:
+          email_template_id: "v2_predictable_revenue_referral"
+          variant_framework: "Predictable Revenue (Ross) — Referral / Right Person"
+        description: "Ross's Cold Calling 2.0 — asks for a referral instead of pitching"
+
+      - id: "Variant 3"
+        weight: 0.111
+        smartlead_campaign_id: "3379549"
+        overrides:
+          email_template_id: "v3_aida"
+          variant_framework: "AIDA — Attention / Interest / Desire / Action"
+        description: "Classical copywriting — strongest with clear pain + strong hook"
+
+      - id: "Variant 4"
+        weight: 0.111
+        smartlead_campaign_id: "3379550"
+        overrides:
+          email_template_id: "v4_pas"
+          variant_framework: "PAS — Problem / Agitate / Solve"
+          requires_pain_signal: true
+        description: "PAS — strongest when prospect's pain is visible and acute"
+
+      - id: "Variant 5"
+        weight: 0.111
+        smartlead_campaign_id: "3379551"
+        overrides:
+          email_template_id: "v5_bab"
+          variant_framework: "BAB — Before / After / Bridge"
+        description: "BAB — strongest for prospects in transition (funding, launch, hiring)"
+
+      - id: "Variant 6"
+        weight: 0.111
+        smartlead_campaign_id: "3379552"
+        overrides:
+          email_template_id: "v6_3ps"
+          variant_framework: "3Ps — Praise / Picture / Push"
+        description: "3Ps — peer-tone, best for senior buyers (VP+, 200+ employee co)"
+
+      - id: "Variant 7"
+        weight: 0.111
+        smartlead_campaign_id: "3379553"
+        overrides:
+          email_template_id: "v7_one_sentence"
+          variant_framework: "Berman one-sentence — 'Are you the right person?'"
+        description: "One-sentence test — highest reply rate per word; mid-cadence"
+
+      - id: "Variant 8"
+        weight: 0.111
+        smartlead_campaign_id: "3379554"
+        overrides:
+          email_template_id: "v8_inverted_demand"
+          variant_framework: "Inverted Demand (Gym Off 5.0) — Heads-Up / Scarcity"
+        description: "Inverted demand — flips the power dynamic, scarcity tone"
+
+      - id: "Variant 9"
+        weight: 0.112
+        smartlead_campaign_id: "3379555"
+        overrides:
+          email_template_id: "v9_pay_on_results"
+          variant_framework: "Risk-Reversal (Gym On 1.0) — Pay-on-Results"
+        description: "Heavy risk-reversal — best for prospects burned by AI vendors before"
+
+  phase_2_finalists:
+    description: "Top 4 from Phase 1, redistributed 25% each"
+    primary_metric: "book_rate"
+    minimum_sent_per_variant: 1500
+    confidence_target: 0.95
+    arms: []
+
+# -----------------------------------------------------------------------------
+# Video / scroll / composite (unchanged)
+# -----------------------------------------------------------------------------
+video:
+  duration_seconds: 55
+  resolution:
+    width: 1280
+    height: 720
+  fps: 30
+  format: mp4
+  codec: libx264
+  audio_codec: aac
+
+scroll_capture:
+  scroll_speed_pixels_per_second: 70
+  oscillate: true
+  viewport_width: 1280
+  viewport_height: 720
+  page_load_timeout_seconds: 15
+  wait_after_load_seconds: 2
+
+composite:
+  corner_image:
+    position: bottom-left
+    size_pixels: 180
+    margin_pixels: 24
+    circular_mask: true
+    border_color: "#FFFFFF"
+    border_width: 4
+    shadow: true
+  cta_overlay:
+    position: top-right
+    text: "Book A Call"
+    margin_pixels: 24
+    background_color: "#E63946"
+    text_color: "#FFFFFF"
+    width_pixels: 200
+    height_pixels: 56
+    pulse: true
+
+script:
+  dynamic_first_half_target_seconds: 25
+  fixed_second_half_target_seconds: 30
+  speaking_rate_words_per_minute: 165
+
+# Email word-count cap reflects 2026 best practice: top performers under 80 words
+email:
+  max_word_count: 130        # Variant 9 is the longest; most variants under 100
+  subject_max_chars: 50
+  preferred_subject_word_count: 6   # Per Gong + Sendspark 2026 data
+
+enrichment:
+  website:
+    max_pages_per_site: 3
+    max_text_chars_per_page: 3500   # reduced from 8000 — most motion signals in first 700 words
+  linkedin:
+    enabled: false          # disabled — website scrape alone is sufficient for hyper-personalization
+    enrich_all_leads: false
+    fields_needed:
+      - headline
+      - current_role
+      - about
+      - recent_post
+
+orchestrator:
+  max_concurrent_leads: 8
+  retry_attempts: 3
+  retry_backoff_seconds: 5
+  resume_on_crash: true
+  batch_size_threshold: 500
+
+cost_tracking:
+  enabled: true
+  daily_budget_usd: 50.00
+  pause_on_budget_exceeded: true
+
+model_routing:
+  analysis_model: "claude-haiku-4-5-20251001"
+  generation_model: "claude-sonnet-4-6"
+  use_prompt_caching: true
+  use_batch_api_above_threshold: true
+
+tts:
+  # FREE — Microsoft Edge Neural TTS (same Azure Neural quality, no API key needed)
+  # Best voices for outreach:
+  #   en-US-ChristopherNeural  — confident, warm, clear (recommended)
+  #   en-US-AndrewNeural       — natural, conversational
+  #   en-US-GuyNeural          — authoritative
+  #   en-US-EricNeural         — calm, professional
+  primary_provider: "edge_tts"
+  primary_voice: "en-US-ChristopherNeural"
+  # Optional paid fallback (only used if voice_override="elevenlabs")
+  fallback_provider: "elevenlabs"
+  fallback_voice_id: "ErXwobaYiN019PkySvjV"
+
+# -----------------------------------------------------------------------------
+# SMS Outbound — Twilio, 3-number rotation, 6-variant A/B test
+# Completely separate from the email pipeline — different ledger, different UI
+# -----------------------------------------------------------------------------
+sms:
+  enabled: true
+  provider: twilio
+  db_path: "data/sms_ledger.sqlite"
+  max_daily_per_number: 100        # Carrier limits — keep under 100/day per number
+  throttle_ms_between_sends: 500   # Half-second between sends to avoid rate limits
+  opt_out_footer: "\nReply STOP to opt out."
+  opt_out_keywords: ["STOP", "UNSUBSCRIBE", "QUIT", "CANCEL", "END"]
+
+  variants:
+    active_test: "sms_framework_v1"
+
+    sms_framework_v1:
+      description: "6 SMS variants across DirectValue/SocialProof/QuestionHook/PAS/ComplimentCTA/Scarcity"
+      primary_metric: "reply_rate"
+      minimum_sent_per_variant: 500
+      confidence_target: 0.95
+      started_at: "2026-05-23"
+
+      arms:
+        - id: "SMS-V1"
+          weight: 0.167
+          name: "Direct Value"
+          framework: "DirectValue"
+          description: "One-line compliment + specific promise + video + CTA"
+
+        - id: "SMS-V2"
+          weight: 0.167
+          name: "Social Proof"
+          framework: "SocialProof"
+          description: "Proof stat from similar company + connection + video"
+
+        - id: "SMS-V3"
+          weight: 0.167
+          name: "Question Hook"
+          framework: "QuestionHook"
+          description: "Provocative capacity question + video + CTA"
+
+        - id: "SMS-V4"
+          weight: 0.166
+          name: "Problem First (PAS)"
+          framework: "PAS"
+          description: "Hook observation → agitation → solution teaser"
+
+        - id: "SMS-V5"
+          weight: 0.167
+          name: "Compliment + CTA"
+          framework: "ComplimentCTA"
+          description: "Specific compliment referencing hook + promise + video"
+
+        - id: "SMS-V6"
+          weight: 0.166
+          name: "Scarcity / Inverted Demand"
+          framework: "Scarcity"
+          description: "Heads-up framing — seen as a strong fit, reaching out before others"
+
+volume_ramp:
+  month_1: 5000
+  month_2: 12000
+  month_3_plus: 30000
+
+# -----------------------------------------------------------------------------
+# Send timing — based on 2026 cold email research
+# -----------------------------------------------------------------------------
+send_timing:
+  best_days: ["tuesday", "wednesday", "thursday"]   # Per Gong + Instantly 2026
+  best_window_local_time: "08:00-10:00"             # Recipient's local TZ
+  avoid_days: ["friday afternoon", "monday morning"]

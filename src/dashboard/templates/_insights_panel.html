@@ -1,0 +1,11 @@
+<div class="insights">
+  {% for p in paragraphs %}
+    <p>{{ p|safe }}</p>
+  {% endfor %}
+  <button
+    hx-get="/partial/insights"
+    hx-target="#insights-panel"
+    hx-swap="innerHTML"
+    style="margin-top: 1rem;"
+  >Regenerate</button>
+</div>

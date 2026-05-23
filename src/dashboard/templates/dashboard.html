@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cold Email Analytics — {{ test_name }}</title>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="muted">Active test — Day {{ test.get('day_of_test', '?') }}</p>
+        <h1>Cold email analytics</h1>
+      </div>
+      <div class="header-badges">
+        {% if test.get('locked', True) %}
+          <span class="badge badge-info">Locked</span>
+        {% endif %}
+        <span class="badge">{{ variants|length }} variants</span>
+      </div>
+    </header>
+
+    <section
+      hx-get="/partial/metrics"
+      hx-trigger="every 60s"
+      hx-swap="outerHTML"
+    >
+      {% include "_metrics_row.html" %}
+    </section>
+
+    <section>
+      <h2>Framework leaderboard</h2>
+      <p class="muted">Roll-up across all variants in each framework. The framework matters more than the variant.</p>
+      <div class="chart-wrap">
+        <canvas id="frameworkChart" role="img"
+                aria-label="Framework reply rates ranked highest to lowest"></canvas>
+      </div>
+    </section>
+
+    <section>
+      <h2>Framework × motion heatmap</h2>
+      <p class="muted">Reply rate (%) by framework × sales motion. The killer chart — same framework can win one motion and lose another.</p>
+      <div class="heatmap">
+        <div class="heatmap-row heatmap-header">
+          <div></div>
+          {% for m in motion_keys %}
+            <div class="heatmap-col-label">{{ m.replace('_', ' ') }}</div>
+          {% endfor %}
+        </div>
+        {% for row in heatmap_grid %}
+          <div class="heatmap-row">
+            <div class="heatmap-row-label">{{ row.framework }}</div>
+            {% for cell in row.cells %}
+              {% if cell.has_data %}
+                <div class="heatmap-cell"
+                     style="background: {{ heatmap_color(cell.reply_rate) }};">
+                  <span class="cell-rate">{{ "%.1f"|format(cell.reply_rate) }}%</span>
+                  <span class="cell-sent">({{ "{:,}".format(cell.sent) }})</span>
+                </div>
+              {% else %}
+                <div class="heatmap-cell heatmap-empty">—</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section>
+      <h2>Variant detail</h2>
+      <p class="muted">Sorted by {{ primary_metric.replace('_', ' ') }}. Leader highlighted, statistically beaten variants dimmed.</p>
+      <div class="variant-list">
+        {% for v in variants %}
+          {% set is_leader = leader_variant and v.variant_id == leader_variant.variant_id %}
+          {% set is_loser = v.variant_id in sig.get('significant_winners', []) %}
+          <article class="variant-card {{ 'variant-leader' if is_leader }} {{ 'variant-loser' if is_loser }}">
+            <div class="variant-head">
+              <div class="variant-id-row">
+                <strong>{{ v.variant_id }}</strong>
+                <span class="badge badge-framework">{{ v.framework }}</span>
+                {% if is_leader %}<span class="badge badge-info">leading</span>{% endif %}
+              </div>
+              <span class="muted">{{ "{:,}".format(v.sent) }} sent</span>
+            </div>
+            <div class="variant-metrics">
+              <div><span class="muted">Open</span> <strong>{{ "%.0f"|format(v.open_rate * 100) }}%</strong></div>
+              <div><span class="muted">Reply</span> <strong>{{ "%.2f"|format(v.reply_rate * 100) }}%</strong></div>
+              <div><span class="muted">Click</span> <strong>{{ "%.1f"|format(v.click_rate * 100) }}%</strong></div>
+              <div><span class="muted">Booked</span> <strong>{{ v.booked }}</strong></div>
+              <div><span class="muted">Book%</span> <strong>{{ "%.2f"|format(v.book_rate * 100) }}</strong></div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section>
+      <h2>AI insights</h2>
+      <p class="muted">Reads framework + variant + motion + vertical slices and surfaces patterns. Costs ~$0.05 per generation. Run weekly.</p>
+      <div id="insights-panel">
+        <button
+          hx-get="/partial/insights"
+          hx-target="#insights-panel"
+          hx-swap="innerHTML"
+          hx-indicator="#insights-loading"
+        >Generate AI insights</button>
+        <span id="insights-loading" class="htmx-indicator muted">  generating…</span>
+      </div>
+    </section>
+
+    {% if vertical_cells %}
+    <section>
+      <h2>Variant × vertical (top 20 cells, 50+ sent)</h2>
+      <table>
+        <thead>
+          <tr><th>Variant</th><th>Vertical</th><th>Sent</th><th>Reply%</th><th>Book%</th></tr>
+        </thead>
+        <tbody>
+          {% for c in vertical_cells %}
+          <tr>
+            <td>{{ c.row_key }}</td>
+            <td>{{ c.col_key }}</td>
+            <td>{{ "{:,}".format(c.sent) }}</td>
+            <td>{{ "%.2f"|format(c.reply_rate * 100) }}</td>
+            <td>{{ "%.2f"|format(c.book_rate * 100) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    <footer>
+      {% if sig.ready %}
+        {% if sig.significant_winners %}
+          <p class="status-good">Significance reached — {{ sig.leader_variant_id }} ({{ sig.leader_framework }}) beats {{ sig.significant_winners|length }} variants at 95% conf.</p>
+        {% else %}
+          <p class="status-warn">Min sample reached, no significant winner yet. Keep running.</p>
+        {% endif %}
+      {% else %}
+        <p class="status-warn">Need {{ "{:,}".format(sig.min_required) }}/variant minimum. Currently at {{ "{:,}".format(sig.min_sent) }}. Refreshes every 60s ↻</p>
+      {% endif %}
+    </footer>
+  </main>
+
+  <script>
+    const labels = [{% for f in frameworks %}"{{ f.framework }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const replyRates = [{% for f in frameworks %}{{ "%.2f"|format(f.reply_rate * 100) }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+    if (labels.length > 0) {
+      new Chart(document.getElementById('frameworkChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Reply rate %',
+            data: replyRates,
+            backgroundColor: replyRates.map((v, i) => i === 0 ? '#1D9E75' : i < 3 ? '#5DCAA5' : '#9FE1CB'),
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,0.06)' } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

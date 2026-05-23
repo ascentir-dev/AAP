@@ -1,0 +1,51 @@
+# ── Secrets — NEVER commit ────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Python ────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Node / Frontend ───────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# ── Data ──────────────────────────────────────────────────────────
+data/input/*.csv
+data/output/
+data/*.sqlite
+*.sqlite
+ledger.sqlite
+
+# ── macOS ─────────────────────────────────────────────────────────
+.DS_Store
+*.DS_Store
+
+# ── Editors ───────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Test artifacts ────────────────────────────────────────────────
+playwright-report/
+test-results/
