@@ -1,0 +1,440 @@
+# =============================================================================
+# Video Script Variants — 4 proven structures × 5 markets
+# Each market has V1-V4 with the same structural styles but market-native
+# vocabulary and the updated offer anchor:
+#   "120 qualified [market-term] in 120 days, guaranteed."
+#
+# Tone: CONFIDENT above all. Excited, warm, genuine. NOT robotic.
+#
+# ElevenLabs eleven_v3 delivery cues:
+#   [excited]           → upbeat energetic delivery
+#   [warm]              → friendly, genuine tone
+#   [chuckles]          → natural human laugh moment
+#   [pause]             → deliberate beat
+#   [thoughtful]        → slower, considered delivery
+#   [genuine]           → sincere, direct
+#   <break time="0.3s"> → micro-pause
+#   <break time="0.6s"> → longer pause
+#   CAPS                → stressed word — conviction
+#
+# Placeholders: {first_name}  {company}
+# Target length: 110–180 words (~45–75 seconds spoken)
+# =============================================================================
+
+variants:
+
+  # ---------------------------------------------------------------------------
+  # COACHES — High-ticket coaches & professional training firms
+  # ---------------------------------------------------------------------------
+  coach:
+
+    V1:
+      name: "Two Reasons (Warm Personal)"
+      hook_style: "two_reasons"
+      description: >
+        Opens with 'two reasons for this video' — disarms with personal touch
+        first, then pivots to the opportunity. Warm, confident, high trust.
+      script: |
+        Hey {first_name} — [warm] okay so I was just going through {company}'s site and I had to record this. <break time="0.3s" />
+
+        Two reasons I'm sending this over. <break time="0.3s" /> First — just to prove I'm a real human being. Your website's right here on screen. Not an automated blast. [chuckles] One person to another.
+
+        But the SECOND reason is the one I'm actually excited about. <break time="0.6s" />
+
+        [excited] We've built a done-for-you outbound acquisition system that books coaches and training firms 120 QUALIFIED discovery calls in 120 days — guaranteed. And I want to give {company} that exact same system. Pay on results. <break time="0.3s" />
+
+        Which means a full calendar of ideal clients every single month. [genuine] If we don't deliver? You don't pay. Simple.
+
+        Nine times out of ten, people respond to these — because honestly... the offer's kind of hard to say no to. <break time="0.3s" />
+
+        Worth a quick reply?
+
+    V2:
+      name: "Not a Robot (Systematic)"
+      hook_style: "not_a_robot"
+      description: >
+        Thanks them for clicking, breaks the offer down term by term with
+        conviction. Methodical build to a confident close. Great for
+        analytical coaches who want the details.
+      script: |
+        Hey — [warm] it's Frank. Thank you so much for clicking — I genuinely appreciate it.
+
+        Look, I made this video to add real effort to my outreach. [pause] But honestly? I've also got something for {first_name} that I'm really excited about. <break time="0.6s" />
+
+        Short version — we can get {company} 120 QUALIFIED discovery calls in the next 120 days. Pay on results. <break time="0.3s" />
+
+        And I mean qualified — someone who actually has the budget AND the genuine desire to invest in your program. Not tyre-kickers. REAL prospective clients. <break time="0.3s" /> [genuine] If we don't hit the number, money does NOT leave your pocket.
+
+        Once it's built, it runs. You don't lift a finger. <break time="0.3s" /> [thoughtful] We've scaled coaching businesses using these exact outbound systems — and I want to build the same machine for {company}.
+
+        [excited] Most coaches who get a video like this respond — because the offer is genuinely strong.
+
+        Worth a quick chat?
+
+    V3:
+      name: "Two Guesses (Problem-First)"
+      hook_style: "two_guesses"
+      description: >
+        Leads with empathy — two guesses about the coach's situation.
+        Agitates the enrollment inconsistency problem before the solution reveal.
+        Best for coaches with feast-or-famine pipelines.
+      script: |
+        Hey {first_name} — [warm] I want to make two guesses about where {company}'s at right now. And I think at least one of them's going to land. <break time="0.3s" />
+
+        First guess: you're actually really good at what you do. But the enrollment pipeline — [thoughtful] it's not as consistent as it needs to be. Some months you're fully booked. Some months you're launching again just to keep it moving.
+
+        Second guess: you've tried to fix this before. Ads, funnels, hiring — and it just... didn't convert the way it was supposed to. <break time="0.6s" />
+
+        [genuine] If either of those hits? You are EXACTLY who we built this for. <break time="0.3s" />
+
+        [excited] Here's what we do. We build a done-for-you AI outbound system that books {company} 120 qualified discovery calls in 120 days — every month, consistently, without you launching or posting. Pay on results, so there's ZERO risk.
+
+        Worth a quick reply?
+
+    V4:
+      name: "Boy Oh Boy (High Energy)"
+      hook_style: "high_energy_bold"
+      description: >
+        High-energy opener. Bold promise fast. Humour to disarm.
+        Confident, memorable, punchy. Works brilliantly with founder-coaches
+        who are growth-minded and action-oriented.
+      script: |
+        [excited] Boy oh boy — have I got something for you. Thank you for clicking on this.
+
+        My name's Frank — and I've pulled up {company}'s website right here, just to prove I'm a real human and not a robot. [chuckles] I know, I know — you get a LOT of outreach. But hear me out. <break time="0.3s" />
+
+        Short version: I can get {company} 120 qualified discovery calls in the next 120 days. <break time="0.3s" /> Here's the kicker — pay on results.
+
+        We figured out how to systematise outbound for coaches so well that we actually GUARANTEE the results. We do not profit unless you profit. [genuine] Bold statement — I know. But we've done it across coaching niches from business to health to professional training.
+
+        Leave your card at home. Honestly — put it in the freezer if you want. [chuckles] All I need is 20 minutes. Click the red button. Let's see if it's a fit.
+
+  # ---------------------------------------------------------------------------
+  # AGENCIES — Marketing & advertising agencies
+  # ---------------------------------------------------------------------------
+  agency:
+
+    V1:
+      name: "Two Reasons (Warm Personal)"
+      hook_style: "two_reasons"
+      description: >
+        Opens with 'two reasons for this video' — disarms with personal touch
+        first, then pivots to new-business opportunity. Warm, confident.
+      script: |
+        Hey {first_name} — [warm] okay so I was just going through {company}'s site and I had to record this. <break time="0.3s" />
+
+        Two reasons I'm sending this over. <break time="0.3s" /> First — just to prove I'm a real human being. Your website's right here on screen. Not an automated blast. [chuckles] One person to another.
+
+        But the SECOND reason is the one I'm actually excited about. <break time="0.6s" />
+
+        [excited] We've built a done-for-you outbound system that books agencies 120 QUALIFIED new-business calls in 120 days — guaranteed. And I want to give {company} that exact same system. Pay on results. <break time="0.3s" />
+
+        New retainer conversations, every month, without the founder doing all the new-biz work. [genuine] If we don't deliver? You don't pay.
+
+        Nine times out of ten, agency owners respond to these — because new biz is the one thing they never have a systematic answer for. <break time="0.3s" />
+
+        Worth a quick reply?
+
+    V2:
+      name: "Not a Robot (Systematic)"
+      hook_style: "not_a_robot"
+      description: >
+        Methodical, numbers-driven build to a confident close. Great for
+        analytical agency owners who want specifics before they engage.
+      script: |
+        Hey — [warm] it's Frank. Thank you so much for clicking — I genuinely appreciate it.
+
+        Look, I made this video to add real effort to my outreach. [pause] But honestly? I've also got something for {first_name} that I'm really excited about. <break time="0.6s" />
+
+        Short version — we can get {company} 120 QUALIFIED new-business calls in the next 120 days. Pay on results. <break time="0.3s" />
+
+        Qualified — someone who actually has the budget, the need, and the authority to sign a retainer with {company}. Not tyre-kickers. REAL potential clients. <break time="0.3s" /> [genuine] If we don't hit the number, money does NOT leave your pocket.
+
+        Once it's built, it runs. You don't lift a finger. <break time="0.3s" /> [thoughtful] We've scaled agency new-biz pipelines using these exact systems — and I want to build the same machine for {company}.
+
+        [excited] Most agency owners who get a video like this respond — because new biz is the one problem nobody's ever handed them a real system for.
+
+        Worth a quick chat?
+
+    V3:
+      name: "Two Guesses (Problem-First)"
+      hook_style: "two_guesses"
+      description: >
+        Leads with empathy about the agency's new-biz pain. Agitates the
+        founder-dependent, feast-or-famine problem before the solution.
+      script: |
+        Hey {first_name} — [warm] I want to make two guesses about where {company}'s at right now. And I think at least one of them's going to land. <break time="0.3s" />
+
+        First guess: you do incredible work for your clients. But new business — [thoughtful] it's still mostly coming from referrals and your personal network. No systematic pipeline. Good months and quiet months.
+
+        Second guess: you've thought about fixing this before. Maybe tried an agency, hired a BDR — and it just didn't produce the kind of conversations that actually close. <break time="0.6s" />
+
+        [genuine] If either of those hits? You are EXACTLY who we built this for. <break time="0.3s" />
+
+        [excited] We build a done-for-you AI outbound system that books {company} 120 qualified new-business calls in 120 days — predictable, every month, without you being the entire new-biz function. Pay on results, zero risk.
+
+        Worth a quick reply?
+
+    V4:
+      name: "Boy Oh Boy (High Energy)"
+      hook_style: "high_energy_bold"
+      description: >
+        High-energy, bold promise fast. Works well with ambitious agency
+        founders who are growth-stage and competitive.
+      script: |
+        [excited] Boy oh boy — have I got something for you. Thank you for clicking on this.
+
+        My name's Frank — and I've pulled up {company}'s website right here, just to prove I'm a real human and not a robot. [chuckles] I know, I know — you get a LOT of outreach. But hear me out. <break time="0.3s" />
+
+        Short version: I can get {company} 120 qualified new-business calls in the next 120 days. <break time="0.3s" /> Here's the kicker — pay on results.
+
+        We figured out how to systematise agency new-biz development so well that we GUARANTEE the results. We do not profit unless you profit. [genuine] Bold statement — I know. But we've done it across digital, paid media, creative, and specialist agencies.
+
+        Leave your card at home. Put it in the freezer if you want. [chuckles] All I need is 20 minutes. Click the red button. Let's see if it's a fit.
+
+  # ---------------------------------------------------------------------------
+  # CONSULTANTS — Strategy / ops / fractional advisory firms
+  # ---------------------------------------------------------------------------
+  consultant:
+
+    V1:
+      name: "Two Reasons (Warm Personal)"
+      hook_style: "two_reasons"
+      description: >
+        Opens with 'two reasons for this video' — warm trust-build first,
+        then pivots to the engagement pipeline opportunity.
+      script: |
+        Hey {first_name} — [warm] okay so I was just going through {company}'s site and I had to record this. <break time="0.3s" />
+
+        Two reasons I'm sending this over. <break time="0.3s" /> First — just to prove I'm a real human being. Your website's right here on screen. Not an automated blast. [chuckles] One person to another.
+
+        But the SECOND reason is the one I'm actually excited about. <break time="0.6s" />
+
+        [excited] We've built a done-for-you outbound system that books consulting and advisory firms 120 QUALIFIED intro calls in 120 days — guaranteed. And I want to give {company} that exact same system. Pay on results. <break time="0.3s" />
+
+        A full pipeline of qualified conversations, without principals doing BD or relying on referrals. [genuine] If we don't deliver? You don't pay.
+
+        Worth a quick reply?
+
+    V2:
+      name: "Not a Robot (Systematic)"
+      hook_style: "not_a_robot"
+      description: >
+        Methodical, deliberate build. Great for analytical principals and
+        managing partners who want specifics first.
+      script: |
+        Hey — [warm] it's Frank. Thank you so much for clicking — I genuinely appreciate it.
+
+        Look, I made this video to add real effort to my outreach. [pause] But honestly? I've got something for {first_name} that I'm genuinely excited about. <break time="0.6s" />
+
+        Short version — we can get {company} 120 QUALIFIED intro calls in the next 120 days. Pay on results. <break time="0.3s" />
+
+        Qualified — decision-makers who have the budget, the authority, and the genuine need for the kind of advisory {company} provides. Not tyre-kickers. REAL engagement opportunities. <break time="0.3s" /> [genuine] If we don't hit the number, money does NOT leave your pocket.
+
+        [thoughtful] We've scaled consulting firm pipelines using these exact outbound systems — and I want to build the same machine for {company}.
+
+        [excited] Most consulting firm founders respond to these — because a systematic BD engine is the one thing the model never builds for itself.
+
+        Worth a quick chat?
+
+    V3:
+      name: "Two Guesses (Problem-First)"
+      hook_style: "two_guesses"
+      description: >
+        Leads with empathy about the feast-or-famine consulting pipeline.
+        Agitates the referral-dependence pain before the solution reveal.
+      script: |
+        Hey {first_name} — [warm] I want to make two guesses about where {company}'s at right now. At least one of them's going to land. <break time="0.3s" />
+
+        First guess: the work you do is genuinely exceptional. But the pipeline — [thoughtful] it's not as consistent as it needs to be. Referrals come and go. Some quarters are great, some quarters you're back to prospecting.
+
+        Second guess: you've tried to solve this before. Business development hires, outreach tools — and the quality of conversations was never quite right for the kind of engagements {company} is built for. <break time="0.6s" />
+
+        [genuine] If either of those hits? You are EXACTLY who we built this for. <break time="0.3s" />
+
+        [excited] We build a done-for-you AI outbound system that books {company} 120 qualified intro calls in 120 days — high-quality prospects, every month, without principals spending time on BD. Pay on results.
+
+        Worth a quick reply?
+
+    V4:
+      name: "Boy Oh Boy (High Energy)"
+      hook_style: "high_energy_bold"
+      description: >
+        Bold promise fast. Works well with ambitious firm founders who
+        think commercially and want results, not process.
+      script: |
+        [excited] Boy oh boy — have I got something for you. Thank you for clicking.
+
+        My name's Frank — and I've pulled up {company}'s website right here, just to prove I'm a real human and not a robot. [chuckles] I know, I know. But hear me out. <break time="0.3s" />
+
+        Short version: I can get {company} 120 qualified intro calls in the next 120 days. <break time="0.3s" /> Here's the kicker — pay on results.
+
+        We figured out how to systematise consulting firm BD so well that we GUARANTEE the results. We do not profit unless you profit. [genuine] Bold — I know. But we've done it across strategy, operations, fractional executive, and specialist advisory practices.
+
+        Leave your card at home. [chuckles] All I need is 20 minutes. Click the red button. Let's see if it's a fit.
+
+  # ---------------------------------------------------------------------------
+  # FINANCIAL_ADVISOR — Financial advisory / fractional CFO / wealth firms
+  # ---------------------------------------------------------------------------
+  financial_advisor:
+
+    V1:
+      name: "Two Reasons (Warm Personal)"
+      hook_style: "two_reasons"
+      description: >
+        Warm, trust-first opener — critical for financial services where
+        credibility and personal trust drive decisions.
+      script: |
+        Hey {first_name} — [warm] okay so I was just going through {company}'s site and I had to record this. <break time="0.3s" />
+
+        Two reasons I'm sending this over. <break time="0.3s" /> First — just to prove I'm a real human being. Your website's right here on screen. Not an automated blast. [chuckles] One person to another.
+
+        But the SECOND reason is the one I'm actually excited about. <break time="0.6s" />
+
+        [excited] We've built a done-for-you outbound system that books financial advisory and CFO firms 120 QUALIFIED prospect meetings in 120 days — guaranteed. And I want to give {company} that exact same system. Pay on results. <break time="0.3s" />
+
+        A full calendar of qualified prospects, without compliance-risky cold outreach or depending entirely on referrals. [genuine] If we don't deliver? You don't pay.
+
+        Nine times out of ten, advisory firm owners respond to these — because referral-only growth is the ceiling nobody wants to admit they've hit.
+
+        Worth a quick reply?
+
+    V2:
+      name: "Not a Robot (Systematic)"
+      hook_style: "not_a_robot"
+      description: >
+        Methodical and specific. Great for analytical financial professionals
+        who appreciate precision and want the details upfront.
+      script: |
+        Hey — [warm] it's Frank. Thank you so much for clicking — I genuinely appreciate it.
+
+        Look, I made this video to add real effort to my outreach. [pause] But honestly? I've got something for {first_name} I'm genuinely excited about. <break time="0.6s" />
+
+        Short version — we can get {company} 120 QUALIFIED prospect meetings in the next 120 days. Pay on results. <break time="0.3s" />
+
+        Qualified — prospects who have the assets, the need, and the decision-making authority to engage with {company}. Not tyre-kickers. REAL potential clients. <break time="0.3s" /> [genuine] If we don't hit the number, money does NOT leave your pocket.
+
+        [thoughtful] We've scaled advisory firm pipelines using these exact outbound systems — done-for-you, no compliance-risky tactics, no cold calling. I want to build the same machine for {company}.
+
+        [excited] Most advisory firm founders respond to these — because the offer genuinely solves the one problem referral networks can't.
+
+        Worth a quick chat?
+
+    V3:
+      name: "Two Guesses (Problem-First)"
+      hook_style: "two_guesses"
+      description: >
+        Leads with empathy about referral-dependent growth and the AUM
+        ceiling. Agitates the problem before the solution reveal.
+      script: |
+        Hey {first_name} — [warm] I want to make two guesses about where {company}'s at right now. At least one of them's going to land. <break time="0.3s" />
+
+        First guess: you're really good at what you do. But growth — [thoughtful] it's still primarily coming from referrals. And there's a ceiling to how fast you can grow when your pipeline depends on who you know.
+
+        Second guess: you've thought about fixing this before. But most outreach approaches either feel too aggressive for your market or bump into compliance concerns. <break time="0.6s" />
+
+        [genuine] If either of those hits? You are EXACTLY who we built this for. <break time="0.3s" />
+
+        [excited] We build a done-for-you AI outbound system that books {company} 120 qualified prospect meetings in 120 days — warm, professional, compliance-appropriate outreach, done entirely for you. Pay on results, zero risk.
+
+        Worth a quick reply?
+
+    V4:
+      name: "Boy Oh Boy (High Energy)"
+      hook_style: "high_energy_bold"
+      description: >
+        Bold promise delivered with energy. Works with growth-minded financial
+        firm founders who are commercially driven and action-oriented.
+      script: |
+        [excited] Boy oh boy — have I got something for you. Thank you for clicking.
+
+        My name's Frank — and I've pulled up {company}'s website right here, just to prove I'm a real human and not a robot. [chuckles] I know, I know. But hear me out. <break time="0.3s" />
+
+        Short version: I can get {company} 120 qualified prospect meetings in the next 120 days. <break time="0.3s" /> Here's the kicker — pay on results.
+
+        We figured out how to systematise advisory firm business development so well that we GUARANTEE the results. We do not profit unless you profit. [genuine] Bold — I know. But we've done it across financial advisory, wealth management, fractional CFO, and planning practices of all sizes.
+
+        Leave your card at home. [chuckles] All I need is 20 minutes. Click the red button. Let's see if it's a fit.
+
+  # ---------------------------------------------------------------------------
+  # MSP — Managed IT services providers & B2B cybersecurity firms
+  # ---------------------------------------------------------------------------
+  msp:
+
+    V1:
+      name: "Two Reasons (Warm Personal)"
+      hook_style: "two_reasons"
+      description: >
+        Warm, personal opener — builds trust fast in a market where most
+        outreach feels generic. Pivots to the MRR growth opportunity.
+      script: |
+        Hey {first_name} — [warm] okay so I was just going through {company}'s site and I had to record this. <break time="0.3s" />
+
+        Two reasons I'm sending this over. <break time="0.3s" /> First — just to prove I'm a real human being. Your website's right here on screen. Not an automated blast. [chuckles] One person to another.
+
+        But the SECOND reason is the one I'm actually excited about. <break time="0.6s" />
+
+        [excited] We've built a done-for-you outbound system that books MSPs and IT services firms 120 QUALIFIED prospect calls in 120 days — guaranteed. And I want to give {company} that exact same system. Pay on results. <break time="0.3s" />
+
+        New contract conversations every month, without relying on vendor referrals or cold calling. [genuine] If we don't deliver? You don't pay.
+
+        Nine times out of ten, MSP owners respond to these — because new MRR is the metric everyone wants and nobody has a systematic answer for.
+
+        Worth a quick reply?
+
+    V2:
+      name: "Not a Robot (Systematic)"
+      hook_style: "not_a_robot"
+      description: >
+        Methodical, specific build. Great for technical MSP owners who
+        appreciate precision and want specifics before they engage.
+      script: |
+        Hey — [warm] it's Frank. Thank you so much for clicking — I genuinely appreciate it.
+
+        Look, I made this video to add real effort to my outreach. [pause] But honestly? I've got something for {first_name} I'm genuinely excited about. <break time="0.6s" />
+
+        Short version — we can get {company} 120 QUALIFIED prospect calls in the next 120 days. Pay on results. <break time="0.3s" />
+
+        Qualified — SMB and mid-market businesses that have the budget, the IT complexity, and the genuine need for the managed services {company} provides. Not tyre-kickers. REAL contract opportunities. <break time="0.3s" /> [genuine] If we don't hit the number, money does NOT leave your pocket.
+
+        [thoughtful] We've scaled MSP pipelines using these exact outbound systems — done-for-you, no cold calling required. I want to build the same machine for {company}.
+
+        [excited] Most MSP owners who get a video like this respond — because it finally answers the new MRR growth question.
+
+        Worth a quick chat?
+
+    V3:
+      name: "Two Guesses (Problem-First)"
+      hook_style: "two_guesses"
+      description: >
+        Leads with empathy about referral-dependent MRR growth. Agitates
+        the new-contract acquisition problem before the solution.
+      script: |
+        Hey {first_name} — [warm] I want to make two guesses about where {company}'s at right now. At least one of them's going to land. <break time="0.3s" />
+
+        First guess: you deliver really strong managed services. But new MRR growth — [thoughtful] it's still coming mostly from referrals and existing client upsells. No systematic way to go get new contracts.
+
+        Second guess: you've tried outbound before. Cold calls, LinkedIn, a BDR hire — and the conversion wasn't there, or it wasn't scalable. <break time="0.6s" />
+
+        [genuine] If either of those hits? You are EXACTLY who we built this for. <break time="0.3s" />
+
+        [excited] We build a done-for-you AI outbound system that books {company} 120 qualified prospect calls in 120 days — new contract conversations, every month, without cold calling or hiring. Pay on results, zero risk.
+
+        Worth a quick reply?
+
+    V4:
+      name: "Boy Oh Boy (High Energy)"
+      hook_style: "high_energy_bold"
+      description: >
+        Bold promise fast. Works with growth-minded MSP founders who
+        think commercially and want new MRR without the complexity.
+      script: |
+        [excited] Boy oh boy — have I got something for you. Thank you for clicking.
+
+        My name's Frank — and I've pulled up {company}'s website right here, just to prove I'm a real human and not a robot. [chuckles] I know, I know — you get a LOT of outreach in this space. But hear me out. <break time="0.3s" />
+
+        Short version: I can get {company} 120 qualified prospect calls in the next 120 days. <break time="0.3s" /> Here's the kicker — pay on results.
+
+        We figured out how to systematise MSP new-contract acquisition so well that we GUARANTEE the results. We do not profit unless you profit. [genuine] Bold — I know. But we've done it across managed services, cybersecurity, and B2B IT firms of all sizes.
+
+        Leave your card at home. [chuckles] All I need is 20 minutes. Click the red button. Let's see if it's a fit.

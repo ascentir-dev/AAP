@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS leads (
     test_id TEXT,
     framework TEXT,
     recommended_angle TEXT,
+    email_type TEXT DEFAULT 'video',
+    subject_line TEXT DEFAULT '',
     status TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP,
@@ -60,8 +62,23 @@ class Ledger:
         self._path = path
         self._conn = sqlite3.connect(path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        # WAL mode: concurrent readers + writers don't block each other.
+        # NORMAL sync: safe on power-loss (journal survives fsync), ~3× faster writes.
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA synchronous=NORMAL")
         self._conn.executescript(_SCHEMA)
-        self._conn.commit()
+        # Migration: add email_type to existing databases that predate this column.
+        try:
+            self._conn.execute("ALTER TABLE leads ADD COLUMN email_type TEXT DEFAULT 'video'")
+            self._conn.commit()
+        except Exception:
+            pass
+        # Migration: add subject_line for per-lead subject tracking + analytics.
+        try:
+            self._conn.execute("ALTER TABLE leads ADD COLUMN subject_line TEXT DEFAULT ''")
+            self._conn.commit()
+        except Exception:
+            pass
 
     def _execute(self, sql: str, params: tuple = ()) -> sqlite3.Cursor:
         return self._conn.execute(sql, params)
@@ -141,7 +158,7 @@ class Ledger:
         allowed = {
             "email", "first_name", "last_name", "company", "website", "role",
             "vertical", "motion", "intent_confidence", "variant_id", "test_id",
-            "framework", "recommended_angle", "status",
+            "framework", "recommended_angle", "email_type", "subject_line", "status",
         }
         valid = {k: v for k, v in fields.items() if k in allowed}
         # Ensure email is always present (required NOT NULL column)

@@ -4,6 +4,8 @@ import type {
   LeadDetail,
   PipelineStatus,
   UploadResponse,
+  PreviewResponse,
+  ReadinessResponse,
 } from "./types";
 
 const BASE = "/api";
@@ -71,10 +73,19 @@ export async function uploadCsv(file: File): Promise<UploadResponse> {
   return r.json() as Promise<UploadResponse>;
 }
 
+export function previewCsv(csv_path: string): Promise<PreviewResponse> {
+  return post<PreviewResponse>("/pipeline/preview", { csv_path });
+}
+
+export function fetchReadiness(): Promise<ReadinessResponse> {
+  return get<ReadinessResponse>("/pipeline/readiness");
+}
+
 export function startPipeline(opts: {
-  csv_path: string;
-  dry_run: boolean;
+  csv_path:    string;
+  dry_run:     boolean;
   single_lead?: number;
+  batch_size?:  number;
 }): Promise<{ started: boolean }> {
   return post("/pipeline/run", opts);
 }

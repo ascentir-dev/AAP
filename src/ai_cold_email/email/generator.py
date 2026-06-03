@@ -66,23 +66,53 @@ def _load_static_instructions() -> str:
     return instructions_part
 
 
+def _normalise_body(body: str) -> str:
+    """Replace AI writing signals that cold-email validators flag.
+
+    em dash  (—)  →  space-hyphen-space  ( - )
+    en dash  (–)  →  regular hyphen      (-)
+
+    These substitutions preserve readability while removing the most common
+    AI-generated punctuation that spam/AI detectors flag.
+    """
+    return body.replace("—", " - ").replace("–", "-")
+
+
 def _parse_response(raw: str) -> dict[str, Any]:
     text = raw.strip()
     if text.startswith("```"):
+        # Fenced JSON at top of response — strip the opening and closing fence
         text = "\n".join(text.split("\n")[1:])
-        if text.endswith("```"):
+        if "```" in text:
             text = text[: text.rfind("```")]
+    else:
+        # Claude sometimes wraps output in prose ("Here is the output: ```json...```")
+        # Try to extract the JSON block from anywhere in the response
+        m = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+        if m:
+            text = m.group(1)
+        else:
+            # Last resort: grab the outermost { ... } object
+            m = re.search(r"\{.*\}", text, re.DOTALL)
+            if m:
+                text = m.group(0)
     try:
-        return json.loads(text)
+        result = json.loads(text.strip())
     except json.JSONDecodeError as e:
         raise ValueError(f"Claude returned invalid JSON: {e}\nRaw: {raw[:300]}") from e
+    # Normalise AI writing signals in the body at generation time
+    if "body" in result:
+        result["body"] = _normalise_body(result["body"])
+    return result
 
 
-def _validate(result: dict[str, Any]) -> None:
+def _validate(result: dict[str, Any], has_video: bool = True) -> None:
     missing = _REQUIRED_OUTPUT_KEYS - set(result.keys())
     if missing:
         raise ValueError(f"Email response missing keys: {missing}")
-    if "{VIDEO_LINK}" not in result.get("body", ""):
+    # Only require {VIDEO_LINK} for video emails.
+    # Email-only leads get a plain-text Reply VIDEO CTA — no placeholder needed.
+    if has_video and "{VIDEO_LINK}" not in result.get("body", ""):
         raise ValueError("Email body does not contain {VIDEO_LINK} placeholder")
 
 
@@ -128,6 +158,7 @@ async def generate_email(
     variant_arm: dict[str, Any],
     settings: Any,
     cost_tracker: Any,
+    has_video: bool = True,
 ) -> dict[str, Any]:
     """Generate a personalized cold email for a lead using a specific variant.
 
@@ -139,21 +170,26 @@ async def generate_email(
 
     static_instructions = _load_static_instructions()
 
+    # Resolve market — analysis output takes priority, fall back to lead field
+    market: str = merged.get("market") or lead.get("market") or ""
+
     # Small, per-lead block — only this part changes between calls
     lead_data_block = (
         "## Lead\n\n"
         f"**Name:** {lead.get('first_name', '')} {lead.get('last_name', '')}\n"
         f"**Role:** {lead.get('role', '')}\n"
         f"**Company:** {lead.get('company', '')}\n"
+        f"**Market:** {market}\n"
         f"**Vertical:** {merged.get('vertical', '')}\n"
         f"**Motion:** {merged.get('motion', '')}\n"
         f"**Personalized hook:** {merged.get('personalized_hook', '')}\n"
         f"**Recommended angle:** {merged.get('recommended_angle', '')}\n"
-        f"**Variant:** {variant_arm.get('id', '')}"
+        f"**Variant:** {variant_arm.get('id', '')}\n"
+        f"**Has video:** {'yes' if has_video else 'no'}"
     )
 
     # Inject Playbook template override if the user edited this variant
-    override = get_template_override_block("email", variant_arm.get("id", ""))
+    override = get_template_override_block("email", variant_arm.get("id", ""), market=market or None)
     if override:
         lead_data_block += override
 
@@ -166,13 +202,14 @@ async def generate_email(
 
     result = _parse_response(raw)
 
-    # If {VIDEO_LINK} is absent, retry once with an explicit reminder appended
-    if "{VIDEO_LINK}" not in result.get("body", ""):
+    # For video emails: retry if {VIDEO_LINK} placeholder is missing.
+    # For email-only emails: {VIDEO_LINK} is NOT required — Claude writes the CTA directly.
+    if has_video and "{VIDEO_LINK}" not in result.get("body", ""):
         log.warning("Email body missing {VIDEO_LINK} — retrying with reminder")
         reminder_block = (
             lead_data_block
-            + "\n\nCRITICAL REMINDER: Your response body MUST contain the literal "
-            "string {VIDEO_LINK} (with curly braces). Please regenerate."
+            + "\n\nCRITICAL REMINDER: This lead has has_video: yes. Your response body "
+            "MUST contain the literal string {VIDEO_LINK} (with curly braces). Please regenerate."
         )
         response = await _call_claude(
             client, settings.anthropic_generation_model,
@@ -180,7 +217,7 @@ async def generate_email(
         )
         result = _parse_response(response.content[0].text)
 
-    _validate(result)
+    _validate(result, has_video=has_video)
 
     # Log true cost accounting for prompt-cache savings
     usage = response.usage

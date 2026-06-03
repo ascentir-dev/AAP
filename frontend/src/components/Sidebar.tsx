@@ -8,6 +8,8 @@ type Page =
   | "costs"
   | "sms-dashboard"
   | "sms-conversations"
+  | "video-analytics"
+  | "testing-dashboard"
   | "playbook";
 
 interface NavItemProps {
@@ -96,6 +98,24 @@ export function Sidebar({ current, onChange }: SidebarProps) {
           label="Conversations"
           page="sms-conversations"
           active={current === "sms-conversations"}
+          onClick={onChange}
+        />
+
+        <div className="nav-section-header" style={{ marginTop: 12 }}>
+          Video
+        </div>
+        <NavItem
+          icon="video"
+          label="Script A/B"
+          page="video-analytics"
+          active={current === "video-analytics"}
+          onClick={onChange}
+        />
+        <NavItem
+          icon="lab-test"
+          label="Testing Framework"
+          page="testing-dashboard"
+          active={current === "testing-dashboard"}
           onClick={onChange}
         />
 

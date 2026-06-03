@@ -8,6 +8,10 @@ your_identity:
   your_first_name: "Frank"
   your_company_name: "Ascentir"
   your_email_signature: "Frank"
+  # ── CTA link — shown as a clickable button on the video landing page ──────
+  # This is the link prospects land on after watching the video.
+  # Update to your real Calendly link. Can be overridden per-lead.
+  calendly_url: "https://calendly.com/aigenture/get-a-i-demo"
 
 # -----------------------------------------------------------------------------
 # THE OFFER — fixed second half of every video, 3 motion variants
@@ -15,44 +19,127 @@ your_identity:
 offer:
   transition_target_phrase: "So let me be quick about this."
 
-  fixed_second_half_plg_self_serve: |
-    So let me be quick about this. We help self-serve companies plug AI into
-    the parts of their growth motion that are still being run on hunches and
-    spreadsheets — signup conversion, activation, expansion, retention.
-    Specifically: we lift signup-to-paid conversion 2-3x, cut time-to-activation
-    in half, and predict churn before it happens — all paid on outcomes.
+  # ── Market-specific offer scripts (used when market field is available) ──────
+  # These replace the motion-based scripts for the 5 target markets.
+  # The pipeline calls settings.fixed_second_half_for_market(market, motion).
 
-    Here's what I want to offer you: a 14-day command brief — board-ready,
-    fully refundable if it isn't the most useful document you've read this
-    year. No platform commitment, no contract.
+  fixed_second_half_coach: |
+    So let me be quick about this. We build and run a done-for-you AI outbound
+    system that books coaches and training firms 120 qualified discovery calls
+    in 120 days — without launching, without posting, and without managing
+    a sales team. AI-personalized emails, SMS, and custom video, running on
+    autopilot. Pay on results only.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
 
     There's a red button in the top-right corner of this video. Click it
-    and grab a 20-minute walkthrough this week. No high-pressure sales call.
-    Talk soon.
+    and grab a 20-minute walkthrough this week. No pressure. Talk soon.
+
+  fixed_second_half_agency: |
+    So let me be quick about this. We build and run a done-for-you AI outbound
+    system that books agencies 120 qualified new-business calls in 120 days —
+    a predictable stream of potential retainer clients every month, without
+    the founder being the entire new-biz function. AI-personalized emails,
+    SMS, and custom video, running on autopilot. Pay on results only.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+  fixed_second_half_consultant: |
+    So let me be quick about this. We build and run a done-for-you AI outbound
+    system that books consulting and advisory firms 120 qualified intro calls
+    in 120 days — a consistent engagement pipeline, without principals spending
+    their time on BD. AI-personalized emails, SMS, and custom video, running
+    on autopilot. Pay on results only.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+  fixed_second_half_financial_advisor: |
+    So let me be quick about this. We build and run a done-for-you AI outbound
+    system that books financial advisory and CFO firms 120 qualified prospect
+    meetings in 120 days — a steady stream of qualified prospects to grow your
+    AUM and client base, without cold calling or compliance-risky outreach.
+    Pay on results only.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+  fixed_second_half_msp: |
+    So let me be quick about this. We build and run a done-for-you AI outbound
+    system that books MSPs and IT services firms 120 qualified prospect calls
+    in 120 days — a consistent pipeline of new contract conversations, without
+    cold calling or relying on referrals and vendor partners. Pay on results only.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a slot this week. Leave your card at home. Talk soon.
+
+  # ── Motion-based fallback scripts (used when market is 'other' or unknown) ─
+
+  fixed_second_half_plg_self_serve: |
+    So let me be quick about this. We help businesses add a systematic
+    AI-powered outbound engine on top of their existing digital channels —
+    not instead of them. We book qualified client calls every month using
+    AI-personalized emails, SMS, and custom video. Done entirely for you.
+    Pay on results only — if we don't deliver, you don't pay.
+
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
+
+    There's a red button in the top-right corner of this video. Click it
+    and grab a 20-minute walkthrough this week. No pressure. Talk soon.
 
   fixed_second_half_hybrid_sales_assisted: |
-    So let me be quick about this. We help mid-market companies plug AI into
-    both motions — your self-serve funnel and your AE-led pipeline.
-    Specifically: we lift signup-to-paid conversion, surface high-intent free
-    users to your AEs, predict churn, and surface deal risk weeks before
-    your forecast does.
+    So let me be quick about this. We help businesses replace inconsistent,
+    referral-dependent growth with a predictable AI-powered acquisition
+    system. We book 30-50 qualified client calls per month using
+    AI-personalized emails, SMS, and custom video — all done for you,
+    paid on results only.
 
-    Here's what I want to offer you: a 14-day command brief — board-ready,
-    fully refundable if it isn't the most useful document you've read this
-    year. No platform commitment, no contract.
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
 
     There's a red button in the top-right corner of this video. Click it
     and grab a slot this week. Leave your card at home. Talk soon.
 
   fixed_second_half_sales_led_outbound: |
-    So let me be quick about this. We help mid-market companies plug AI into
-    sales, retention, and ops. Specifically: we book 2-3x more qualified
-    meetings at about half the mid-market average cost, predict churn
-    before it happens, and surface deal risk weeks before your forecast does.
+    So let me be quick about this. We build and run complete AI-powered
+    client acquisition systems for businesses that are tired of relying on
+    referrals and their personal network. We book 30-90 qualified client
+    calls per month using AI-personalized emails, SMS, and custom video —
+    done entirely for you, without any cold calling. Pay on results only.
 
-    Here's what I want to offer you: a 14-day command brief — board-ready,
-    fully refundable if it isn't the most useful document you've read this
-    year. No platform commitment, no contract.
+    Here's what I want to offer you: a 14-day acquisition brief — a
+    step-by-step blueprint of who we'd target, what we'd say, and what
+    results you should expect. Fully refundable if it isn't worth more
+    than it costs. No platform commitment, no contract.
 
     There's a red button in the top-right corner of this video. Click it
     and grab a slot this week. Leave your card at home. Talk soon.
@@ -126,9 +213,9 @@ variants:
         weight: 0.111
         smartlead_campaign_id: "3379553"
         overrides:
-          email_template_id: "v7_one_sentence"
-          variant_framework: "Berman one-sentence — 'Are you the right person?'"
-        description: "One-sentence test — highest reply rate per word; mid-cadence"
+          email_template_id: "v7_demand_flip"
+          variant_framework: "Demand Flip — 'Are you taking on new clients?'"
+        description: "Demand flip — inverts the pitch dynamic; proven gym/coaching framework; softest approach in the set"
 
       - id: "Variant 8"
         weight: 0.111
@@ -165,14 +252,20 @@ video:
   format: mp4
   codec: libx264
   audio_codec: aac
+  # Leads with intent_confidence below this threshold get email-only (no video generated).
+  # Scale matches the analysis output: 1–10 integer.
+  # 0  = always generate video for every lead (expensive).
+  # 8  = video + ElevenLabs only for warm/high-intent leads; everyone else gets
+  #      a personalised cold email with no video — free, fast, still converts.
+  intent_threshold: 8
 
 scroll_capture:
-  scroll_speed_pixels_per_second: 70
+  scroll_speed_pixels_per_second: 280   # fast, natural feel — 70 was way too slow
   oscillate: true
   viewport_width: 1280
   viewport_height: 720
   page_load_timeout_seconds: 15
-  wait_after_load_seconds: 2
+  wait_after_load_seconds: 0            # no pause — scroll starts immediately
 
 composite:
   corner_image:
@@ -185,13 +278,39 @@ composite:
     shadow: true
   cta_overlay:
     position: top-right
-    text: "Book A Call"
+    text: "GET A.I DEMO"
     margin_pixels: 24
     background_color: "#E63946"
     text_color: "#FFFFFF"
     width_pixels: 200
     height_pixels: 56
     pulse: true
+
+# -----------------------------------------------------------------------------
+# Cold follow-up sequence — sent if the prospect doesn't reply to the initial Loom
+# Rules: ≤15 words, simple & to the point, objective = get them to watch the video
+# {first_name} and {VIDEO_LINK} are substituted per-lead at send time
+# -----------------------------------------------------------------------------
+cold_followups:
+  - step: 1
+    delay_days: 2
+    subject: "Re: {{custom_subject}}"
+    body: |
+      Hey {first_name}, did you get the chance to check out that video I sent?
+
+  - step: 2
+    delay_days: 4
+    subject: "Re: {{custom_subject}}"
+    body: |
+      Hey {first_name}, figured this got buried. Any thoughts on the video?
+
+      {VIDEO_LINK}
+
+  - step: 3
+    delay_days: 6
+    subject: "Re: {{custom_subject}}"
+    body: |
+      Hi {first_name}, any thoughts on the video I sent?
 
 script:
   dynamic_first_half_target_seconds: 25
@@ -236,17 +355,63 @@ model_routing:
   use_batch_api_above_threshold: true
 
 tts:
-  # FREE — Microsoft Edge Neural TTS (same Azure Neural quality, no API key needed)
-  # Best voices for outreach:
-  #   en-US-ChristopherNeural  — confident, warm, clear (recommended)
-  #   en-US-AndrewNeural       — natural, conversational
-  #   en-US-GuyNeural          — authoritative
-  #   en-US-EricNeural         — calm, professional
-  primary_provider: "edge_tts"
-  primary_voice: "en-US-ChristopherNeural"
-  # Optional paid fallback (only used if voice_override="elevenlabs")
-  fallback_provider: "elevenlabs"
-  fallback_voice_id: "ErXwobaYiN019PkySvjV"
+  # ── PRIMARY: ElevenLabs — most human-sounding AI voice on the market ──
+  # Free tier: 10K chars/month (~8 videos). Paid from $5/mo (30K chars).
+  # Sign up: https://elevenlabs.io → set ELEVENLABS_API_KEY in .env
+  #
+  # Tone target: CONFIDENT (main), excited, enthusiastic, happy.
+  #              NOT monotonous. NOT boring. NOT robotic. NOT over-the-top.
+  #
+  # Voice settings (set in tts_client.py):
+  #   stability      0.15 → wide pitch/pace variation — human, not flat
+  #   style          0.65 → natural emphasis/energy — confident delivery
+  #   similarity     0.80 → true to voice character but free to be expressive
+  #   speaker_boost  True → clear presence on video overlay
+  #
+  # model_id options:
+  #   eleven_multilingual_v2  — best expressiveness for pre-recorded video ✓
+  #   eleven_turbo_v2_5       — faster/cheaper, slightly less expressive
+  #
+  # Best pre-made voices for B2B outreach:
+  #   JBFqnCBsd6RMkjVDRZzb  "George"  — warm, captivating storyteller (current)
+  #   TxGEqnHWrfWFTfGW9XjX  "Josh"    — energetic, young, natural
+  #   IKne3meq5aSn9XLyUdCD  "Charlie" — casual, friendly, clear
+  #   onwK4e9ZLuTAKqWW03F9  "Daniel"  — authoritative, British-neutral
+  #
+  # Voice clone: elevenlabs.io → Voice Lab → Instant Clone
+  # Record 2-3 min of clear audio → paste your personal voice_id below
+  primary_provider: "elevenlabs"
+  model_id: "eleven_v3"                # processes [excited]/[warm]/[chuckles] audio tags natively
+  model_id_fallback: "eleven_multilingual_v2"  # fallback if v3 unavailable — audio tags ignored, stays stable
+  voice_id: "Vrntk9ov4z7BGMFSxt6d"    # Frank — Ascentir (cloned voice)
+  # voice_id: "VCgLBmBjldJmfphyB8sZ"  # ← original suggestion (replaced by your actual clone above)
+
+  # ── COST CONTROL: Intent-based TTS tiering ────────────────────────────────
+  # ElevenLabs (cloned voice) is only used when a lead's intent_confidence
+  # meets or exceeds this threshold (1-10 scale).  All other leads go through
+  # Edge TTS for FREE.
+  #
+  # Cost impact at different thresholds (based on current lead data avg=5.0):
+  #   elevenlabs_intent_threshold: 10  → 0% ElevenLabs  (effectively free always)
+  #   elevenlabs_intent_threshold: 8   → ~0% ElevenLabs  (no current leads qualify)
+  #   elevenlabs_intent_threshold: 7   → ~35% ElevenLabs (warm leads only)
+  #   elevenlabs_intent_threshold: 0   → 100% ElevenLabs (old behaviour, expensive)
+  #
+  # Recommended: 8  — saves ~95% on TTS without losing cloned voice for
+  # genuinely warm leads. Raise to 10 to go fully free.
+  elevenlabs_intent_threshold: 8
+
+  # ── FREE fallback: Microsoft Edge Neural TTS ──────────────────────────────
+  # Used for all leads below the intent threshold above.
+  # en-US-AndrewMultilingualNeural: calm, confident, professional male voice.
+  #   Best Edge voice for B2B cold outreach — natural delivery, no robotic
+  #   artefacts, works well at normal speaking pace.
+  # Other good options:
+  #   en-US-GuyNeural           — warm, conversational
+  #   en-US-DavisNeural         — energetic, younger-sounding
+  #   en-US-JasonNeural         — clear, focused, authoritative
+  fallback_provider: "edge_tts"
+  fallback_voice: "en-US-AndrewMultilingualNeural"
 
 # -----------------------------------------------------------------------------
 # SMS Outbound — Twilio, 3-number rotation, 6-variant A/B test

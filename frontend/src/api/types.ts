@@ -90,20 +90,62 @@ export interface LeadDetail extends Lead {
   stages: Record<string, unknown>;
 }
 
+export interface ActivityItem {
+  name:    string;
+  company: string;
+  email:   string;
+  status:  string;   // "sent" | "dry_run" | "skipped" | "failed"
+  error:   string;
+  time:    string;   // "HH:MM:SS" UTC
+}
+
 export interface PipelineStatus {
-  running: boolean;
-  total: number;
-  processed: number;
-  sent: number;
-  skipped: number;
-  failed: number;
-  start_time?: string;
+  running:          boolean;
+  total:            number;   // leads in the current batch
+  csv_total?:       number;   // total leads in the full CSV file
+  processed:        number;
+  sent:             number;
+  skipped:          number;
+  failed:           number;
+  duplicate_count:  number;
+  recent_activity:  ActivityItem[];
+  start_time?:      string;
   elapsed_seconds?: number;
-  cost_usd?: number;
+  cost_usd?:        number;
 }
 
 export interface UploadResponse {
-  filename: string;
+  filename:   string;
   lead_count: number;
-  csv_path: string;
+  csv_path:   string;
+}
+
+export interface ReadinessResponse {
+  personalized:     number;   // dry-run complete, not yet pushed
+  video_count:      number;   // of those, have a personalized video
+  email_only_count: number;   // of those, email-only (below intent threshold)
+  ready_to_push:    number;   // same as personalized — semantic alias
+  already_sent:     number;   // already live in Smartlead
+  // All-time cumulative totals (across every batch ever run)
+  all_personalised: number;
+  all_skipped:      number;
+  all_failed:       number;
+  all_total:        number;
+}
+
+export interface PreviewLead {
+  lead_id:         string;
+  email:           string;
+  first_name:      string;
+  last_name:       string;
+  company:         string;
+  existing_status: string | null;
+}
+
+export interface PreviewResponse {
+  total:           number;
+  new_count:       number;
+  duplicate_count: number;
+  new_leads:       PreviewLead[];
+  duplicate_leads: PreviewLead[];
 }

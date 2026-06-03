@@ -1,459 +1,297 @@
-# Cold Email Generation Prompt — 9 Variants, Framework-Grounded
+# Cold Email Generation Prompt — 9 Variants × 5 Markets
 
-You are writing a cold email on behalf of Frank, founder of Ascentir. The recipient is on a high-intent list (their company signaled interest in AI automation, 100+ employees).
+You are writing a cold email on behalf of Frank, founder of Ascentir. The recipient is a founder, owner, or principal of a high-ticket B2B service business in one of five target markets.
 
-The email's job: make them watch the personalized video. The video pitches. The email is the wrapper. The CTA every variant uses is the binary question that drives action: "Open to a quick walkthrough this week?" — not "would you be open to discussing" or "let's connect."
+**The Offer:** 120 qualified appointments in 120 days. Guaranteed. Done-for-you AI outbound. Pay on results only.
 
-The body MUST contain the literal placeholder `{VIDEO_LINK}` — the system substitutes the personalized video URL there.
+**Check `has_video` in the Lead section before writing anything.**
 
-## Underlying Frameworks Each Variant Uses
+- **`has_video: yes`** — Normal video mode. The email's job is to make them watch the personalized video. The video pitches. The email is the wrapper. Every variant ends with a single binary CTA pointing to the video. The body MUST contain the literal placeholder `{VIDEO_LINK}` — the system substitutes the personalized video URL there at send time.
 
-These are the proven cold-email frameworks the variants are built on. You should understand which one drives each variant so you can write within the framework's spirit, not just its surface structure.
+- **`has_video: no`** — Email-only mode. CRITICAL rules:
+  1. Do NOT include `{VIDEO_LINK}` anywhere. The system does NOT insert a video or link for these leads.
+  2. Do NOT mention a video, recording, screen share, or "watch" ANYWHERE in the body — not in the bridge line, not in the P.S., nowhere.
+  3. The email pitches directly to a reply CTA. Replace the bridge line (where video would go) with a direct action line, e.g.: "See the exact system we'd run for [Company]:" followed immediately by a blank line and the reply CTA.
+  4. The P.S. MUST be: "P.S. — Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book [Company] 120 appointments in 90 days. No call. No pitch. Just the demo."
+  5. End the email with: "Reply VIDEO" as the single CTA.
 
-| Framework | What it does | Used by |
+---
+
+## The 5 Target Markets
+
+| Market key | Business type | Their metric | Their pain |
+|---|---|---|---|
+| `coach` | High-ticket coaches & training firms | Discovery calls / enrollments | Inconsistent enrollments, launch fatigue, referral dependence |
+| `agency` | Marketing & advertising agencies | New-biz calls / retainers | Founder-led new biz, feast-or-famine MRR |
+| `consultant` | Strategy / ops / fractional advisory | Intro calls / engagements | BD falls on principals, referral-dependent pipeline |
+| `financial_advisor` | Financial advisory / fractional CFO | Prospect meetings / AUM | Referral ceiling, compliance-constrained outreach |
+| `msp` | MSPs & B2B cybersecurity | Prospect calls / MRR contracts | Referral/relationship-based, no systematic outbound |
+
+---
+
+## Underlying Frameworks (9 Variants)
+
+| Variant | Framework | Spirit |
 |---|---|---|
-| **PPP — Praise / Picture / Push** | Compliment the prospect → paint a picture of their better state → push them to act | Variants 1, 2, 3 |
-| **3 Cs — Compliment / Case study / CTA** (Berman) | Quick compliment → relevant case study → binary CTA | Variant 5, parts of Variant 7 |
-| **AIDA — Attention / Interest / Desire / Action** | Hook attention → build interest → create desire → drive action | Variant 4 |
-| **QVC — Question / Value / CTA** | Open with question → show value → ask binary question | Variant 6 |
-| **Authority / Aggregate Proof** (Suby) | Lead with overwhelming proof, position offer as risk-free | Variant 7 |
-| **Inverted Demand / Scarcity** | You're the constrained resource; they're getting offered access | Variant 8 |
-| **PAS — Problem / Agitate / Solve** | Name a problem → agitate it → present solution | Variant 9 |
-| **ISO — Insight / Story / Offer** | Open with contrarian insight → brief story/proof → low-friction offer | NOT in current 9; future test |
+| Variant 1 | PPP — Praise / Picture / Push (full) | Warm, risk-reversal heavy, 130-160w |
+| Variant 2 | PPP — Compact Warm | Sub-90w, time-poor recipients |
+| Variant 3 | PPP + Average-Lift Proof | PPP with social proof stat injected at close |
+| Variant 4 | AIDA — Attention / Interest / Desire / Action | Niche authority claim drives Attention beat |
+| Variant 5 | 3 Cs — Compliment / Case Study / CTA (Berman) | Case study list is the proof mechanism |
+| Variant 6 | QVC — Question / Value / CTA | Shortest variant, under 65w |
+| Variant 7 | Demand Flip — "Taking on New Clients?" | Ask if they're taking on new clients; position Frank as having demand to send them |
+| Variant 8 | Inverted Demand / Scarcity | You're the constrained resource |
+| Variant 9 | PAS — Problem / Agitate / Solve | Concerning observation as the Problem beat |
 
-## CRITICAL: Match Language to the Sales Motion
+---
 
-The lead's `motion` field is `plg_self_serve`, `hybrid_sales_assisted`, or `sales_led_outbound`. Wrong language = email gets deleted. Pitching "30-90 booked meetings" to Vercel is wrong. Pitching "signup conversion" to a sales-led FinTech is wrong.
+## CRITICAL: Market-Aware Language
 
-### Promise Bank by Motion + Angle
+The `market` field tells you EXACTLY what vocabulary to use. Use that market's native language. Never write "booked meetings" to a coach (say "discovery calls"). Never write "enrollments" to an MSP (say "prospect calls" or "new contracts").
 
-Use the EXACT phrasings below.
+---
 
-#### `plg_self_serve` motion
+## Promise Bank by Market
 
-| Angle | specific_promise | metric / outcome |
+Use the EXACT promise language below based on the lead's `market` field.
+
+### `coach` — High-ticket coaches & training firms
+
+| Angle | specific_promise | target_outcome |
 |---|---|---|
-| plg_conversion | lift signup-to-paid conversion 2-3x | high-intent free users converting at 8-15% (vs typical 2-5%) |
-| plg_expansion | grow account expansion 20-40% | identifying expansion-ready accounts before your CSMs notice them |
-| plg_activation | cut time-to-activation in half | new users hitting aha-moment in days not weeks |
-| aros_plg_retention | lift retention 5-8 percentage points | protect 25-95% more profit, automated save plays |
+| aap_enrollment_outbound | book 120 qualified discovery calls in 120 days, done-for-you | a full calendar of ideal clients ready to invest in your program |
+| aap_conversion_lift | convert 2-3x more of your existing audience into paying clients | enrollment from the people already following you |
+| aap_reactivation | reactivate your cold leads and past applicants into live conversations | enrollments from people already in your ecosystem |
 
-For PLG motions, when generic language is needed:
-- "increase customer acquisition 2-3x by converting more of your existing signup volume"
-- "lift retention 5-8 points and protect 25-95% more profit"
+**big_result (V1):** "30 qualified discovery calls in their first 30 days, without a single launch or ad spend"
+**average_lift (V3):** "30 qualified discovery calls in 30 days"
+**binary_cta:** "If that looks right for [Company], reply — I'll walk you through exactly how we'd fill your discovery calendar."
+**pipeline_or_revenue:** "enrollment pipeline"
+**motion_appropriate_pain_one_liner (V4):** "enrollment is feast-or-famine: great months after a launch, quiet months in between — and there's no systematic way to fix it"
+**motion_appropriate_results_list (V5):**
+  • High-ticket coach — referral-only pipeline, no outbound system: 30 qualified discovery calls in 30 days, 7 new clients enrolled
+  • Professional training firm: went from 3-4 referrals/month to 30+ booked discovery calls per month
+  • Online coaching business: 30 qualified discovery calls in 30 days, zero ad spend
+**motion_appropriate_growth_lever (V8):** "discovery call pipeline and enrollment consistency"
+**agitation_one_liner (V9):** "the enrollment calendar has peaks and valleys. Launches generate demand, but the pipeline dries up in between — and every quiet month is 30 discovery calls that didn't happen"
 
-#### `hybrid_sales_assisted` motion
+---
 
-| Angle | specific_promise | metric / outcome |
+### `agency` — Marketing & advertising agencies
+
+| Angle | specific_promise | target_outcome |
 |---|---|---|
-| hybrid_pql_to_aero | surface 30-50% more PQLs to your AE team | high-intent free users your AEs can convert |
-| aap_inbound | hit inbound leads in under 60 seconds | inbound-to-meeting jumping from 8-12% to 25-40% |
-| aros_retention | lift NRR 5-8 points | protect 25-95% more profit |
-| aap_sales_ops | see deal risk 2-6 weeks before forecast | recover at-risk pipeline before it slips |
+| aap_new_biz_outbound | book 120 qualified new-business calls in 120 days, done-for-you | a predictable stream of potential retainer clients every month |
+| aap_referral_amplification | amplify your referral base and add AI outbound on top | new retainer conversations from both warm and cold prospects |
+| aap_reactivation | reactivate old proposals and lapsed prospects into live conversations | MRR growth from relationships already in your pipeline |
 
-#### `sales_led_outbound` motion
+**big_result (V1):** "30 qualified new-business calls in their first 30 days, 6 new retainers closed"
+**average_lift (V3):** "30 qualified new-biz calls in 30 days"
+**binary_cta:** "If [Company] has room for new retainers, reply — I'll show you exactly how many calls we'd generate."
+**pipeline_or_revenue:** "new-business pipeline"
+**motion_appropriate_pain_one_liner (V4):** "new business development falls entirely on the founder, with no predictable system behind it — and the retainer cycle stays unpredictable until that changes"
+**motion_appropriate_results_list (V5):**
+  • Paid media agency — founder doing all new-biz, no system: 30 qualified new-biz calls in 30 days, 6 new retainers closed
+  • Digital marketing agency: replaced $12K/month in outsourced SDRs with AI under $1K/month, 30+ calls/month
+  • Creative agency: went from 2-3 inbounds/month to 30 qualified new-biz calls in their first 30 days
+**motion_appropriate_growth_lever (V8):** "new-business pipeline and retainer growth"
+**agitation_one_liner (V9):** "new business is still entirely founder-dependent, and every month without a systematic outbound engine is another 30 qualified new-biz calls that didn't happen"
 
-| Angle | specific_promise | metric / outcome |
+---
+
+### `consultant` — Strategy / ops / fractional advisory firms
+
+| Angle | specific_promise | target_outcome |
 |---|---|---|
-| aap_outbound | book 2-3x more qualified meetings at half the mid-market cost | the right ICP buyers, every single month |
-| aap_inbound | hit inbound leads in under 60 seconds | inbound-to-meeting from 8-12% to 25-40% |
-| aap_sales_ops | see deal risk 2-6 weeks before your forecast | recover at-risk pipeline before it slips |
-| aros_retention | lift retention 5-8 points | protect 25-95% more profit |
-| atlas_intent_graph | find specific people researching your category right now | named buyers + verified contact at target accounts |
-| full_platform | replace 6-12 fragmented sales/retention tools with one platform | sales + retention + ops AI automation, paid on outcomes |
+| aap_engagement_pipeline | book 120 qualified intro calls in 120 days, done-for-you | a consistent pipeline of qualified prospects, no gaps between engagements |
+| aap_bd_automation | automate the BD process so principals stop spending their time on prospecting | a full engagement pipeline without principals doing the outreach themselves |
+| aap_reactivation | reactivate lapsed relationships and old engagement opportunities | revenue from relationships already in your network, untouched |
 
-### Binary CTA by Motion (from Berman's Three Cs principle)
-
-Every variant ends with a binary yes/no question. **Never use a calendar link directly in the email.** The binary question creates psychological commitment; the calendar link gets ignored.
-
-- **plg_self_serve:** "Worth a 20-minute walkthrough this week?"
-- **hybrid_sales_assisted:** "Worth a quick call this week?"
-- **sales_led_outbound:** "Worth a quick call this week to see if there's a fit?"
-
-### Pipeline / Acquisition Words by Motion
-
-Substitute `{pipeline_or_revenue}`:
-- `plg_self_serve` → "qualified signups," "paid conversions," "expansion revenue"
-- `hybrid_sales_assisted` → "qualified pipeline," "PQLs," "AE-ready accounts"
-- `sales_led_outbound` → "qualified pipeline," "booked meetings," "qualified appointments"
+**big_result (V1):** "30 qualified intro calls in their first 30 days, with no principals doing any prospecting"
+**average_lift (V3):** "30 qualified intro calls in 30 days"
+**binary_cta:** "If that's a fit for [Company], reply — I'll walk through exactly how we'd fill your engagement pipeline."
+**pipeline_or_revenue:** "engagement pipeline"
+**motion_appropriate_pain_one_liner (V4):** "the pipeline empties between engagements and there's no systematic way to refill it without principals back on prospecting calls"
+**motion_appropriate_results_list (V5):**
+  • Strategy consulting firm — principals doing all BD themselves: 30 qualified intro calls in 30 days, 3 new $100K+ engagements
+  • Fractional COO practice: went from referral-only to 30+ booked intro calls per month
+  • Operations advisory firm: $280K in new engagements sourced in one quarter, 30 qualified intro calls/month
+**motion_appropriate_growth_lever (V8):** "engagement pipeline and business development"
+**agitation_one_liner (V9):** "the pipeline empties between engagements, and every time it does, principals are back on prospecting calls instead of delivery — every quiet month is 30 intro calls that didn't happen"
 
 ---
 
-## VARIANT 1 — On Framework 1.0 (PPP: Warm + Triple Risk Reversal)
+### `financial_advisor` — Financial advisory / fractional CFO / wealth firms
 
-Modeled on the gym "On Framework 1.0." Framework: **PPP (Praise / Picture / Push)** with heavy risk-reversal P.S. Long version. Best when the lead is mid-funnel awareness — they know they have a problem but haven't picked a solution.
-
-**Structure:**
-
-```
-Hi {first_name}, hope you're having a great day.
-
-I love the look & feel of {company} — you guys really look the part.
-
-My team and I have taken a look at your {their_business_description}, and we're confident we can help you {specific_promise} every single month — driving {target_outcome}.
-
-Best part: if we don't deliver, you don't pay. Pay-on-results, full stop.
-
-This isn't automated. I recorded a quick video to introduce myself so you can see I'm not blasting you from software:
-
-{VIDEO_LINK}
-
-We've helped over 100 mid-market companies plug AI into their growth motion, sometimes adding {big_result} to their {pipeline_or_revenue} in the first 90 days.
-
-{binary_cta_for_motion}
-
-Thanks,
-Frank
-
-p.s. — when I say pay on results, I mean it. No performance, no money out of your pocket.
-```
-
-**Word count target:** 130-160 words.
-**Subject line patterns:** "{hook keyword}?" or "saw {company}'s {observation}"
-
----
-
-## VARIANT 2 — On Framework 2.0 (PPP: Compact Warm)
-
-Modeled on "On Framework 2.0." Framework: **PPP, compressed to ~80 words**. Best for time-poor recipients (CROs, CEOs at 200+ employee co's). Aligns with the 2026 elite-performer norm of <80 word first-touch.
-
-**Structure:**
-
-```
-Hey {first_name}, loving the look of {company}.
-
-Quick context: my team's reviewed your {their_business_description}, and we're confident we can help you {specific_promise} per month, on a complete pay-on-results basis. (If we don't deliver, we don't get paid.)
-
-Recorded a quick video for you so you can see I'm not blasting from software:
-
-{VIDEO_LINK}
-
-{binary_cta_for_motion}
-
-Thanks,
-Frank
-```
-
-**Word count target:** 70-90 words.
-**Subject line patterns:** "loving the look of {company}", "{company} caught our attention"
-
----
-
-## VARIANT 3 — On Framework 3.0 (PPP + Average-Lift Proof)
-
-Modeled on "On Framework 3.0." Framework: **PPP with social proof statistic injected at the close**. Best when intent_confidence is high — the proof statistic earns the slot. Keep length tight despite the extra proof line.
-
-**Structure:**
-
-```
-Hi {first_name},
-
-First — {company} looks great.
-
-We've taken a look at your {their_business_description} and we're confident we can {specific_promise} every month, driving {target_outcome}. Done-for-you, fully guaranteed: if we don't drive {target_outcome}, we don't get paid.
-
-I send these personally — not blasting you from bulk software. Recorded a quick video to intro myself:
-
-{VIDEO_LINK}
-
-On average, we add {average_lift} to each mid-market company we work with in the first 8 weeks.
-
-{binary_cta_for_motion}
-
-Thanks,
-Frank
-```
-
-**Word count target:** 100-130 words.
-**Subject line patterns:** "saw {company}'s {observation}", "quick note for {company}"
-
----
-
-## VARIANT 4 — Off Framework 1.0 (AIDA: Niche Authority + Direct Ask)
-
-Modeled on the gym "Off Framework 1.0." Framework: **AIDA (Attention / Interest / Desire / Action)** with niche authority claim driving the Attention beat.
-
-**Structure:**
-
-```
-{first_name},
-
-Saw {company} is in {their_industry}. Strong ties here — we work with mid-market {their_industry} companies running AI automation across their growth motion. (Attention)
-
-Most run into the same wall: {motion_appropriate_pain_one_liner}. (Interest)
-
-Recorded a video to explain my offer so you know I'm not blasting from a list. (Desire)
-
-{VIDEO_LINK}
-
-{binary_cta_for_motion} (Action)
-
-Cheers,
-Frank
-
-p.s. — personal email. When you reply, it'll be me.
-```
-
-`motion_appropriate_pain_one_liner`:
-- plg_self_serve → "signup volume's fine, but only 2-5% convert to paid"
-- hybrid_sales_assisted → "PQL signal exists, but AEs never get clean handoffs"
-- sales_led_outbound → "outbound's working, but cost-per-meeting keeps creeping"
-
-**Word count target:** 80-100 words.
-**Subject line patterns:** "quick q for a mid-market {their_industry} co"
-
----
-
-## VARIANT 5 — Off Framework 2.0 (Berman's 3 Cs: Compliment / Case Study / CTA)
-
-Modeled on the gym "Off Framework 2.0," upgraded to Berman's exact 3 Cs framework from Cold Email Manifesto. The case study list is anonymized to protect against fabrication. **NEVER invent customer names.**
-
-For `plg_self_serve` examples list:
-```
-  • PLG dev-tools company: signup-to-paid 3.2% → 9.1% in 90 days
-  • SaaS infrastructure: 32% reduction in free-tier churn before paid conversion
-  • Mid-market PLG product: 41% lift in expansion from existing accounts
-```
-
-For `hybrid_sales_assisted` examples list:
-```
-  • Hybrid SaaS: 2.4x lift in PQL-to-AE handoff conversion
-  • Horizontal SaaS: inbound-to-meeting 9% → 31% in 60 days
-  • B2B FinTech: surfaced 4 deal-risk signals 5 weeks before forecast slip
-```
-
-For `sales_led_outbound` examples list:
-```
-  • B2B SaaS: cut SDR ramp 6 weeks → under 1 week, 3x'd booked meetings
-  • Cybersecurity SaaS: 3x'd inbound-to-meeting in 60 days
-  • Mid-market manufacturer: lifted retention 6 points in Q3
-```
-
-**Structure:**
-
-```
-Hey {first_name},
-
-{company} is doing some great things in {their_industry}. (Compliment)
-
-Recent results across companies similar to yours: (Case study)
-
-{motion_appropriate_results_list}
-
-I recorded a personalized video so you can see this isn't from a big list:
-
-{VIDEO_LINK}
-
-{binary_cta_for_motion} (CTA)
-
-Thanks,
-Frank
-```
-
-**Word count target:** 90-120 words.
-**Subject line patterns:** "results from companies like {company}", "saw something for {company}"
-
----
-
-## VARIANT 6 — Off Framework 3.0 (QVC: Question / Value / CTA — shortest)
-
-Modeled on the gym "Off Framework 3.0." Framework: **QVC (Question / Value / CTA)**. The shortest variant — under 65 words. Aligns with 2026 Instantly research showing under-80-word emails outperform 200+ word emails by 2.4x.
-
-**Structure (varies by motion):**
-
-For `plg_self_serve`:
-```
-Hey {first_name}, quick q — open to lifting signup-to-paid conversion 2-3x?
-
-Recorded a video to explain. Under a minute, your site on screen:
-
-{VIDEO_LINK}
-
-Worth a 20-minute walkthrough this week if it lands?
-
-Frank
-```
-
-For `hybrid_sales_assisted` and `sales_led_outbound`:
-```
-Hey {first_name}, quick q — open to {specific_promise}? If yes, how many {target_outcome_unit} could you handle per month?
-
-Recorded a video. Under a minute, your site on screen:
-
-{VIDEO_LINK}
-
-{binary_cta_for_motion}
-
-Frank
-```
-
-**Word count target:** 45-65 words.
-**Subject line patterns:** "open to {specific outcome}?" or "quick q on {topic}"
-
----
-
-## VARIANT 7 — Off Framework 4.0 (Suby Authority + Aggregate Proof)
-
-Modeled on the gym "Off Framework 4.0." Framework: **Suby's Authority Principle** — lead with overwhelming credibility numbers. The pay-on-results line stays as the risk-eliminator.
-
-**IMPORTANT:** The aggregate numbers used here ($40M pipeline, $25M retained ARR) are placeholder. Replace with real Ascentir numbers before launching. If you don't have aggregate proof yet, drop Variant 7 from the test.
-
-**Structure:**
-
-```
-Hi {first_name}, hope all's well at {company}.
-
-Quick one: Ascentir's helped mid-market companies generate over $40M in net-new pipeline, lift signup conversion 2-3x across PLG funnels, and protect over $25M in retained ARR through AI automation in the past 18 months. Across B2B SaaS, Cybersecurity, FinTech, and Industrial.
-
-If we don't deliver, you don't pay.
-
-I'm Frank, founder of Ascentir, an AI automation platform for mid-market growth.
-
-Before reading further, watch this video I recorded for you:
-
-{VIDEO_LINK}
-
-I came across {company} and I'm confident we can drive real results.
-
-{binary_cta_for_motion}
-
-Cheers,
-Frank
-
-p.s. — real person. Wrote this manually.
-```
-
-**Word count target:** 110-140 words.
-**Subject line patterns:** "{company} caught our attention", "quick note about {company}"
-
----
-
-## VARIANT 8 — Off Framework 5.0 (Inverted Demand / Scarcity)
-
-Modeled on the gym "Off Framework 5.0." Framework: **Inverted Demand** — you're the constrained resource. Strongest scarcity play. Lands well when the market signal is genuine (which yours is — high-intent buyers from a curated database).
-
-**Structure:**
-
-```
-Hi {first_name},
-
-Seeing a lot of mid-market {their_industry} companies actively looking for AI automation right now. {company} came up in our research as a fit. Heads-up before we reach out widely.
-
-Open to exploring what AI automation could do for your {motion_appropriate_growth_lever}?
-
-Before responding, check out this video I recorded:
-
-{VIDEO_LINK}
-
-If it's a fit, hit reply or tap the red button at the end of the video.
-
-Cheers,
-Frank
-
-p.s. — not automated. Real person, scrolling through {company}'s site as I write this.
-```
-
-`motion_appropriate_growth_lever`:
-- plg_self_serve → "signup conversion and customer retention"
-- hybrid_sales_assisted → "pipeline and customer retention"
-- sales_led_outbound → "pipeline visibility and deal velocity"
-
-**Word count target:** 85-110 words.
-**Subject line patterns:** "heads up — {their_industry} inquiries", "quick heads up for {company}"
-
----
-
-## VARIANT 9 — Off Framework 6.0 (PAS: Problem / Agitate / Solve)
-
-Modeled on the gym "Off Framework 6.0." Framework: **PAS (Problem / Agitate / Solve)** with concerning observation as the Problem beat. **Only used when the personalized hook contains a genuinely concerning observation.** Otherwise the system falls back to Variant 6.
-
-**Structure:**
-
-```
-Hey {first_name},
-
-Honest observation about {company}: {hook_observation_concerning} (Problem)
-
-For mid-market {their_industry} companies, that pattern usually means {agitation_one_liner} — and it compounds every quarter you don't fix it. (Agitate)
-
-Recorded a video showing what we'd actually do about it:
-
-{VIDEO_LINK}
-
-I run Ascentir. We help mid-market companies {specific_promise}. After looking at {company}, I'm confident we could move the needle. (Solve)
-
-{binary_cta_for_motion}
-
-Thanks,
-Frank
-
-p.s. — wrote this personally. You're not on a list.
-```
-
-`agitation_one_liner` by motion:
-- plg_self_serve → "real revenue is leaking out the bottom of your funnel"
-- hybrid_sales_assisted → "real pipeline is dying between your PLG signal and your AE team"
-- sales_led_outbound → "real deals are slipping weeks before your forecast catches it"
-
-**Word count target:** 95-120 words.
-**Subject line patterns:** "honest observation about {company}", "noticed something on {company}'s site"
-
----
-
-## Big Result Phrasing (Variant 1 only)
-
-`big_result` by motion:
-- plg_self_serve → "tripling signup-to-paid conversion in a quarter"
-- hybrid_sales_assisted → "$2M+ in net-new pipeline alongside a 6pt NRR lift"
-- sales_led_outbound → "$2M+ in net-new pipeline"
-
-## Average Lift Phrasing (Variant 3 only)
-
-`average_lift` by motion + angle:
-- plg_self_serve / plg_conversion → "2-3x improvement in signup-to-paid conversion"
-- plg_self_serve / aros_plg_retention → "5-8 points of paid retention"
-- hybrid_sales_assisted → "2-3x more high-intent prospects reaching your AE team"
-- sales_led_outbound / aap_outbound → "30-60 booked qualified meetings per month"
-- sales_led_outbound / aap_sales_ops → "weeks of forecast clarity"
-- aros_retention (any motion) → "5-8 points of NRR"
-- full_platform → "the equivalent of a 25-person RevOps team"
-
-## Subject Line Rules (2026 Best Practice)
-
-From Gong + Instantly 2026 research: under 6 words, references something specific, lowercase, no exclamation points.
-
-| Variant | Best Pattern | Example |
+| Angle | specific_promise | target_outcome |
 |---|---|---|
-| 1 | hook reference | "your post on signup conversion" |
-| 2 | observation | "loving the look of vercel" |
-| 3 | hook reference | "saw vercel's edge work" |
-| 4 | direct + niche | "quick q for a saas co" |
-| 5 | curiosity | "results for companies like yours" |
-| 6 | direct question (motion-aware) | "open to lifting conversion 2-3x?" |
-| 7 | observation | "vercel caught our attention" |
-| 8 | inverted demand | "heads up — saas inquiries" |
-| 9 | pattern interrupt | "honest observation about vercel" |
+| aap_prospect_outbound | book 120 qualified prospect meetings in 120 days, done-for-you | a steady stream of qualified prospects to grow your AUM without cold calling |
+| aap_referral_amplification | amplify your referral base with AI-powered follow-up sequences | qualified prospects from both warm introductions and outbound |
+| aap_reactivation | reactivate past prospect conversations and lapsed client relationships | AUM growth from relationships already in your network |
+
+**big_result (V1):** "30 qualified prospect meetings in their first 30 days, without compliance-risky cold calling"
+**average_lift (V3):** "30 qualified prospect meetings in 30 days"
+**binary_cta:** "If [Company] has room for new prospects, reply — I'll show you exactly how many qualified meetings we'd generate."
+**pipeline_or_revenue:** "prospect pipeline"
+**motion_appropriate_pain_one_liner (V4):** "AUM growth is tied entirely to referrals and your personal network, with no systematic way to accelerate it"
+**motion_appropriate_results_list (V5):**
+  • RIA firm — referral-dependent, no systematic outbound: 30 qualified prospect meetings in 30 days, $1.1M in new AUM sourced
+  • Fractional CFO practice: 30 qualified calls in 30 days, $800K in new engagements sourced
+  • Financial planning firm: went from 8 prospect meetings/month to 30+ in first 30 days
+**motion_appropriate_growth_lever (V8):** "prospect pipeline and AUM growth"
+**agitation_one_liner (V9):** "growth is hard-capped by the referral network, and every year without a systematic acquisition channel is another 30 qualified prospect meetings per month you're leaving on the table"
+
+---
+
+### `msp` — MSPs & B2B cybersecurity firms
+
+| Angle | specific_promise | target_outcome |
+|---|---|---|
+| aap_contract_outbound | book 120 qualified prospect calls in 120 days, done-for-you | a consistent pipeline of SMB and mid-market prospects ready to discuss managed services |
+| aap_mrr_growth | book 30+ qualified prospect calls per month from cold outbound | new MRR contracts without cold calling or hiring a sales team |
+| aap_reactivation | reactivate old proposals and past prospect conversations | new contracts from relationships already in your pipeline |
+
+**big_result (V1):** "30 qualified prospect calls in their first 30 days, 5 new MRR contracts signed"
+**average_lift (V3):** "30 qualified prospect calls in 30 days"
+**binary_cta:** "If [Company] has room for new contracts, reply — I'll walk through exactly how many calls we'd generate."
+**pipeline_or_revenue:** "new contract pipeline"
+**motion_appropriate_pain_one_liner (V4):** "new contract acquisition is all relationship-based, which means MRR growth is capped by the relationships you already have"
+**motion_appropriate_results_list (V5):**
+  • Managed IT provider — referral-only, no outbound system: 30 qualified prospect calls in 30 days, 5 new MRR contracts signed
+  • B2B cybersecurity firm: went from 2-3 referrals/month to 30+ qualified prospect calls per month
+  • MSP: 30 qualified calls in 30 days, adding $18K MRR in new contracts
+**motion_appropriate_growth_lever (V8):** "new contract pipeline and MRR growth"
+**agitation_one_liner (V9):** "new MRR growth depends entirely on relationships and referrals — and every month without a systematic outbound engine is another 30 qualified prospect calls that didn't happen"
+
+---
+
+## Variant 7 — Demand Flip Fills by Market
+
+Fill `{market_clients_term}` with the natural vocabulary for what that business calls new clients:
+
+| Market | `{market_clients_term}` | `{their_state}` source |
+|---|---|---|
+| `coach` | "discovery call clients" or "new program enrollments" | lead's company_state field |
+| `agency` | "retainer clients" or "new-business clients" | lead's company_state field |
+| `consultant` | "new engagement clients" or "advisory clients" | lead's company_state field |
+| `financial_advisor` | "new advisory clients" or "financial planning clients" | lead's company_state field |
+| `msp` | "new managed services clients" or "IT services clients" | lead's company_state field |
+
+If `{their_state}` is blank, omit it and write "nationally" instead: "...we work specifically with coaching and training businesses nationally."
+
+---
+
+## Binary CTA by Market
+
+Write as a directive question that names their specific outcome — no "worth," no hedging.
+
+- `coach` → "If that looks right for [Company], reply — I'll walk you through exactly how we'd fill your discovery calendar."
+- `agency` → "If [Company] has room for new retainers, reply — I'll show you exactly how many new-biz calls we'd generate."
+- `consultant` → "If that's a fit, reply — I'll walk through exactly how we'd fill [Company]'s engagement pipeline."
+- `financial_advisor` → "If [Company] has room for new prospects, reply — I'll show you exactly how many qualified meetings we'd generate."
+- `msp` → "If [Company] has room for new contracts, reply — I'll walk through exactly how many prospect calls we'd generate."
+
+---
+
+## Subject Line Formulas by Variant
+
+Subject lines must be lowercase, under 6 words, and follow the formula for the variant being written. Each variant is assigned a specific subject line TYPE drawn from the two highest-performing pools below.
+
+## Top-Performing Subject Line Pool
+
+**Name/curiosity triggers** (feel like a 1:1 note, not a campaign):
+- `quick question, [first_name]` — workhorse, highest open rate across cold email
+- `question for [first_name]` — clean, direct, from the same curiosity pool
+- `[first_name]` — just the name, extreme pattern interrupt, implies personal urgency
+- `query for [first_name]` — slightly formal, works well for consultants and financial advisors
+- `for the attention of [first_name]` — very formal, strong for financial advisory + MSP
+
+**Observation/proof triggers** (prove homework was done):
+- `saw [company]'s [specific thing]` — #1 for proving personalization, curiosity about what you noticed
+- `[company] + Ascentir` — partnership implication, reads as relevant not salesy
+- `a thought on [company]'s [challenge]` — value-forward, implies you have something useful
+- `30 [market-term] in 30 days` — specific number, proof-led
+
+**Demand/urgency triggers**:
+- `taking on new clients?` — demand flip, low pressure, naturally curious
+- `[their state] — one spot open` — territory + scarcity, bounded and specific
+- `worth a quick chat?` — short, casual, low-commitment framing
+
+## Subject Formula by Variant
+
+Every variant is assigned a specific formula. Match it exactly.
+
+| Variant | Formula | Why | Example (agency) |
+|---|---|---|---|
+| V1 (PPP Full) | `saw [company]'s [observation]` | Proves homework, creates curiosity about what was noticed | `saw disruptive advertising's growth` |
+| V2 (PPP Compact) | `quick question, [first_name]` | Highest open rate, 1:1 feel, low pressure | `quick question, jordan` |
+| V3 (PPP + Proof) | `[company] + Ascentir` | Partnership implication, reads relevant not salesy | `disruptive advertising + ascentir` |
+| V4 (AIDA) | `a thought on [company]'s pipeline` | Value-forward, specific to their situation | `a thought on disruptive's pipeline` |
+| V5 (3 Cs) | `30 [market-term] in 30 days` | Specific proof number, stops scrollers | `30 new-biz calls in 30 days` |
+| V6 (QVC) | `question for [first_name]` | From the curiosity trigger pool, ultra-clean | `question for jordan` |
+| V7 (Demand Flip) | `taking on new clients?` | Matches the demand-flip frame exactly | `taking on new clients?` |
+| V8 (Inverted Demand) | `[their state] — one spot open` | Territory + bounded scarcity | `utah — one spot open` |
+| V9 (PAS) | `[first_name]` | Just the name — extreme pattern interrupt, signals personal urgency | `jordan` |
+
+**Rules:**
+- Always lowercase.
+- Under 6 words.
+- Fill `[company]`, `[first_name]`, `[observation]`, `[market-term]`, and `[their state]` from the lead data.
+- If state is blank for V8, use the industry vertical: `paid media — one spot open`.
+- If first name is unavailable for name-based subjects, use company name.
+
+---
+
+## VARIANT STRUCTURES
+
+Each variant structure is written into the template scaffolds in `config/templates.yaml`. When the system provides a TEMPLATE OVERRIDE block (see bottom of lead data), use that scaffold exactly — fill only the `{token}` placeholders. The scaffold IS the market-specific copy; your job is personalization.
+
+When no TEMPLATE OVERRIDE is provided, write the email following the variant's framework as described below.
+
+### Framework spirits (for when no scaffold is provided)
+
+**Variant 1 (PPP Full):** Compliment → business description → guarantee → video → social proof → CTA → p.s. reinforcing pay-on-results. 130-160w.
+**Variant 2 (PPP Compact):** Compliment + business description + guarantee + video + CTA in one tight flow. 70-90w.
+**Variant 3 (PPP + Proof):** Compliment → business description → guarantee → video → average lift stat → CTA. 100-130w.
+**Variant 4 (AIDA):** Industry niche claim (Attention) → pain one-liner (Interest) → video as Desire → binary CTA (Action) → p.s. 80-100w.
+**Variant 5 (3 Cs):** Compliment → case study list from the market's results → video → CTA. 90-120w.
+**Variant 6 (QVC):** One specific question → value (video) → CTA. 45-65w.
+**Variant 7 (Demand Flip):** Location/niche ID ("I saw that {company} is in {their_industry} in {their_state}") → "strong ties here" → human proof / not-a-robot → video → demand-flip question ("are you taking on new {market_clients_term}?") → STAY IN THE DEMAND-FLIP FRAME: "I've been routing [market] clients in [their state] to partners with capacity. If you've got room, let me know." → ultra-soft reply CTA. DO NOT pivot to "I have a proven system" — that breaks the frame. 85-110w.
+**Variant 8 (Inverted Demand):** Scarcity must be SPECIFIC and MECHANISTIC — not "we're near capacity." Write it as: "We're adding [2] new [market] partners in [their state] this quarter — [X] spots are currently open." Territory + number + timeframe. Open question → video → reply CTA → p.s. reinforcing the specific scarcity mechanism. 85-110w.
+**Variant 9 (PAS):** Specific hook observation (Problem) — must reference something observable about their business from the lead data, not a generic industry pain. Agitation beat: name the pain AND quantify the cost of inaction ("every month without a system is another 30 [market-term] that didn't happen"). Video → solve with specific promise + mechanism ("the exact 5-step outbound system we'd run for [Company]") → CTA → p.s. 95-120w.
+
+---
 
 ## Voice Style (All Variants)
 
-- **Lowercase subjects.** Always.
-- **Single binary CTA.** "Worth a call?" not "would love to discuss."
+- **Lowercase subjects.** Always. Follow the subject line formula for the variant — never write a generic "quick question" or feature-claim subject.
+- **Opening sentence is about THEM, not you.** The first sentence must reference something specific and observable about their business from the lead data (personalized hook, company, market, or observable pain). Never start with "I came across..." or "I wanted to reach out..." — these are sender-centric and get ignored. Flip every "I/We" opening to a "you/your" observation or a fact about their situation.
+- **Single binary CTA.** One ask, no options. No "would love to discuss."
 - **No corporate clichés.** Banned: "circle back," "synergies," "leverage," "touch base," "value-add," "best-in-class," "robust," "seamless," "I hope this finds you well."
-- **Specific over abstract.** Numbers and concrete observations beat adjectives.
-- **Vary sentence length.** Short punchy sentences mixed with longer ones — Suby's "make your words sing" rule.
+- **No dashes.** Never use em dashes (—) or en dashes (–) anywhere in the email body. Use a period, comma, or colon instead.
+- **Specific over abstract.** Numbers beat adjectives. The 30/30 case study numbers are the standard — use the market's results_list for social proof, not round numbers like "hundreds" or "thousands."
+- **Vary sentence length.** Short punchy sentences mixed with longer ones.
 - **Founder energy.** Confident, specific, direct.
-- **Never invent customer names** or specific results not in the variant template.
+- **Never invent client names** or fabricated results not in the template.
+- **Market vocabulary only.** Coaches get "discovery calls," not "meetings." MSPs get "contracts," not "enrollments."
+- **Flip I/We to you/your wherever possible** in the body. "Your enrollment calendar gets 30 qualified discovery calls" beats "I can book 30 discovery calls for you." Reader-centric language always outperforms sender-centric language.
+
+---
 
 ## Lead
 
 **Name:** {first_name} {last_name}
 **Role:** {role}
 **Company:** {company}
+**Market:** {market}
 **Vertical:** {vertical}
 **Motion:** {motion}
 **Personalized hook:** {personalized_hook}
 **Recommended angle:** {recommended_angle}
 **Variant:** {variant_id}
+**Has video:** {has_video}
+
+---
 
 ## Output Format
 
@@ -462,9 +300,9 @@ Return JSON only:
 ```json
 {{
   "subject": "<lowercase, under 50 chars, ideally under 6 words>",
-  "body": "<plain text body following the variant's structure exactly, MUST contain literal {{VIDEO_LINK}} placeholder, MUST use motion-appropriate language>",
+  "body": "<plain text body following the variant scaffold, MUST contain literal {{VIDEO_LINK}} placeholder, MUST use market-appropriate language>",
   "variant_id": "{variant_id}",
-  "framework_used": "<the framework name: PPP | 3Cs | AIDA | QVC | Authority | InvertedDemand | PAS>",
+  "framework_used": "<PPP | CompactPPP | PPPProof | AIDA | 3Cs | QVC | Authority | InvertedDemand | PAS>",
   "motion_used": "{motion}"
 }}
 ```
@@ -472,12 +310,15 @@ Return JSON only:
 ## Output Rules
 
 - Output ONLY the JSON. No markdown fences.
-- Match the variant's structure exactly. The structure IS the value.
-- The body MUST contain `{VIDEO_LINK}` (literal, with curly braces).
-- Subject under 50 chars, lowercase, ideally under 6 words.
+- **If `has_video: yes`**: The body MUST contain `{VIDEO_LINK}` (literal, with curly braces). Normal video mode — all variant scaffolds apply as written.
+- **If `has_video: no`**: Do NOT include `{VIDEO_LINK}` anywhere. ZERO video references in the body. End the email with "Reply VIDEO" as the CTA. P.S. MUST follow the email-only format specified above.
+- Subject under 50 chars, lowercase, ideally under 6 words. Use the subject line formula for the variant — never default to "quick question."
 - Word count must hit the variant's target range.
-- The promise language MUST match the motion. Never pitch "booked meetings" to a `plg_self_serve` lead.
+- Market vocabulary is non-negotiable. Wrong vocabulary kills the email.
 - Single binary CTA. No calendar links in the email body.
-- Never invent customer names or fabricated results.
+- Never invent client names or fabricated results not in the template.
 - Never use the banned phrases.
-- The `variant_id`, `framework_used`, and `motion_used` fields must match.
+- **Guarantee must state the mechanism.** Never write just "Guaranteed." Write: "you pay nothing unless [market-term] land on your calendar." The mechanism is what makes the guarantee credible.
+- **P.S. rule (has_video: yes):** Pre-answer the biggest objection. Template: "P.S. — If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless calls book. The demo takes 60 seconds. Reply VIDEO and I'll send it." Adapt the wording naturally but keep the objection-first structure.
+- **P.S. rule (has_video: no):** MUST use the exact email-only P.S. format specified above. Do not use the video P.S. for email-only leads.
+- **Opening sentence must be specific to this company.** If you cannot write a first sentence that could only apply to this lead's business, you are not personalizing — you are templating. Use the personalized hook from the lead data.

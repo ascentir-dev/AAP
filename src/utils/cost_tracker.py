@@ -34,6 +34,8 @@ class CostTracker:
     ) -> None:
         self._daily_budget = daily_budget_usd
         self._conn = sqlite3.connect(path, check_same_thread=False)
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA synchronous=NORMAL")
         self._conn.executescript(_SCHEMA)
         self._conn.commit()
 

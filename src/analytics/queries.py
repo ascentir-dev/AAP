@@ -24,11 +24,21 @@ class VariantStats:
     variant_id: str
     framework: str
     sent: int = 0
+    sent_video: int = 0
+    sent_email_only: int = 0
     opened: int = 0
     clicked: int = 0
     replied: int = 0
     bounced: int = 0
     booked: int = 0
+
+    @property
+    def video_pct(self) -> float:
+        return self.sent_video / self.sent if self.sent else 0.0
+
+    @property
+    def email_only_pct(self) -> float:
+        return self.sent_email_only / self.sent if self.sent else 0.0
 
     @property
     def open_rate(self) -> float:
@@ -107,7 +117,9 @@ def variant_stats(db_path: Path, test_id: str) -> list[VariantStats]:
         SELECT
             l.variant_id,
             COALESCE(l.framework, 'unknown') AS framework,
-            SUM(CASE WHEN e.event_type = 'sent'        THEN 1 ELSE 0 END) AS sent,
+            SUM(CASE WHEN e.event_type = 'sent'                              THEN 1 ELSE 0 END) AS sent,
+            SUM(CASE WHEN e.event_type = 'sent' AND l.email_type = 'video'      THEN 1 ELSE 0 END) AS sent_video,
+            SUM(CASE WHEN e.event_type = 'sent' AND l.email_type = 'email_only' THEN 1 ELSE 0 END) AS sent_email_only,
             SUM(CASE WHEN e.event_type = 'opened'      THEN 1 ELSE 0 END) AS opened,
             SUM(CASE WHEN e.event_type = 'clicked'     THEN 1 ELSE 0 END) AS clicked,
             SUM(CASE WHEN e.event_type = 'replied'     THEN 1 ELSE 0 END) AS replied,
@@ -128,6 +140,8 @@ def variant_stats(db_path: Path, test_id: str) -> list[VariantStats]:
             variant_id=r["variant_id"],
             framework=r["framework"],
             sent=r["sent"] or 0,
+            sent_video=r["sent_video"] or 0,
+            sent_email_only=r["sent_email_only"] or 0,
             opened=r["opened"] or 0,
             clicked=r["clicked"] or 0,
             replied=r["replied"] or 0,
@@ -309,6 +323,70 @@ def significance_status(
         "min_sent": min_sent,
         "min_required": min_per_variant,
     }
+
+
+@dataclass
+class SubjectLineStats:
+    """Per-subject-line open/reply performance. Isolates the subject line variable."""
+    subject_line: str
+    variant_id: str
+    sent: int = 0
+    opened: int = 0
+    replied: int = 0
+    booked: int = 0
+
+    @property
+    def open_rate(self) -> float:
+        return self.opened / self.sent if self.sent else 0.0
+
+    @property
+    def reply_rate(self) -> float:
+        return self.replied / self.sent if self.sent else 0.0
+
+    @property
+    def book_rate(self) -> float:
+        return self.booked / self.sent if self.sent else 0.0
+
+
+def subject_line_stats(db_path: Path, min_sent: int = 10) -> list[SubjectLineStats]:
+    """Per-subject-line performance. Groups the actual sent subject text (not formula).
+    Shows open rate and reply rate so you can A/B the subject lines directly.
+    Only returns rows with at least `min_sent` sends to avoid noise."""
+    conn = _connect(db_path)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT
+            l.subject_line,
+            COALESCE(l.variant_id, 'unknown') AS variant_id,
+            COUNT(DISTINCT l.lead_id) AS sent,
+            SUM(CASE WHEN e.event_type = 'opened'      THEN 1 ELSE 0 END) AS opened,
+            SUM(CASE WHEN e.event_type = 'replied'     THEN 1 ELSE 0 END) AS replied,
+            SUM(CASE WHEN e.event_type = 'booked_call' THEN 1 ELSE 0 END) AS booked
+        FROM leads l
+        LEFT JOIN events e ON e.lead_id = l.lead_id
+        WHERE l.subject_line IS NOT NULL
+          AND l.subject_line != ''
+          AND l.status IN ('sent', 'success')
+        GROUP BY l.subject_line, l.variant_id
+        HAVING sent >= ?
+        ORDER BY replied DESC, opened DESC
+        """,
+        (min_sent,),
+    )
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        SubjectLineStats(
+            subject_line=r["subject_line"],
+            variant_id=r["variant_id"],
+            sent=r["sent"] or 0,
+            opened=r["opened"] or 0,
+            replied=r["replied"] or 0,
+            booked=r["booked"] or 0,
+        )
+        for r in rows
+    ]
 
 
 def cost_summary(db_path: Path, test_id: str) -> dict:

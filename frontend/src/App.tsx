@@ -8,7 +8,9 @@ import { PipelinePage } from "./pages/PipelinePage";
 import { CostsPage } from "./pages/CostsPage";
 import { SMSDashboardPage } from "./pages/SMSDashboardPage";
 import { SMSConversationsPage } from "./pages/SMSConversationsPage";
+import { VideoAnalyticsPage } from "./pages/VideoAnalyticsPage";
 import { PlaybookPage } from "./pages/PlaybookPage";
+import TestingDashboardPage from "./pages/TestingDashboardPage";
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
@@ -23,6 +25,8 @@ export default function App() {
         {page === "costs" && <CostsPage />}
         {page === "sms-dashboard" && <SMSDashboardPage />}
         {page === "sms-conversations" && <SMSConversationsPage />}
+        {page === "video-analytics" && <VideoAnalyticsPage />}
+        {page === "testing-dashboard" && <TestingDashboardPage />}
         {page === "playbook" && <PlaybookPage />}
       </main>
     </div>

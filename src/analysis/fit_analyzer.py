@@ -26,7 +26,8 @@ from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wai
 log = logging.getLogger(__name__)
 
 _PROMPT_PATH = Path("prompts/ai_cold_email/analysis.md")
-_VALID_MOTIONS = {"plg_self_serve", "hybrid_sales_assisted", "sales_led_outbound"}
+_VALID_MOTIONS  = {"plg_self_serve", "hybrid_sales_assisted", "sales_led_outbound"}
+_VALID_MARKETS  = {"coach", "agency", "consultant", "financial_advisor", "msp", "other"}
 
 # Haiku 4.5 pricing (per-token)
 _INPUT_COST_PER_TOKEN        = 0.80 / 1_000_000
@@ -110,13 +111,21 @@ async def analyze_fit(
     website_summary = _format_website_summary(enrichment)
     linkedin_data = _format_linkedin(enrichment.get("linkedin", {}))
 
+    # Pre-detected market hint from CSV ingestion (Claude confirms or corrects it)
+    pre_market  = lead.get("market", "")
+    market_hint = (
+        f"\n**Pre-detected market (confirm or correct):** {pre_market}"
+        if pre_market else ""
+    )
+
     # Small, per-lead block — only this changes between calls
     lead_data_block = (
         "## Lead Data\n\n"
         f"**Name:** {lead.get('first_name', '')} {lead.get('last_name', '')}\n"
         f"**Role:** {lead.get('role', '')}\n"
         f"**Company:** {lead.get('company', '')}\n"
-        f"**Website:** {lead.get('website', '')}\n\n"
+        f"**Website:** {lead.get('website', '')}"
+        f"{market_hint}\n\n"
         f"**Website summary:**\n{website_summary}\n\n"
         f"**LinkedIn data:**\n{linkedin_data}"
     )
@@ -160,7 +169,7 @@ async def analyze_fit(
 
     # Validate required keys
     required = {
-        "vertical", "motion", "motion_evidence", "personalized_hook",
+        "market", "vertical", "motion", "motion_evidence", "personalized_hook",
         "recommended_angle", "intent_confidence", "skip", "skip_reason",
     }
     missing = required - set(result.keys())
@@ -172,6 +181,14 @@ async def analyze_fit(
         raise ValueError(
             f"Invalid motion '{result['motion']}'. Must be one of {_VALID_MOTIONS}"
         )
+
+    # Validate market value — normalise unknown values to 'other' rather than crashing
+    if result.get("market") not in _VALID_MARKETS:
+        log.warning(
+            "Unexpected market '%s' for lead=%s — defaulting to 'other'",
+            result.get("market"), lead.get("lead_id"),
+        )
+        result["market"] = "other"
 
     # Log true cost accounting for prompt-cache savings
     usage = response.usage

@@ -262,7 +262,7 @@ export function SMSDashboardPage() {
       <div className="section-header">
         <h2 className="section-title">Phone Number Performance</h2>
         <span style={{ fontSize: 12, color: "#738091" }}>
-          3-number rotation — leads are deterministically assigned
+          3-number rotation. Leads are deterministically assigned
         </span>
       </div>
       <div className="variant-table-wrap">

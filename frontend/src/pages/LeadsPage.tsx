@@ -24,11 +24,19 @@ const STATUS_INTENT: Record<string, Intent> = {
   processing: "primary",
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  dry_run: "Personalised",
+  sent: "Sent",
+  skipped: "Skipped",
+  failed: "Failed",
+  processing: "Processing",
+};
+
 function StatusTag({ status }: { status?: string }) {
   const s = status ?? "unknown";
   return (
     <Tag intent={STATUS_INTENT[s] ?? "none"} minimal>
-      {s}
+      {STATUS_LABEL[s] ?? s}
     </Tag>
   );
 }
@@ -56,8 +64,23 @@ function LeadDrawer({
     | { subject?: string; body?: string; variant_id?: string; framework_used?: string }
     | undefined;
   const hosting = detail?.stages?.hosting as
-    | { video_url?: string; landing_url?: string }
+    | { video_url?: string; landing_url?: string; email_only?: boolean }
     | undefined;
+
+  // Resolve the email body for preview — replace {VIDEO_LINK} placeholder so the user
+  // never sees the raw token. Email-only leads show the Reply VIDEO CTA text.
+  // Video leads show a "(personalized video link)" note.
+  const resolvedEmailBody = (() => {
+    const body = email?.body ?? "";
+    if (!body.includes("{VIDEO_LINK}")) return body;
+    if (hosting?.email_only) {
+      return body.replace(
+        "{VIDEO_LINK}",
+        `\n→ Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book ${detail?.company ?? "your company"}. No call. No pitch. Just the demo.\n`
+      );
+    }
+    return body.replace("{VIDEO_LINK}", "\n→ [Personalized video link goes here]\n");
+  })();
   const analysis = detail?.stages?.analysis as
     | { vertical?: string; motion?: string; intent_confidence?: number; personalized_hook?: string; recommended_angle?: string }
     | undefined;
@@ -181,7 +204,7 @@ function LeadDrawer({
                     </div>
                   )}
                   <div className="email-preview">
-                    {email.body ?? "No body generated yet."}
+                    {resolvedEmailBody || "No body generated yet."}
                   </div>
                 </div>
               </>
@@ -225,7 +248,22 @@ function LeadDrawer({
 }
 
 const PAGE_SIZE = 50;
-const STATUSES = ["all", "sent", "dry_run", "skipped", "failed"];
+const STATUSES = ["all", "dry_run", "skipped", "failed", "sent"];
+const STATUS_DISPLAY: Record<string, string> = {
+  all: "All",
+  dry_run: "Personalised",
+  skipped: "Skipped",
+  failed: "Failed",
+  sent: "Sent",
+};
+
+async function deleteLead(leadId: string): Promise<void> {
+  const r = await fetch(`/api/leads/${encodeURIComponent(leadId)}`, { method: "DELETE" });
+  if (!r.ok) {
+    const text = await r.text();
+    throw new Error(`${r.status}: ${text}`);
+  }
+}
 
 export function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -294,7 +332,7 @@ export function LeadsPage() {
               }}
               small
             >
-              {s}
+              {STATUS_DISPLAY[s] ?? s}
             </Button>
           ))}
         </ButtonGroup>
@@ -327,6 +365,7 @@ export function LeadsPage() {
                   <th>Variant</th>
                   <th>Framework</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -354,6 +393,25 @@ export function LeadsPage() {
                     <td>{l.framework ?? "—"}</td>
                     <td>
                       <StatusTag status={l.status} />
+                    </td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        icon="trash"
+                        minimal
+                        small
+                        intent="danger"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!window.confirm(`Delete ${l.first_name ?? ""} ${l.last_name ?? ""} @ ${l.company ?? l.email}? This cannot be undone.`)) return;
+                          try {
+                            await deleteLead(l.lead_id);
+                            setLeads((prev) => prev.filter((x) => x.lead_id !== l.lead_id));
+                            setTotal((t) => t - 1);
+                          } catch (err) {
+                            alert(err instanceof Error ? err.message : String(err));
+                          }
+                        }}
+                      />
                     </td>
                   </tr>
                 ))}

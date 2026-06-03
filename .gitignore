@@ -29,12 +29,26 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 
-# ── Data ──────────────────────────────────────────────────────────
+# ── Data & generated files ────────────────────────────────────────
 data/input/*.csv
 data/output/
+data/videos/
 data/*.sqlite
 *.sqlite
 ledger.sqlite
+ledger.sqlite-shm
+ledger.sqlite-wal
+*.sqlite-shm
+*.sqlite-wal
+
+# ── Voice / audio samples (large binaries) ────────────────────────
+Voice Samples/
+assets/voice_samples/
+
+# ── Generated video artefacts ─────────────────────────────────────
+*.mp4
+*.mp3
+*.m4a
 
 # ── macOS ─────────────────────────────────────────────────────────
 .DS_Store

@@ -84,6 +84,16 @@ class Settings(BaseSettings):
     cloudflare_pages_base_url: str = Field(
         default="https://go.example.com", alias="CLOUDFLARE_PAGES_BASE_URL"
     )
+    # Worker URL — set automatically by tools/deploy_tracking_worker.py
+    cloudflare_worker_url: str = Field(
+        default="", alias="CLOUDFLARE_WORKER_URL"
+    )
+    cloudflare_kv_namespace_id: str = Field(
+        default="", alias="CLOUDFLARE_KV_NAMESPACE_ID"
+    )
+    cloudflare_api_token: str = Field(
+        default="", alias="CLOUDFLARE_API_TOKEN"
+    )
 
     # ------------------------------------------------------------------
     # Twilio (SMS)
@@ -106,6 +116,18 @@ class Settings(BaseSettings):
     book_a_call_url: str = Field(
         default="https://calendly.com/your-handle/intro",
         alias="BOOK_A_CALL_URL",
+    )
+
+    # ------------------------------------------------------------------
+    # Dashboard / tracking base URL
+    # The public-facing URL of this server — used to build /v/{lead_id}
+    # tracking links embedded in emails.
+    # Local dev:  http://localhost:8000
+    # Production: https://your-domain.com  (set BASE_URL in .env)
+    # ------------------------------------------------------------------
+    base_url: str = Field(
+        default="http://localhost:8000",
+        alias="BASE_URL",
     )
 
     # ------------------------------------------------------------------
@@ -248,7 +270,24 @@ class Settings(BaseSettings):
         }
         return mapping.get(motion, self.fixed_second_half_sales_led_outbound)
 
+    def fixed_second_half_for_market(self, market: str, motion: str = "sales_led_outbound") -> str:
+        """Return the market-specific fixed second half for the video offer script.
 
-@lru_cache(maxsize=1)
+        Lookup order:
+          1. offer.fixed_second_half_{market}  — market-specific (preferred)
+          2. fixed_second_half_for_motion(motion) — motion-based fallback
+        """
+        key = f"fixed_second_half_{market}"
+        result = self.offer.get(key, "")
+        if result:
+            return result
+        return self.fixed_second_half_for_motion(motion)
+
+
 def load_settings() -> Settings:
+    """Load settings from .env + config/settings.yaml.
+
+    NOTE: lru_cache removed — each call re-reads .env so API key
+    changes take effect immediately without a server restart.
+    """
     return Settings()

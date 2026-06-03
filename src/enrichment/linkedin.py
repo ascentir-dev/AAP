@@ -37,6 +37,37 @@ def _fetch_profile_sync(
     return list(client.dataset(run["defaultDatasetId"]).iterate_items())
 
 
+async def get_linkedin_data(
+    lead: dict[str, Any],
+    settings: Any,
+    cost_tracker: Any,
+) -> dict[str, str]:
+    """Get LinkedIn data — uses pre-enrichment if available, calls Apify otherwise.
+
+    Pre-enrichment fast path: if the lead has ``pre_enrichment_linkedin_headline``
+    (populated by skiptrace CSV ingestion), returns it directly and skips Apify.
+    Saves ~$0.008 per lead and avoids API rate limits.
+    """
+    headline = (lead.get("pre_enrichment_linkedin_headline") or "").strip()
+    if headline:
+        log.debug(
+            "Using pre-enriched LinkedIn data for %s — skipping Apify",
+            lead.get("company", ""),
+        )
+        skills    = lead.get("pre_enrichment_skills", "")
+        interests = lead.get("pre_enrichment_interests", "")
+        about     = ". ".join(filter(None, [skills, interests]))
+        return {
+            "headline":     headline,
+            "current_role": lead.get("role", ""),
+            "about":        about,
+            "recent_post":  "",
+            "company_size": lead.get("company_size", ""),
+        }
+    linkedin_url = lead.get("linkedin_url", "")
+    return await enrich_linkedin(linkedin_url, settings, cost_tracker)
+
+
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 async def enrich_linkedin(
     linkedin_url: str,
