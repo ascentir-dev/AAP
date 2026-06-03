@@ -337,7 +337,7 @@ async def api_leads(
         f"""
         SELECT lead_id, email, first_name, last_name, company, website, role,
                vertical, motion, intent_confidence, variant_id, test_id,
-               framework, recommended_angle, status, created_at, completed_at
+               framework, recommended_angle, status, email_type, created_at, completed_at
         FROM leads {where}
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
@@ -381,14 +381,65 @@ async def api_lead_detail(lead_id: str) -> JSONResponse:
     return JSONResponse(lead)
 
 
+# NOTE: Static routes MUST be defined before parameterised routes sharing the
+# same prefix.  FastAPI matches in registration order — /api/leads/bulk-delete
+# and /api/leads/email-only must come before /api/leads/{lead_id} or the path
+# parameter swallows the literal path segments.
+
+@app.post("/api/leads/bulk-delete")
+async def api_bulk_delete_leads(request: Request) -> JSONResponse:
+    """Delete multiple leads by ID in one request."""
+    body = await request.json()
+    lead_ids = body.get("lead_ids", [])
+    if not lead_ids:
+        return JSONResponse({"deleted": 0, "lead_ids": []})
+
+    db = _get_db()
+    conn = sqlite3.connect(str(db))
+    placeholders = ",".join("?" * len(lead_ids))
+    conn.execute(f"DELETE FROM stages WHERE lead_id IN ({placeholders})", lead_ids)
+    conn.execute(f"DELETE FROM leads  WHERE lead_id IN ({placeholders})", lead_ids)
+    conn.commit()
+    deleted = len(lead_ids)
+    conn.close()
+    log.info("Bulk deleted %d leads", deleted)
+    return JSONResponse({"deleted": deleted, "lead_ids": lead_ids})
+
+
+@app.delete("/api/leads/email-only")
+async def api_delete_email_only_leads() -> JSONResponse:
+    """Delete all email-only leads (non-video) that haven't been pushed to Smartlead.
+
+    Keeps all video leads (email_type = 'video') and already-sent leads intact.
+    Targets: status IN ('dry_run', 'skipped', 'failed') AND email_type = 'email_only'
+    """
+    db = _get_db()
+    conn = sqlite3.connect(str(db))
+    conn.row_factory = sqlite3.Row
+
+    rows = conn.execute(
+        """
+        SELECT lead_id FROM leads
+        WHERE email_type = 'email_only'
+          AND status IN ('dry_run', 'skipped', 'failed')
+        """
+    ).fetchall()
+    ids = [r["lead_id"] for r in rows]
+
+    if ids:
+        placeholders = ",".join("?" * len(ids))
+        conn.execute(f"DELETE FROM stages WHERE lead_id IN ({placeholders})", ids)
+        conn.execute(f"DELETE FROM leads  WHERE lead_id IN ({placeholders})", ids)
+        conn.commit()
+
+    conn.close()
+    log.info("Deleted %d email-only leads", len(ids))
+    return JSONResponse({"deleted": len(ids), "lead_ids": ids})
+
+
 @app.delete("/api/leads/{lead_id}")
 async def api_delete_lead(lead_id: str) -> JSONResponse:
-    """Delete a lead and all its stages from the ledger.
-
-    Used by the Leads page to remove personalised leads the user doesn't want
-    to push to Smartlead. Only leads with status dry_run or failed can be deleted
-    this way — sent/success leads are retained for analytics.
-    """
+    """Delete a single lead and all its stages from the ledger."""
     db = _get_db()
     conn = sqlite3.connect(str(db))
     conn.row_factory = sqlite3.Row

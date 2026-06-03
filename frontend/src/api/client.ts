@@ -97,3 +97,26 @@ export function stopPipeline(): Promise<{ stopped: boolean }> {
 export function fetchPipelineStatus(): Promise<PipelineStatus> {
   return get<PipelineStatus>("/pipeline/status");
 }
+
+// ─── Bulk lead operations ──────────────────────────────────────────────────
+
+export async function deleteLead(leadId: string): Promise<void> {
+  const r = await fetch(`/api/leads/${encodeURIComponent(leadId)}`, { method: "DELETE" });
+  if (!r.ok) { const t = await r.text(); throw new Error(`${r.status}: ${t}`); }
+}
+
+export async function bulkDeleteLeads(leadIds: string[]): Promise<{ deleted: number }> {
+  const r = await fetch("/api/leads/bulk-delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ lead_ids: leadIds }),
+  });
+  if (!r.ok) { const t = await r.text(); throw new Error(`${r.status}: ${t}`); }
+  return r.json();
+}
+
+export async function deleteEmailOnlyLeads(): Promise<{ deleted: number }> {
+  const r = await fetch("/api/leads/email-only", { method: "DELETE" });
+  if (!r.ok) { const t = await r.text(); throw new Error(`${r.status}: ${t}`); }
+  return r.json();
+}

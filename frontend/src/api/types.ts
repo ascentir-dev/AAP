@@ -82,6 +82,7 @@ export interface Lead {
   variant_id?: string;
   framework?: string;
   status?: string;
+  email_type?: string;
   created_at?: string;
   completed_at?: string;
 }

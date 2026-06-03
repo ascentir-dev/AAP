@@ -13,7 +13,13 @@ import {
   ButtonGroup,
   Intent,
 } from "@blueprintjs/core";
-import { fetchLeads, fetchLead } from "../api/client";
+import {
+  fetchLeads,
+  fetchLead,
+  deleteLead,
+  bulkDeleteLeads,
+  deleteEmailOnlyLeads,
+} from "../api/client";
 import type { Lead, LeadDetail } from "../api/types";
 
 const STATUS_INTENT: Record<string, Intent> = {
@@ -39,6 +45,38 @@ function StatusTag({ status }: { status?: string }) {
       {STATUS_LABEL[s] ?? s}
     </Tag>
   );
+}
+
+function EmailTypeTag({ emailType }: { emailType?: string }) {
+  if (emailType === "video") {
+    return (
+      <Tag
+        minimal
+        style={{
+          background: "rgba(0,200,150,0.15)",
+          color: "#00c896",
+          border: "1px solid rgba(0,200,150,0.3)",
+        }}
+      >
+        📹 Video
+      </Tag>
+    );
+  }
+  if (emailType === "email_only") {
+    return (
+      <Tag
+        minimal
+        style={{
+          background: "rgba(140,150,160,0.15)",
+          color: "#8c9299",
+          border: "1px solid rgba(140,150,160,0.3)",
+        }}
+      >
+        ✉️ Email
+      </Tag>
+    );
+  }
+  return null;
 }
 
 function LeadDrawer({
@@ -257,14 +295,6 @@ const STATUS_DISPLAY: Record<string, string> = {
   sent: "Sent",
 };
 
-async function deleteLead(leadId: string): Promise<void> {
-  const r = await fetch(`/api/leads/${encodeURIComponent(leadId)}`, { method: "DELETE" });
-  if (!r.ok) {
-    const text = await r.text();
-    throw new Error(`${r.status}: ${text}`);
-  }
-}
-
 export function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
@@ -273,6 +303,11 @@ export function LeadsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Multi-select state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [deleteEmailOnlyLoading, setDeleteEmailOnlyLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -290,6 +325,11 @@ export function LeadsPage() {
     load();
   }, [load]);
 
+  // Clear selection on page or filter change
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, status]);
+
   const filtered = search
     ? leads.filter(
         (l) =>
@@ -299,6 +339,71 @@ export function LeadsPage() {
     : leads;
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  // Select-all logic
+  const allVisibleIds = filtered.map((l) => l.lead_id);
+  const allSelected =
+    allVisibleIds.length > 0 && allVisibleIds.every((id) => selectedIds.has(id));
+  const someSelected =
+    allVisibleIds.some((id) => selectedIds.has(id)) && !allSelected;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(allVisibleIds));
+    }
+  };
+
+  const toggleSelectOne = (leadId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(leadId)) {
+        next.delete(leadId);
+      } else {
+        next.add(leadId);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (!window.confirm(`Delete ${ids.length} leads? This cannot be undone.`)) return;
+    setBulkDeleting(true);
+    try {
+      await bulkDeleteLeads(ids);
+      setLeads((prev) => prev.filter((l) => !selectedIds.has(l.lead_id)));
+      setTotal((t) => t - ids.length);
+      setSelectedIds(new Set());
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const handleDeleteEmailOnly = async () => {
+    if (
+      !window.confirm(
+        "Delete all email-only leads? This keeps all video leads. Cannot be undone."
+      )
+    )
+      return;
+    setDeleteEmailOnlyLoading(true);
+    try {
+      const result = await deleteEmailOnlyLeads();
+      alert(`Deleted ${result.deleted} email-only leads.`);
+      await load();
+      setSelectedIds(new Set());
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    } finally {
+      setDeleteEmailOnlyLoading(false);
+    }
+  };
+
+  const hasEmailOnlyVisible = filtered.some((l) => l.email_type === "email_only");
 
   return (
     <div>
@@ -339,7 +444,53 @@ export function LeadsPage() {
         <span style={{ fontSize: 12, color: "#738091", marginLeft: "auto" }}>
           {total.toLocaleString()} leads total
         </span>
+        {hasEmailOnlyVisible && (
+          <Button
+            intent="danger"
+            outlined
+            small
+            loading={deleteEmailOnlyLoading}
+            onClick={handleDeleteEmailOnly}
+          >
+            Delete All Email-Only
+          </Button>
+        )}
       </div>
+
+      {/* Selection action bar */}
+      {selectedIds.size > 0 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "#1c2127",
+            border: "1px solid #e63946",
+            borderRadius: 8,
+            padding: "10px 16px",
+            marginBottom: 12,
+          }}
+        >
+          <span style={{ fontSize: 13, color: "#abb3bf" }}>
+            ☑ {selectedIds.size} lead{selectedIds.size !== 1 ? "s" : ""} selected
+          </span>
+          <Button
+            intent="danger"
+            small
+            loading={bulkDeleting}
+            onClick={handleBulkDelete}
+          >
+            Delete Selected
+          </Button>
+          <Button
+            small
+            minimal
+            onClick={() => setSelectedIds(new Set())}
+          >
+            Deselect All
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div style={{ textAlign: "center", padding: 48 }}>
@@ -358,6 +509,17 @@ export function LeadsPage() {
             <HTMLTable interactive style={{ width: "100%" }}>
               <thead>
                 <tr>
+                  <th style={{ width: 32, paddingRight: 8 }}>
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected;
+                      }}
+                      onChange={toggleSelectAll}
+                      style={{ cursor: "pointer", width: 16, height: 16 }}
+                    />
+                  </th>
                   <th>Name</th>
                   <th>Company</th>
                   <th>Email</th>
@@ -365,6 +527,7 @@ export function LeadsPage() {
                   <th>Variant</th>
                   <th>Framework</th>
                   <th>Status</th>
+                  <th>Type</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -375,6 +538,21 @@ export function LeadsPage() {
                     onClick={() => setSelectedId(l.lead_id)}
                     style={{ cursor: "pointer" }}
                   >
+                    <td
+                      style={{ paddingRight: 8 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSelectOne(l.lead_id);
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(l.lead_id)}
+                        onChange={() => toggleSelectOne(l.lead_id)}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ cursor: "pointer", width: 16, height: 16 }}
+                      />
+                    </td>
                     <td>
                       {l.first_name ?? ""} {l.last_name ?? ""}
                     </td>
@@ -394,6 +572,9 @@ export function LeadsPage() {
                     <td>
                       <StatusTag status={l.status} />
                     </td>
+                    <td>
+                      <EmailTypeTag emailType={l.email_type} />
+                    </td>
                     <td onClick={(e) => e.stopPropagation()}>
                       <Button
                         icon="trash"
@@ -402,13 +583,27 @@ export function LeadsPage() {
                         intent="danger"
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (!window.confirm(`Delete ${l.first_name ?? ""} ${l.last_name ?? ""} @ ${l.company ?? l.email}? This cannot be undone.`)) return;
+                          if (
+                            !window.confirm(
+                              `Delete ${l.first_name ?? ""} ${l.last_name ?? ""} @ ${l.company ?? l.email}? This cannot be undone.`
+                            )
+                          )
+                            return;
                           try {
                             await deleteLead(l.lead_id);
-                            setLeads((prev) => prev.filter((x) => x.lead_id !== l.lead_id));
+                            setLeads((prev) =>
+                              prev.filter((x) => x.lead_id !== l.lead_id)
+                            );
                             setTotal((t) => t - 1);
+                            setSelectedIds((prev) => {
+                              const next = new Set(prev);
+                              next.delete(l.lead_id);
+                              return next;
+                            });
                           } catch (err) {
-                            alert(err instanceof Error ? err.message : String(err));
+                            alert(
+                              err instanceof Error ? err.message : String(err)
+                            );
                           }
                         }}
                       />
