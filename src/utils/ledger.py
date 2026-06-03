@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS events (
 
 CREATE INDEX IF NOT EXISTS idx_events_lead ON events(lead_id);
 CREATE INDEX IF NOT EXISTS idx_events_type_time ON events(event_type, occurred_at);
+
+CREATE TABLE IF NOT EXISTS csv_uploads (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename        TEXT    NOT NULL,
+    csv_path        TEXT    NOT NULL,
+    uploaded_at     TEXT    NOT NULL DEFAULT (datetime('now')),
+    lead_count      INTEGER DEFAULT 0,
+    new_leads       INTEGER DEFAULT 0,
+    duplicate_leads INTEGER DEFAULT 0
+);
 """
 
 
@@ -204,6 +214,28 @@ class Ledger:
             "SELECT lead_id FROM leads WHERE email=? LIMIT 1", (email,)
         ).fetchone()
         return row["lead_id"] if row else None
+
+    # ------------------------------------------------------------------
+    # CSV upload history
+    # ------------------------------------------------------------------
+    def record_csv_upload(
+        self,
+        filename: str,
+        csv_path: str,
+        lead_count: int,
+        new_leads: int,
+        duplicate_leads: int,
+    ) -> int:
+        """Insert a row into csv_uploads and return the new row id."""
+        cur = self._execute(
+            """
+            INSERT INTO csv_uploads (filename, csv_path, lead_count, new_leads, duplicate_leads)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (filename, csv_path, lead_count, new_leads, duplicate_leads),
+        )
+        self._conn.commit()
+        return cur.lastrowid  # type: ignore[return-value]
 
     def close(self) -> None:
         self._conn.close()

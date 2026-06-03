@@ -30,6 +30,7 @@ import {
   fetchPipelineStatus,
   fetchReadiness,
   checkCampaign,
+  fetchCsvHistory,
 } from "../api/client";
 import type {
   PipelineStatus,
@@ -38,6 +39,7 @@ import type {
   ReadinessResponse,
   ActivityItem,
   CampaignCheckResult,
+  CsvUpload,
 } from "../api/types";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -184,6 +186,10 @@ export function PipelinePage() {
   const [dragOver,    setDragOver]    = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // ── CSV history
+  const [csvHistory,    setCsvHistory]    = useState<CsvUpload[]>([]);
+  const [totalNewLeads, setTotalNewLeads] = useState(0);
+
   // ── preview (new vs duplicate)
   const [preview,    setPreview]    = useState<PreviewResponse | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -216,6 +222,30 @@ export function PipelinePage() {
     catch { /* ignore */ }
     finally { setLoadingReadiness(false); }
   }, []);
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      const h = await fetchCsvHistory();
+      setCsvHistory(h.uploads);
+      setTotalNewLeads(h.total_new_leads);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { refreshHistory(); }, [refreshHistory]);
+
+  // ── restore last CSV from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("aap_last_csv");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.csv_path && parsed.filename) {
+          setUpload(parsed);
+          previewCsv(parsed.csv_path).then(setPreview).catch(() => {});
+        }
+      } catch { /* ignore */ }
+    }
+  }, []); // runs once on mount
 
   const runCampaignCheck = useCallback(async () => {
     setCampaignChecking(true);
@@ -270,6 +300,8 @@ export function PipelinePage() {
     try {
       const result = await uploadCsv(file);
       setUpload(result);
+      localStorage.setItem("aap_last_csv", JSON.stringify(result));
+      refreshHistory();
       setPreviewing(true);
       try { setPreview(await previewCsv(result.csv_path)); }
       finally { setPreviewing(false); }
@@ -376,7 +408,7 @@ export function PipelinePage() {
           <><div style={{ fontSize: 30, marginBottom: 6 }}>📄</div>
             <div style={{ fontWeight: 600, color: "#f6f7f9", fontSize: 15 }}>{upload.filename}</div>
             <div style={{ fontSize: 12, color: "#738091", marginTop: 4 }}>
-              {fmt(upload.lead_count)} leads · click to replace
+              {fmt(upload.lead_count)} total · {fmt(upload.new_leads ?? 0)} new · {fmt(upload.duplicate_leads ?? 0)} already processed · click to replace
             </div></>
         ) : (
           <><div style={{ fontSize: 36, marginBottom: 8 }}>📂</div>
@@ -395,6 +427,54 @@ export function PipelinePage() {
         <Callout intent="danger" icon="warning-sign" style={{ marginBottom: 16 }}>
           {uploadErr}
         </Callout>
+      )}
+
+      {/* ── CSV Upload History ── */}
+      {csvHistory.length > 0 && (
+        <div style={{ marginTop: 20, marginBottom: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#738091", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+            CSV Upload History
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {csvHistory.map((u) => (
+              <div
+                key={u.id}
+                style={{
+                  background: upload?.csv_path === u.csv_path ? "#1c2e40" : "#1a2433",
+                  border: upload?.csv_path === u.csv_path ? "1px solid #1D6FA4" : "1px solid #253545",
+                  borderRadius: 6,
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  const restored = { filename: u.filename, csv_path: u.csv_path, lead_count: u.lead_count, new_leads: u.new_leads, duplicate_leads: u.duplicate_leads };
+                  setUpload(restored);
+                  localStorage.setItem("aap_last_csv", JSON.stringify(restored));
+                  previewCsv(u.csv_path).then(setPreview).catch(() => {});
+                }}
+              >
+                <span style={{ fontSize: 16 }}>📄</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, color: "#f6f7f9", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {u.filename}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#5f6b7c", marginTop: 1 }}>
+                    {u.lead_count.toLocaleString()} total · <span style={{ color: "#3ddc84" }}>{u.new_leads.toLocaleString()} new</span> · {u.duplicate_leads.toLocaleString()} already processed · {new Date(u.uploaded_at).toLocaleDateString()}
+                  </div>
+                </div>
+                {upload?.csv_path === u.csv_path && (
+                  <span style={{ fontSize: 10, color: "#1D6FA4", fontWeight: 600 }}>ACTIVE</span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 12, color: "#738091" }}>
+            <span style={{ color: "#3ddc84", fontWeight: 600 }}>{totalNewLeads.toLocaleString()}</span> unique new leads across all uploads
+          </div>
+        </div>
       )}
 
       {/* ── Duplicate preview ── */}

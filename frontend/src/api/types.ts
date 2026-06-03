@@ -116,9 +116,26 @@ export interface PipelineStatus {
 }
 
 export interface UploadResponse {
-  filename:   string;
-  lead_count: number;
-  csv_path:   string;
+  filename:        string;
+  lead_count:      number;
+  new_leads:       number;       // leads NOT already in DB
+  duplicate_leads: number;       // leads already processed
+  csv_path:        string;
+}
+
+export interface CsvUpload {
+  id:              number;
+  filename:        string;
+  csv_path:        string;
+  uploaded_at:     string;
+  lead_count:      number;
+  new_leads:       number;
+  duplicate_leads: number;
+}
+
+export interface CsvHistoryResponse {
+  uploads:         CsvUpload[];
+  total_new_leads: number;
 }
 
 export interface ReadinessResponse {

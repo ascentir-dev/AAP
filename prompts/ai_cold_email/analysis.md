@@ -144,31 +144,9 @@ Pick the single angle most relevant to this lead's specific acquisition situatio
 
 ---
 
-## Hard Disqualifiers (skip=true)
+## Skip Policy
 
-**TARGET SKIP RATE: ~5% of all leads. If you are skipping more than 1 in 20 leads you are being too aggressive.**
-
-Skip ONLY on CONFIRMED, OBVIOUS, INDISPUTABLE disqualifiers below. When in ANY doubt — skip=false.
-
-**1. Confirmed non-commercial organisation**
-The organisation explicitly identifies as a registered nonprofit (501(c)(3) or equivalent), government agency, public school/university, or trade association — AND has no commercial services arm. Do NOT skip: a nonprofit that also runs paid training, consulting, or advisory services. Do NOT skip just because the company sounds charitable or community-focused.
-
----
-
-## Do NOT skip for these — they are common false-positive traps:
-
-- **Any doubt at all** — when uncertain, skip=false. A wrong email is recoverable; a skipped qualified lead is a missed opportunity.
-- **Operational or non-sales title** (Director of Operations, VP Technology, Head of IT, Chief of Staff, Project Manager, etc.) — engage them. They often influence or own vendor decisions.
-- **Not a founder or C-suite** — Directors, VPs, Managers, and Associates at agencies, consulting firms, and coaching businesses frequently control purchases under $50K.
-- **Basic, thin, or brochure website** — that's a pain signal, not a disqualifier. A bad website means they need us more.
-- **"Other" market classification** — use the generic template, set skip=false. Do not skip because market fit is imperfect.
-- **Website blocked, redirects, or returns no content** — use whatever data is available (LinkedIn, company name, role, description). Only skip if ALL sources are completely empty.
-- **Low intent score** — intent_confidence is just a quality score; it does NOT trigger a skip. skip=false even at score 1.
-- **Any business model** — physical products, SaaS, e-commerce, staffing, recruiting, real estate, digital agencies, competitors, mixed models — all skip=false. The one skip=true is confirmed nonprofits/government with zero commercial arm.
-- **Person may have changed roles** — send anyway. LinkedIn data may be stale. skip=false unless LinkedIn EXPLICITLY shows a different current employer right now.
-- **Company seems small or solo** — we serve businesses of all sizes. skip=false.
-- **LinkedIn profile is incomplete or missing** — not a reason to skip. Use available data.
-- **You cannot find a specific hook** — write the best hook you can from available data. Only skip if there is TRULY zero information across every single source.
+`skip` MUST always be `false`. Every lead is processed regardless of market, business type, or any other factor. Do not set skip=true under any circumstances. The `skip_reason` field must always be an empty string `""`.
 
 ---
 

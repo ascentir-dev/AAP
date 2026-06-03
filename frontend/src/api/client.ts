@@ -7,6 +7,7 @@ import type {
   PreviewResponse,
   ReadinessResponse,
   CampaignCheckResult,
+  CsvHistoryResponse,
 } from "./types";
 
 const BASE = "/api";
@@ -101,6 +102,10 @@ export function stopPipeline(): Promise<{ stopped: boolean }> {
 
 export function fetchPipelineStatus(): Promise<PipelineStatus> {
   return get<PipelineStatus>("/pipeline/status");
+}
+
+export function fetchCsvHistory(): Promise<CsvHistoryResponse> {
+  return get<CsvHistoryResponse>("/pipeline/csv-history");
 }
 
 // ─── Bulk lead operations ──────────────────────────────────────────────────

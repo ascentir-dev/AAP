@@ -262,10 +262,13 @@ async def process_lead(
         ledger.save_stage(lead_id, "analysis", analysis)
 
     analysis = ledger.get_stage(lead_id, "analysis")
+    # Skip logic disabled — every lead is processed regardless of AI analysis output.
+    # If Claude returned skip=true, log it for visibility but continue processing.
     if analysis.get("skip"):
-        log.info(f"[{lead_id}] Skipping: {analysis.get('skip_reason')}")
-        ledger.mark_complete(lead_id, status="skipped")
-        return {"lead_id": lead_id, "status": "skipped"}
+        log.info(
+            "[%s] Analysis suggested skip (%s) — skip disabled, continuing.",
+            lead_id, analysis.get("skip_reason", "no reason given"),
+        )
 
     # Save vertical, motion, market, intent_confidence to ledger
     ledger.save_lead_metadata(

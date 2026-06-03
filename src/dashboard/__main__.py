@@ -478,13 +478,84 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
     reader  = _csv.reader(_io.StringIO(decoded))
     lead_count = max(0, sum(1 for _ in reader) - 1)   # -1 for header
 
+    # Count how many of these leads already exist in the DB (duplicates)
+    import csv as _csv2, io as _io2, hashlib as _hashlib
+    _decoded2 = content.decode("utf-8", errors="replace")
+    _reader2 = _csv2.DictReader(_io2.StringIO(_decoded2))
+    # Normalise keys
+    _rows2 = [{k.strip().upper(): (v or "").strip() for k, v in row.items()} for row in _reader2]
+    _emails = []
+    for _row in _rows2:
+        _e = _row.get("BUSINESS_EMAIL") or _row.get("BUSINESS_VERIFIED_EMAILS") or _row.get("EMAIL", "")
+        _e = _e.split(",")[0].strip().lower()
+        if _e and "@" in _e:
+            _emails.append(_e)
+
+    _lead_ids = [_hashlib.sha256(e.encode()).hexdigest()[:16] for e in _emails]
+    duplicate_count_upload = 0
+    if _lead_ids:
+        _db = _get_db()
+        _conn2 = sqlite3.connect(str(_db))
+        _placeholders = ",".join("?" * len(_lead_ids))
+        _existing = _conn2.execute(
+            f"SELECT COUNT(*) FROM leads WHERE lead_id IN ({_placeholders})", _lead_ids
+        ).fetchone()[0]
+        duplicate_count_upload = _existing
+        _conn2.close()
+    new_leads_count = max(0, lead_count - duplicate_count_upload)
+
+    # Record this upload in the csv_uploads table
+    try:
+        from src.utils.ledger import Ledger
+        _ledger = Ledger(str(_get_db()))
+        _ledger.record_csv_upload(
+            filename=file.filename,
+            csv_path=str(dest),
+            lead_count=lead_count,
+            new_leads=new_leads_count,
+            duplicate_leads=duplicate_count_upload,
+        )
+    except Exception as _e:
+        log.warning("Could not record CSV upload: %s", _e)
+
     return JSONResponse(
         {
             "filename": file.filename,
             "lead_count": lead_count,
+            "new_leads": new_leads_count,
+            "duplicate_leads": duplicate_count_upload,
             "csv_path": str(dest),
         }
     )
+
+
+@app.get("/api/pipeline/csv-history")
+async def api_csv_history() -> JSONResponse:
+    """Return all uploaded CSVs with their lead counts, newest first."""
+    db = _get_db()
+    if not db.exists():
+        return JSONResponse({"uploads": [], "total_new_leads": 0})
+    conn = sqlite3.connect(str(db))
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, filename, csv_path, uploaded_at,
+                   lead_count, new_leads, duplicate_leads
+            FROM csv_uploads
+            ORDER BY uploaded_at DESC
+            LIMIT 50
+            """
+        ).fetchall()
+        uploads = [dict(r) for r in rows]
+        total_new = sum(u["new_leads"] for u in uploads)
+    except Exception:
+        # Table may not exist yet on older DBs
+        uploads = []
+        total_new = 0
+    finally:
+        conn.close()
+    return JSONResponse({"uploads": uploads, "total_new_leads": total_new})
 
 
 @app.get("/api/pipeline/readiness")
