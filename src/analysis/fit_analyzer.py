@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 import anthropic
-from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 log = logging.getLogger(__name__)
 
@@ -89,10 +89,16 @@ def _format_linkedin(linkedin: dict[str, Any]) -> str:
     return "\n".join(lines) or "No LinkedIn data available."
 
 
+# Sentinel for retryable generation failures (bad JSON, Claude refusal).
+# Distinct from ValueError so the retry decorator can target it specifically.
+class _AnalysisParseError(Exception):
+    pass
+
+
 @retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_not_exception_type(ValueError),
+    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=1, min=2, max=15),
+    retry=retry_if_exception_type(_AnalysisParseError),
 )
 async def analyze_fit(
     lead: dict[str, Any],
@@ -156,18 +162,39 @@ async def analyze_fit(
     )
 
     raw = response.content[0].text.strip()
+
+    # Detect Claude content refusals — model says prose instead of JSON.
+    # These are transient; retry with the same prompt (model re-samples).
+    _REFUSAL_PREFIXES = (
+        "i need to pause", "i can't", "i cannot", "i'm unable",
+        "i am unable", "i must decline", "i won't", "sorry,",
+    )
+    if raw.lower()[:50].startswith(_REFUSAL_PREFIXES):
+        log.warning("Claude analysis refusal detected — retrying. Raw[:100]: %s", raw[:100])
+        raise _AnalysisParseError(f"Claude refused to generate analysis: {raw[:120]}")
+
     # Strip markdown code fences if the model wraps them
     if raw.startswith("```"):
         raw = "\n".join(raw.split("\n")[1:])
         if raw.endswith("```"):
             raw = raw[: raw.rfind("```")]
 
+    # Try strict JSON first, then fall back to a lenient fix for unquoted keys
     try:
         result = json.loads(raw)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Claude returned invalid JSON: {e}\nRaw: {raw[:200]}") from e
+    except json.JSONDecodeError:
+        # Claude sometimes emits JS-style {key: value} without quoting keys.
+        # Fix with a targeted regex before giving up.
+        fixed = re.sub(r'(?<=[{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'"\1":', raw)
+        try:
+            result = json.loads(fixed)
+            log.debug("JSON parse recovered after key-quoting fix for this lead")
+        except json.JSONDecodeError as e:
+            # Genuinely unparseable — raise retryable error so tenacity tries again
+            log.warning("Claude returned unparseable JSON — retrying. Raw[:200]: %s", raw[:200])
+            raise _AnalysisParseError(f"Unparseable JSON after fix attempt: {e}") from e
 
-    # Validate required keys
+    # Validate required keys — this is a structural problem, not retryable
     required = {
         "market", "vertical", "motion", "motion_evidence", "personalized_hook",
         "recommended_angle", "intent_confidence", "skip", "skip_reason",

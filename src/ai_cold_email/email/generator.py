@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 import anthropic
-from tenacity import retry, retry_if_not_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from src.analytics.variant_assigner import apply_variant_overrides
 from src.utils.template_store import get_template_override_block
@@ -78,32 +78,53 @@ def _normalise_body(body: str) -> str:
     return body.replace("—", " - ").replace("–", "-")
 
 
+_EMAIL_REFUSAL_PREFIXES = (
+    "i need to pause", "i can't", "i cannot", "i'm unable",
+    "i am unable", "i must decline", "i won't", "sorry,",
+)
+
+
 def _parse_response(raw: str) -> dict[str, Any]:
     text = raw.strip()
+
+    # Detect Claude content refusals — prose instead of JSON, retryable
+    if text.lower()[:50].startswith(_EMAIL_REFUSAL_PREFIXES):
+        log.warning("Claude email refusal — will retry. Raw[:100]: %s", text[:100])
+        raise _EmailParseError(f"Claude refused: {text[:120]}")
+
     if text.startswith("```"):
-        # Fenced JSON at top of response — strip the opening and closing fence
         text = "\n".join(text.split("\n")[1:])
         if "```" in text:
             text = text[: text.rfind("```")]
     else:
-        # Claude sometimes wraps output in prose ("Here is the output: ```json...```")
-        # Try to extract the JSON block from anywhere in the response
         m = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
         if m:
             text = m.group(1)
         else:
-            # Last resort: grab the outermost { ... } object
             m = re.search(r"\{.*\}", text, re.DOTALL)
             if m:
                 text = m.group(0)
+
+    # Strict JSON first, then JS-style unquoted-key fix, then give up retryably
     try:
         result = json.loads(text.strip())
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Claude returned invalid JSON: {e}\nRaw: {raw[:300]}") from e
-    # Normalise AI writing signals in the body at generation time
+    except json.JSONDecodeError:
+        fixed = re.sub(r'(?<=[{,])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r'"\1":', text.strip())
+        try:
+            result = json.loads(fixed)
+            log.debug("Email JSON recovered after key-quoting fix")
+        except json.JSONDecodeError as e:
+            log.warning("Unparseable email JSON — retrying. Raw[:200]: %s", raw[:200])
+            raise _EmailParseError(f"Unparseable JSON: {e}") from e
+
     if "body" in result:
         result["body"] = _normalise_body(result["body"])
     return result
+
+
+# Retryable: bad JSON or Claude refusal (transient generation failures)
+class _EmailParseError(Exception):
+    pass
 
 
 def _validate(result: dict[str, Any], has_video: bool = True) -> None:
@@ -111,7 +132,6 @@ def _validate(result: dict[str, Any], has_video: bool = True) -> None:
     if missing:
         raise ValueError(f"Email response missing keys: {missing}")
     # Only require {VIDEO_LINK} for video emails.
-    # Email-only leads get a plain-text Reply VIDEO CTA — no placeholder needed.
     if has_video and "{VIDEO_LINK}" not in result.get("body", ""):
         raise ValueError("Email body does not contain {VIDEO_LINK} placeholder")
 
@@ -148,9 +168,9 @@ async def _call_claude(
 
 
 @retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_not_exception_type(ValueError),
+    stop=stop_after_attempt(4),
+    wait=wait_exponential(multiplier=1, min=2, max=15),
+    retry=retry_if_exception_type(_EmailParseError),
 )
 async def generate_email(
     lead: dict[str, Any],
@@ -202,20 +222,14 @@ async def generate_email(
 
     result = _parse_response(raw)
 
-    # For video emails: retry if {VIDEO_LINK} placeholder is missing.
-    # For email-only emails: {VIDEO_LINK} is NOT required — Claude writes the CTA directly.
+    # For video emails: if {VIDEO_LINK} is absent, raise _EmailParseError so
+    # tenacity retries the whole function with the reminder appended.
     if has_video and "{VIDEO_LINK}" not in result.get("body", ""):
-        log.warning("Email body missing {VIDEO_LINK} — retrying with reminder")
-        reminder_block = (
-            lead_data_block
-            + "\n\nCRITICAL REMINDER: This lead has has_video: yes. Your response body "
-            "MUST contain the literal string {VIDEO_LINK} (with curly braces). Please regenerate."
+        log.warning("Email body missing {VIDEO_LINK} — triggering retry via _EmailParseError")
+        raise _EmailParseError(
+            "has_video=yes but {VIDEO_LINK} absent from body. "
+            "REMINDER: body MUST contain literal {VIDEO_LINK}."
         )
-        response = await _call_claude(
-            client, settings.anthropic_generation_model,
-            static_instructions, reminder_block,
-        )
-        result = _parse_response(response.content[0].text)
 
     _validate(result, has_video=has_video)
 

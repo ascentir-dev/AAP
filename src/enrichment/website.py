@@ -253,6 +253,9 @@ async def scrape_website(url: str, settings: Any) -> dict[str, str]:
         ),
         # Accept-Language signals English content to avoid redirect to localised sites
         extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
+        # Ignore expired or self-signed SSL certificates — many small business sites
+        # have certificate issues (expired, wrong domain) and we still want the text.
+        ignore_https_errors=True,
     )
 
     if _shared_browser is not None:
