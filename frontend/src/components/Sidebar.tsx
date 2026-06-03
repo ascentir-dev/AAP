@@ -41,10 +41,15 @@ export function Sidebar({ current, onChange }: SidebarProps) {
   return (
     <div className="sidebar">
       <div className="sidebar-logo">
-        <div className="sidebar-logo-mark">A</div>
+        <img
+          src="/logo.svg"
+          alt="Ascentir Technologies"
+          className="sidebar-logo-mark"
+          style={{ background: "transparent" }}
+        />
         <div className="sidebar-logo-text">
           <span className="sidebar-brand">Ascentir</span>
-          <span className="sidebar-sub">Outreach OS</span>
+          <span className="sidebar-sub">Technologies</span>
         </div>
       </div>
 
