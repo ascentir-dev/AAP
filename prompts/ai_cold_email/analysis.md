@@ -29,7 +29,7 @@ Map the lead to ONE of these five target markets. These are the ONLY markets we 
 - Business coaches, life coaches, executive coaches, health coaches
 - Professional training companies, certification programs, online courses
 - Group programs, mastermind groups, cohort-based education
-- Sell primarily via discovery calls → close high-ticket programs ($3K-$50K+)
+- Sell primarily via qualified appointments → close high-ticket programs ($3K-$50K+)
 - Pain: inconsistent enrollments, launch fatigue, referral dependence
 
 ### `agency`
@@ -45,7 +45,7 @@ Map the lead to ONE of these five target markets. These are the ONLY markets we 
 - Strategy consulting, operations consulting, management advisory
 - Fractional CEO, fractional COO, fractional CMO practices
 - Specialist advisory (supply chain, HR, finance, technology)
-- Sell high-value engagements ($25K-$500K+) via intro calls
+- Sell high-value engagements ($25K-$500K+) via qualified appointments
 - Pain: referral-dependent pipeline, gaps between engagements, BD falls on principals
 
 ### `financial_advisor`
