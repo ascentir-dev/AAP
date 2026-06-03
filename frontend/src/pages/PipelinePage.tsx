@@ -29,6 +29,7 @@ import {
   stopPipeline,
   fetchPipelineStatus,
   fetchReadiness,
+  checkCampaign,
 } from "../api/client";
 import type {
   PipelineStatus,
@@ -36,6 +37,7 @@ import type {
   PreviewResponse,
   ReadinessResponse,
   ActivityItem,
+  CampaignCheckResult,
 } from "../api/types";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -191,6 +193,12 @@ export function PipelinePage() {
   const [readiness,        setReadiness]        = useState<ReadinessResponse | null>(null);
   const [loadingReadiness, setLoadingReadiness] = useState(false);
 
+  // ── campaign validation (Smartlead campaign health check)
+  const [campaignCheck,     setCampaignCheck]     = useState<CampaignCheckResult | null>(null);
+  const [campaignChecking,  setCampaignChecking]  = useState(false);
+  // true = check ran and threw a network error (show neutral msg, don't block push)
+  const [campaignFetchFailed, setCampaignFetchFailed] = useState(false);
+
   // ── run state
   const [lastMode,   setLastMode]   = useState<RunMode | null>(null);
   const [starting,   setStarting]   = useState(false);
@@ -209,6 +217,22 @@ export function PipelinePage() {
     finally { setLoadingReadiness(false); }
   }, []);
 
+  const runCampaignCheck = useCallback(async () => {
+    setCampaignChecking(true);
+    setCampaignFetchFailed(false);
+    try {
+      const result = await checkCampaign();
+      setCampaignCheck(result);
+    } catch {
+      // Network error — flag it so the UI can show a neutral message
+      // without blocking the push button
+      setCampaignCheck(null);
+      setCampaignFetchFailed(true);
+    } finally {
+      setCampaignChecking(false);
+    }
+  }, []);
+
   const pollStatus = useCallback(async () => {
     try { setStatus(await fetchPipelineStatus()); }
     catch { /* ignore */ }
@@ -217,20 +241,22 @@ export function PipelinePage() {
   useEffect(() => {
     pollStatus();
     refreshReadiness();
+    runCampaignCheck();
     const id = setInterval(async () => {
       await pollStatus();
     }, 2000);
     return () => clearInterval(id);
-  }, [pollStatus, refreshReadiness]);
+  }, [pollStatus, refreshReadiness, runCampaignCheck]);
 
-  // Refresh readiness once the pipeline finishes
+  // Refresh readiness + campaign check once the pipeline finishes
   const wasRunning = useRef(false);
   useEffect(() => {
     if (wasRunning.current && status && !status.running) {
       refreshReadiness();
+      runCampaignCheck();
     }
     wasRunning.current = status?.running ?? false;
-  }, [status, refreshReadiness]);
+  }, [status, refreshReadiness, runCampaignCheck]);
 
   // ── upload ───────────────────────────────────────────────────────────────
   async function handleFile(file: File) {
@@ -300,6 +326,10 @@ export function PipelinePage() {
   const dupCount    = preview?.duplicate_count ?? 0;
   const readyToPush = readiness?.ready_to_push ?? 0;
   const activity    = status?.recent_activity  ?? [];
+
+  // Campaign check blocks push only when we have a definitive "not ok" result.
+  // If the check hasn't run yet (null) or had a network error (null), we don't block.
+  const campaignBlocked = campaignCheck !== null && !campaignCheck.ok;
 
   // What is running right now?
   const phaseLabel = isRunning
@@ -681,6 +711,69 @@ export function PipelinePage() {
               </div>
             )}
 
+            {/* Campaign validation banner */}
+            {campaignChecking ? (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                marginBottom: 12, fontSize: 12, color: "#738091",
+              }}>
+                <Spinner size={12} />
+                Checking Smartlead campaign…
+              </div>
+            ) : campaignFetchFailed ? (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                marginBottom: 12,
+                background: "#252a31", border: "1px solid #383e47",
+                borderRadius: 6, padding: "8px 12px",
+                fontSize: 12, color: "#738091",
+              }}>
+                <span>Could not verify campaign — proceeding anyway</span>
+                <Button minimal small icon="refresh" style={{ color: "#5f6b7c", marginLeft: "auto" }}
+                  onClick={runCampaignCheck}>
+                  Re-check
+                </Button>
+              </div>
+            ) : campaignCheck?.ok ? (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                marginBottom: 12,
+                background: "#1a2218", border: "1px solid #2a4a3a",
+                borderRadius: 6, padding: "8px 12px",
+                fontSize: 12, color: "#1D9E75",
+              }}>
+                <span style={{ fontWeight: 600 }}>✓</span>
+                <span>
+                  Campaign ready — &ldquo;{campaignCheck.name}&rdquo; is ACTIVE with correct Step 1 variables
+                </span>
+                <Button minimal small icon="refresh" style={{ color: "#5f6b7c", marginLeft: "auto" }}
+                  onClick={runCampaignCheck}>
+                  Re-check
+                </Button>
+              </div>
+            ) : campaignCheck !== null ? (
+              <div style={{ marginBottom: 12 }}>
+                <Callout intent="danger" icon="warning-sign" style={{ padding: "10px 14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 13 }}>
+                        Campaign not ready — fix these issues before pushing:
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12 }}>
+                        {campaignCheck.issues.map((issue, i) => (
+                          <li key={i} style={{ marginBottom: 3 }}>{issue}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Button minimal small icon="refresh" style={{ flexShrink: 0, marginLeft: 12 }}
+                      onClick={runCampaignCheck}>
+                      Re-check
+                    </Button>
+                  </div>
+                </Callout>
+              </div>
+            ) : null}
+
             {/* CTA row */}
             <div style={{ display:"flex", gap:10, alignItems:"center", flexWrap:"wrap" }}>
               {isRunning && lastMode === "push" ? (
@@ -690,13 +783,19 @@ export function PipelinePage() {
                 </Button>
               ) : (
                 <Tooltip
-                  content={readyToPush === 0 ? "Complete Phase 1 first — no personalised leads yet" : undefined}
-                  disabled={readyToPush > 0}
+                  content={
+                    readyToPush === 0
+                      ? "Complete Phase 1 first — no personalised leads yet"
+                      : campaignBlocked
+                      ? "Fix the campaign issues above before pushing"
+                      : undefined
+                  }
+                  disabled={readyToPush > 0 && !campaignBlocked}
                 >
                   <Button
                     intent="success" icon="send-to" large
                     loading={starting && lastMode === "push"}
-                    disabled={readyToPush === 0 || (isRunning && lastMode !== "push")}
+                    disabled={readyToPush === 0 || campaignBlocked || (isRunning && lastMode !== "push")}
                     onClick={() => launch("push")}
                     style={{ minWidth: 260 }}
                   >

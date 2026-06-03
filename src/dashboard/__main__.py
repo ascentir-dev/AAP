@@ -566,6 +566,19 @@ async def api_pipeline_readiness() -> JSONResponse:
     })
 
 
+@app.get("/api/pipeline/campaign-check")
+async def api_campaign_check() -> JSONResponse:
+    """Validate the configured Smartlead campaign is ready to receive leads.
+
+    Called by the frontend before showing the Phase 2 push button.
+    Returns ok=True only if campaign is ACTIVE and Step 1 has the right variables.
+    """
+    from src.ai_cold_email.smartlead.client import validate_campaign
+    settings = load_settings()
+    result = await validate_campaign(settings)
+    return JSONResponse(result)
+
+
 @app.post("/api/pipeline/preview")
 async def api_pipeline_preview(body: dict[str, Any]) -> JSONResponse:
     """Parse an uploaded CSV and classify each lead as new vs already-sent duplicate.

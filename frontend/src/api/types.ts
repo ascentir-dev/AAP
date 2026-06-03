@@ -150,3 +150,11 @@ export interface PreviewResponse {
   new_leads:       PreviewLead[];
   duplicate_leads: PreviewLead[];
 }
+
+export interface CampaignCheckResult {
+  ok:          boolean;
+  campaign_id: string | null;
+  name:        string | null;
+  status:      string | null;
+  issues:      string[];
+}

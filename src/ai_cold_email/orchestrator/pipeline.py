@@ -31,6 +31,35 @@ import src.utils.video_tracker as video_tracker
 
 log = logging.getLogger(__name__)
 
+# ── System-error classification ───────────────────────────────────────────────
+_SYSTEM_ERROR_PATTERNS = (
+    # Network / TLS
+    "err_cert", "err_ssl", "err_connection", "err_name_not_resolved",
+    "err_timed_out", "net::", "ssl", "certificate",
+    # Playwright
+    "page.goto", "target closed", "browser has disconnected",
+    "execution context was destroyed",
+    # HTTP transport
+    "timeout", "connecttimeout", "readtimeout",
+    # API 5xx
+    "502", "503", "504", "overloaded", "service unavailable",
+)
+
+
+def _is_system_error(exc: BaseException) -> bool:
+    """Return True if the exception is a transient infrastructure error."""
+    msg = str(exc).lower()
+    return any(pat in msg for pat in _SYSTEM_ERROR_PATTERNS)
+
+
+def _get_ledger_db(ledger: "Ledger"):
+    """Return the raw sqlite3 connection from the ledger for emergency stage cleanup."""
+    try:
+        return ledger._conn
+    except Exception:
+        return None
+
+
 # ── Company-name cleaner ──────────────────────────────────────────────────────
 # Note: trailing \b intentionally omitted after the suffix group — a trailing
 # period (e.g. "Ltd." or "Inc.") is consumed by \.? so there is no word
@@ -657,27 +686,92 @@ async def run_pipeline(
 
     async def bounded(lead):
         async with semaphore:
-            try:
-                result = await process_lead(lead, settings, ledger, cost_tracker, dry_run)
-            except ValidationError as e:
-                log.error(
-                    f"[{lead['lead_id']}] VALIDATION FAILED — lead will NOT be sent: {e}"
-                )
-                ledger.mark_failed(lead["lead_id"], f"VALIDATION: {e}")
-                result = {"lead_id": lead["lead_id"], "status": "failed", "error": str(e)}
-            except Exception as e:
-                log.error(f"[{lead['lead_id']}] FAILED: {e}", exc_info=True)
-                # Unwrap tenacity RetryError to surface the actual cause
-                cause = e
-                from tenacity import RetryError
-                if isinstance(e, RetryError):
-                    try:
-                        cause = e.last_attempt.exception()
-                    except Exception:
-                        cause = e
-                err_msg = f"{type(cause).__name__}: {cause}"
-                ledger.mark_failed(lead["lead_id"], err_msg)
-                result = {"lead_id": lead["lead_id"], "status": "failed", "error": err_msg}
+            last_error = None
+            result = None
+            for attempt in range(1, 3):  # up to 2 in-run attempts for system errors
+                try:
+                    result = await process_lead(lead, settings, ledger, cost_tracker, dry_run)
+                    break  # success
+                except ValidationError as e:
+                    log.error(
+                        "[%s] VALIDATION ERROR (not retrying): %s", lead["lead_id"], e
+                    )
+                    ledger.mark_failed(lead["lead_id"], f"VALIDATION: {e}")
+                    result = {"lead_id": lead["lead_id"], "status": "failed", "error": str(e)}
+                    break
+                except Exception as e:
+                    from tenacity import RetryError
+                    cause = e
+                    if isinstance(e, RetryError):
+                        try:
+                            cause = e.last_attempt.exception()
+                        except Exception:
+                            pass
+                    err_msg = f"{type(cause).__name__}: {cause}"
+                    last_error = err_msg
+
+                    if _is_system_error(cause):
+                        if attempt < 2:
+                            log.warning(
+                                "[%s] System error on attempt %d — clearing stages and retrying: %s",
+                                lead["lead_id"], attempt, err_msg[:120],
+                            )
+                            # Clear any partial stages so the retry starts fresh
+                            _db = _get_ledger_db(ledger)
+                            if _db:
+                                _db.execute(
+                                    "DELETE FROM stages WHERE lead_id = ?",
+                                    (lead["lead_id"],),
+                                )
+                                _db.commit()
+                            await asyncio.sleep(3 * attempt)  # brief back-off
+                            continue
+                        else:
+                            # Still failing after retry — clear the record entirely so the
+                            # next batch run picks it up fresh (do NOT mark as failed).
+                            log.error(
+                                "[%s] System error persists after %d attempts — "
+                                "clearing record for next-run retry: %s",
+                                lead["lead_id"], attempt, err_msg[:120],
+                            )
+                            _db = _get_ledger_db(ledger)
+                            if _db:
+                                _db.execute(
+                                    "DELETE FROM stages WHERE lead_id = ?",
+                                    (lead["lead_id"],),
+                                )
+                                _db.execute(
+                                    "DELETE FROM leads WHERE lead_id = ?",
+                                    (lead["lead_id"],),
+                                )
+                                _db.commit()
+                            result = {
+                                "lead_id": lead["lead_id"],
+                                "status": "retrying",
+                                "error": err_msg,
+                            }
+                            break
+                    else:
+                        # Non-system error — mark as failed immediately, no retry
+                        log.error(
+                            "[%s] Non-system error: %s", lead["lead_id"], err_msg,
+                            exc_info=True,
+                        )
+                        ledger.mark_failed(lead["lead_id"], err_msg)
+                        result = {
+                            "lead_id": lead["lead_id"],
+                            "status": "failed",
+                            "error": err_msg,
+                        }
+                        break
+            else:
+                # Exhausted loop without breaking (safety net — should not happen)
+                ledger.mark_failed(lead["lead_id"], last_error or "Unknown error")
+                result = {
+                    "lead_id": lead["lead_id"],
+                    "status": "failed",
+                    "error": last_error,
+                }
 
             # Push to the live activity feed visible in the dashboard
             if status_ref is not None:
@@ -687,6 +781,7 @@ async def run_pipeline(
                     "company": lead.get("company", ""),
                     "email":   lead.get("email", ""),
                     "status":  result["status"],
+                    "label":   "Queued for retry" if result["status"] == "retrying" else "",
                     "error":   result.get("error", ""),
                     "time":    _dt.utcnow().strftime("%H:%M:%S"),
                 })
@@ -697,8 +792,12 @@ async def run_pipeline(
     results = await asyncio.gather(*(bounded(lead) for lead in leads_to_run))
 
     # Summary
-    sent    = sum(1 for r in results if r["status"] == "sent")
-    skipped = sum(1 for r in results if r["status"] == "skipped")
-    failed  = sum(1 for r in results if r["status"] == "failed")
-    log.info(f"Done. Sent: {sent}, Skipped: {skipped}, Failed: {failed}, Duplicates: {duplicate_count}")
+    sent     = sum(1 for r in results if r["status"] == "sent")
+    skipped  = sum(1 for r in results if r["status"] == "skipped")
+    failed   = sum(1 for r in results if r["status"] == "failed")
+    retrying = sum(1 for r in results if r["status"] == "retrying")
+    log.info(
+        "Done. Sent: %d, Skipped: %d, Failed: %d, Queued-for-retry: %d, Duplicates: %d",
+        sent, skipped, failed, retrying, duplicate_count,
+    )
     log.info(f"Total cost: ${cost_tracker.total():.2f}")

@@ -6,6 +6,7 @@ import type {
   UploadResponse,
   PreviewResponse,
   ReadinessResponse,
+  CampaignCheckResult,
 } from "./types";
 
 const BASE = "/api";
@@ -79,6 +80,10 @@ export function previewCsv(csv_path: string): Promise<PreviewResponse> {
 
 export function fetchReadiness(): Promise<ReadinessResponse> {
   return get<ReadinessResponse>("/pipeline/readiness");
+}
+
+export function checkCampaign(): Promise<CampaignCheckResult> {
+  return get<CampaignCheckResult>("/pipeline/campaign-check");
 }
 
 export function startPipeline(opts: {
