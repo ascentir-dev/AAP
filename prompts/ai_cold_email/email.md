@@ -250,15 +250,15 @@ When no TEMPLATE OVERRIDE is provided, write the email following the variant's f
 
 ### Framework spirits (for when no scaffold is provided)
 
-**Variant 1 (PPP Full):** Compliment → business description → guarantee → video → social proof → CTA → p.s. reinforcing pay-on-results. 130-160w.
-**Variant 2 (PPP Compact):** Compliment + business description + guarantee + video + CTA in one tight flow. 70-90w.
-**Variant 3 (PPP + Proof):** Compliment → business description → guarantee → video → average lift stat → CTA. 100-130w.
-**Variant 4 (AIDA):** Industry niche claim (Attention) → pain one-liner (Interest) → video as Desire → binary CTA (Action) → p.s. 80-100w.
-**Variant 5 (3 Cs):** Compliment → case study list from the market's results → video → CTA. 90-120w.
-**Variant 6 (QVC):** One specific question → value (video) → CTA. 45-65w.
-**Variant 7 (Demand Flip):** Location/niche ID ("I saw that {company} is in {their_industry} in {their_state}") → "strong ties here" → human proof / not-a-robot → video → demand-flip question ("are you taking on new {market_clients_term}?") → STAY IN THE DEMAND-FLIP FRAME: "I've been routing [market] clients in [their state] to partners with capacity. If you've got room, let me know." → ultra-soft reply CTA. DO NOT pivot to "I have a proven system" — that breaks the frame. 85-110w.
-**Variant 8 (Inverted Demand):** Scarcity must be SPECIFIC and MECHANISTIC — not "we're near capacity." Write it as: "We're adding [2] new [market] partners in [their state] this quarter — [X] spots are currently open." Territory + number + timeframe. Open question → video → reply CTA → p.s. reinforcing the specific scarcity mechanism. 85-110w.
-**Variant 9 (PAS):** Specific hook observation (Problem) — must reference something observable about their business from the lead data, not a generic industry pain. Agitation beat: name the pain AND quantify the cost of inaction ("every month without a system is another 30 [market-term] that didn't happen"). Video → solve with specific promise + mechanism ("the exact 5-step outbound system we'd run for [Company]") → CTA → p.s. 95-120w.
+**Variant 1 (PPP Full):** Compliment → business description → guarantee → `{VIDEO_LINK}` → social proof → CTA → p.s. reinforcing pay-on-results. 130-160w.
+**Variant 2 (PPP Compact):** Compliment + business description + guarantee + `{VIDEO_LINK}` + CTA in one tight flow. 70-90w.
+**Variant 3 (PPP + Proof):** Compliment → business description → guarantee → `{VIDEO_LINK}` → average lift stat → CTA. 100-130w.
+**Variant 4 (AIDA):** Industry niche claim (Attention) → pain one-liner (Interest) → `{VIDEO_LINK}` as Desire → binary CTA (Action) → p.s. 80-100w.
+**Variant 5 (3 Cs):** Compliment → case study list from the market's results → `{VIDEO_LINK}` → CTA. 90-120w.
+**Variant 6 (QVC):** One specific question → value → `{VIDEO_LINK}` → CTA. 45-65w.
+**Variant 7 (Demand Flip):** Location/niche ID ("I saw that {company} is in {their_industry} in {their_state}") → "strong ties here" → human proof / not-a-robot → `{VIDEO_LINK}` → demand-flip question ("are you taking on new {market_clients_term}?") → STAY IN THE DEMAND-FLIP FRAME: "I've been routing [market] clients in [their state] to partners with capacity. If you've got room, let me know." → ultra-soft reply CTA. DO NOT pivot to "I have a proven system" — that breaks the frame. 85-110w.
+**Variant 8 (Inverted Demand):** Scarcity must be SPECIFIC and MECHANISTIC — not "we're near capacity." Write it as: "We're adding [2] new [market] partners in [their state] this quarter — [X] spots are currently open." Territory + number + timeframe. Open question → `{VIDEO_LINK}` → reply CTA → p.s. reinforcing the specific scarcity mechanism. 85-110w.
+**Variant 9 (PAS):** Specific hook observation (Problem) — must reference something observable about their business from the lead data, not a generic industry pain. Agitation beat: name the pain AND quantify the cost of inaction ("every month without a system is another 30 [market-term] that didn't happen"). `{VIDEO_LINK}` → solve with specific promise + mechanism ("the exact 5-step outbound system we'd run for [Company]") → CTA → p.s. 95-120w.
 
 ---
 
