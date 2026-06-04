@@ -680,11 +680,11 @@ async def run_pipeline(
             ).fetchone()
             existing_status = row["status"] if row else None
 
-            if existing_status in ("sent", "success", "skipped"):
-                # Permanently done — never re-queue under any mode.
+            if existing_status in ("sent", "success"):
+                # Already pushed to Smartlead — never re-queue.
                 duplicate_count += 1
                 log.debug(
-                    "[%s] already processed (status=%s) — skipping",
+                    "[%s] already sent (status=%s) — skipping",
                     lead.get("email", lead["lead_id"]), existing_status,
                 )
             elif dry_run and existing_status == "dry_run":

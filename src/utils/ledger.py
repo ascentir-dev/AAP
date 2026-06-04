@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS csv_uploads (
 
 # Single authoritative set of terminal lead statuses.
 # Import this constant everywhere instead of hardcoding the tuple inline.
-TERMINAL_STATUSES: frozenset[str] = frozenset({"sent", "success", "dry_run", "skipped"})
+TERMINAL_STATUSES: frozenset[str] = frozenset({"sent", "success"})
 
 
 class Ledger:

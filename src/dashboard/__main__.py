@@ -500,7 +500,7 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
         _placeholders = ",".join("?" * len(_lead_ids))
         _existing = _conn2.execute(
             f"SELECT COUNT(*) FROM leads WHERE lead_id IN ({_placeholders})"
-            f" AND status IN ('sent','success','skipped')",
+            f" AND status IN ('sent','success')",
             _lead_ids,
         ).fetchone()[0]
         duplicate_count_upload = _existing
@@ -590,7 +590,7 @@ async def api_pipeline_readiness() -> JSONResponse:
         INNER JOIN stages e  ON e.lead_id  = l.lead_id AND e.stage_name  = 'email'
         LEFT  JOIN stages h  ON h.lead_id  = l.lead_id AND h.stage_name  = 'hosting'
         LEFT  JOIN stages sm ON sm.lead_id = l.lead_id AND sm.stage_name = 'smartlead'
-        WHERE  l.status IN ('dry_run', 'failed')
+        WHERE  l.status IN ('dry_run', 'failed', 'skipped')
           AND  sm.lead_id IS NULL
         """
     ).fetchall()
@@ -696,7 +696,7 @@ async def api_pipeline_preview(body: dict[str, Any]) -> JSONResponse:
             "existing_status": existing_status,
         }
 
-        if existing_status in ("sent", "success", "skipped"):
+        if existing_status in ("sent", "success"):
             duplicate_leads.append(entry)
         else:
             new_leads.append(entry)
