@@ -180,9 +180,11 @@ _VIDEO_BRIDGE_SUBS: list[tuple[str, str]] = [
 
 def _strip_video_references(body: str, company: str = "") -> str:
     """Replace video-bridge lines with Kennedy-style alternatives for email-only sends."""
-    for pattern, replacement in _VIDEO_BRIDGE_SUBS:
-        repl = replacement.replace("{company}", company) if company else replacement
-        body = re.sub(pattern, repl, body, flags=re.IGNORECASE)
+    for pattern, template in _VIDEO_BRIDGE_SUBS:
+        resolved = template.replace("{company}", company) if company else template
+        # Use a lambda so the replacement is never parsed for regex backreferences
+        # (company names like "R\West" contain backslashes that would cause re.error).
+        body = re.sub(pattern, lambda _m, r=resolved: r, body, flags=re.IGNORECASE)
 
     # Final sweep: remove any remaining full sentences that reference "video",
     # "recorded", "watch", or "on screen" — handles patterns not caught above.
@@ -197,9 +199,9 @@ def _strip_video_references(body: str, company: str = "") -> str:
         # "personalized video" standalone
         r"personalized video[^.!?\n]*[.!?]",
     ]
-    _replacement = f"See the exact system we'd run for {company}." if company else "See the exact system we'd run for you."
+    _repl_text = f"See the exact system we'd run for {company}." if company else "See the exact system we'd run for you."
     for pattern in _RESIDUAL_VIDEO_PATTERNS:
-        body = re.sub(pattern, _replacement, body, flags=re.IGNORECASE)
+        body = re.sub(pattern, lambda _m, r=_repl_text: r, body, flags=re.IGNORECASE)
 
     return body
 
