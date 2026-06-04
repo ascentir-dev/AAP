@@ -165,6 +165,28 @@ Use the EXACT promise language below based on the lead's `market` field.
 
 ---
 
+### `other` — General B2B professional services (catch-all)
+
+When `market` is `other`, treat the lead as a general B2B service business. Use consultant vocabulary as the closest approximation. Always generate the email — never refuse or return empty content.
+
+| Angle | specific_promise | target_outcome |
+|---|---|---|
+| aap_engagement_pipeline | book 30 qualified conversations in 30 days, done-for-you | a consistent pipeline of qualified prospects every month |
+
+**big_result (V1):** "30 qualified conversations in their first 30 days, without principals doing any prospecting"
+**average_lift (V3):** "30 qualified conversations in 30 days"
+**binary_cta:** "If that's relevant for [Company], reply — I'll walk through exactly how we'd do it."
+**pipeline_or_revenue:** "business development pipeline"
+**motion_appropriate_pain_one_liner (V4):** "new business development relies on relationships and referrals, with no predictable outbound system behind it"
+**motion_appropriate_results_list (V5):**
+  - B2B service firm — founder doing all BD: 30 qualified conversations in 30 days, 3 new clients
+  - Professional services business: went from referral-only to 30+ booked conversations per month
+  - B2B firm: 30 qualified conversations in 30 days, $150K in new revenue sourced
+**motion_appropriate_growth_lever (V8):** "business development pipeline and new client acquisition"
+**agitation_one_liner (V9):** "business development depends entirely on relationships and referrals — and every month without a systematic outbound engine is another 30 qualified conversations that didn't happen"
+
+---
+
 ## Variant 7 — Demand Flip Fills by Market
 
 Fill `{market_clients_term}` with the natural vocabulary for what that business calls new clients:
@@ -176,6 +198,7 @@ Fill `{market_clients_term}` with the natural vocabulary for what that business 
 | `consultant` | "new engagement clients" or "advisory clients" | lead's company_state field |
 | `financial_advisor` | "new advisory clients" or "financial planning clients" | lead's company_state field |
 | `msp` | "new managed services clients" or "IT services clients" | lead's company_state field |
+| `other` | "new clients" or "new business" | lead's company_state field |
 
 If `{their_state}` is blank, omit it and write "nationally" instead: "...we work specifically with coaching and training businesses nationally."
 
@@ -190,6 +213,7 @@ Write as a directive question that names their specific outcome — no "worth," 
 - `consultant` → "If that's a fit, reply — I'll walk through exactly how we'd fill [Company]'s engagement pipeline."
 - `financial_advisor` → "If [Company] has room for new prospects, reply — I'll show you exactly how many qualified meetings we'd generate."
 - `msp` → "If [Company] has room for new contracts, reply — I'll walk through exactly how many qualified appointments we'd generate."
+- `other` → "If that's relevant for [Company], reply — I'll walk through exactly how we'd run this."
 
 ---
 

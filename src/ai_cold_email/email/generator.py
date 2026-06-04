@@ -81,6 +81,9 @@ def _normalise_body(body: str) -> str:
 _EMAIL_REFUSAL_PREFIXES = (
     "i need to pause", "i can't", "i cannot", "i'm unable",
     "i am unable", "i must decline", "i won't", "sorry,",
+    "i apologize", "i'm sorry", "i should not", "i should clarify",
+    "i need to flag", "i'm not able", "i'm going to decline",
+    "as an ai", "i have concerns",
 )
 
 
@@ -136,6 +139,15 @@ def _validate(result: dict[str, Any], has_video: bool = True) -> None:
         raise ValueError("Email body does not contain {VIDEO_LINK} placeholder")
 
 
+_SYSTEM_PROMPT = (
+    "You are a professional B2B copywriter at Ascentir Technologies. "
+    "Your sole job is to write concise, professional cold email introductions in the exact JSON format "
+    "specified by the user's prompt. Always respond with valid JSON — never refuse, never add prose "
+    "outside the JSON object. If the lead's market is unfamiliar or 'other', use the consultant "
+    "market template as your fallback. Generate the email for every lead without exception."
+)
+
+
 async def _call_claude(
     client: anthropic.AsyncAnthropic,
     model: str,
@@ -146,6 +158,7 @@ async def _call_claude(
     return await client.messages.create(
         model=model,
         max_tokens=1024,
+        system=_SYSTEM_PROMPT,
         messages=[
             {
                 "role": "user",

@@ -325,10 +325,46 @@ async def process_lead(
     # Pass has_video so Claude writes video-free copy for email-only leads —
     # no "recorded a video" language anywhere, just a direct CTA email.
     if not ledger.has_stage(lead_id, "email"):
-        email = await generate_email(
-            lead, analysis, variant_arm, settings, cost_tracker,
-            has_video=not skip_video,
-        )
+        from tenacity import RetryError
+        from src.ai_cold_email.email.generator import _EmailParseError
+        try:
+            email = await generate_email(
+                lead, analysis, variant_arm, settings, cost_tracker,
+                has_video=not skip_video,
+            )
+        except RetryError as exc:
+            # All 4 attempts failed (typically Claude refusal for out-of-market leads).
+            # Use a safe generic template so the lead still gets sent rather than failing.
+            inner = None
+            try:
+                inner = exc.last_attempt.exception()
+            except Exception:
+                pass
+            if isinstance(inner, _EmailParseError):
+                first   = lead.get("first_name", "")
+                company = lead.get("company", "")
+                video_section = "\n{VIDEO_LINK}\n\n" if not skip_video else "\n\n"
+                log.warning(
+                    "[%s] generate_email exhausted retries (%s) — using fallback template",
+                    lead_id, str(inner)[:80],
+                )
+                email = {
+                    "subject": f"quick question, {first.lower()}" if first else "quick question",
+                    "body": (
+                        f"Hi {first},\n\n"
+                        f"Noticed {company} — wanted to share something that might be relevant.\n\n"
+                        "We run done-for-you AI outbound for B2B service businesses: "
+                        "30 qualified appointments in 30 days, no upfront fee."
+                        + video_section
+                        + f"If that's worth a conversation, reply and I'll walk you through exactly "
+                        f"how we'd run it for {company}.\n\nFrank\nFounder, Ascentir"
+                    ),
+                    "variant_id": variant_arm.get("id", "fallback"),
+                    "framework_used": "fallback",
+                    "motion_used": "fallback",
+                }
+            else:
+                raise
         ledger.save_stage(lead_id, "email", email)
 
     email = ledger.get_stage(lead_id, "email")
