@@ -76,109 +76,144 @@ async def push_to_smartlead(
 # Smartlead will substitute the per-lead values when sending.
 
 
-async def validate_campaign(settings: "Settings") -> dict:
-    """Check that the Smartlead campaign is correctly configured for personalised sends.
+async def _check_one_campaign(
+    campaign_id: str,
+    api_key: str,
+    client: Any,
+    variant_label: str = "",
+) -> list[str]:
+    """Check a single campaign. Returns a list of issue strings (empty = OK)."""
+    issues: list[str] = []
+    prefix = f"[{variant_label}] " if variant_label else ""
 
-    Verifies:
+    r = await client.get(f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}")
+    if r.status_code == 404:
+        issues.append(f"{prefix}Campaign {campaign_id} not found — check settings.yaml")
+        return issues
+    if r.status_code == 401:
+        issues.append(f"{prefix}Smartlead API key is invalid — check SMARTLEAD_API_KEY in .env")
+        return issues
+    r.raise_for_status()
+
+    campaign = r.json()
+    status = campaign.get("status", "UNKNOWN")
+    if status != "ACTIVE":
+        issues.append(f"{prefix}Campaign {campaign_id} is {status} — must be ACTIVE")
+
+    seq_r = await client.get(f"{BASE_URL}/campaigns/{campaign_id}/sequences?api_key={api_key}")
+    if not seq_r.is_success:
+        issues.append(f"{prefix}Campaign {campaign_id}: could not retrieve sequences")
+        return issues
+
+    seq_data = seq_r.json()
+    sequences = seq_data if isinstance(seq_data, list) else seq_data.get("sequences", [])
+    if not sequences:
+        issues.append(
+            f"{prefix}Campaign {campaign_id} has no sequence steps — "
+            "add Step 1 with Subject: {{{{custom_subject}}}} and Body: {{{{custom_body}}}}"
+        )
+        return issues
+
+    step1 = sequences[0]
+    subject = (
+        step1.get("email_subject") or step1.get("subject") or
+        step1.get("template", {}).get("subject", "") or ""
+    )
+    body = (
+        step1.get("email_body") or step1.get("body") or
+        step1.get("template", {}).get("body", "") or ""
+    )
+    if "{{custom_subject}}" not in subject:
+        issues.append(
+            f"{prefix}Campaign {campaign_id} Step 1 subject missing {{{{custom_subject}}}}"
+        )
+    if "{{custom_body}}" not in body:
+        issues.append(
+            f"{prefix}Campaign {campaign_id} Step 1 body missing {{{{custom_body}}}}"
+        )
+    return issues
+
+
+async def validate_campaign(settings: "Settings") -> dict:
+    """Check ALL variant campaign IDs are correctly configured for personalised sends.
+
+    Iterates every arm in the active test config and validates each campaign:
       1. Campaign exists and API key is valid
-      2. Campaign status is ACTIVE (not COMPLETED / PAUSED / DRAFT)
-      3. At least one email sequence step exists
-      4. Step 1 subject contains {{custom_subject}}
-      5. Step 1 body contains {{custom_body}}
+      2. Campaign status is ACTIVE
+      3. Step 1 subject contains {{custom_subject}}
+      4. Step 1 body contains {{custom_body}}
 
     Returns a dict with keys:
-      ok          — bool, True only if all checks pass
-      campaign_id — str
+      ok          — bool, True only if all campaigns pass
+      campaign_id — str (first/global campaign checked)
       name        — str or None
-      status      — str or None ("ACTIVE", "COMPLETED", etc.)
-      issues      — list[str] of human-readable problems (empty if ok=True)
+      status      — str or None
+      issues      — list[str] of all problems across all campaigns
     """
-    campaign_id = settings.smartlead_campaign_id
     api_key = settings.smartlead_api_key
     issues: list[str] = []
 
-    if not campaign_id:
-        return {"ok": False, "campaign_id": None, "name": None, "status": None,
-                "issues": ["SMARTLEAD_CAMPAIGN_ID is not set in .env"]}
     if not api_key:
-        return {"ok": False, "campaign_id": campaign_id, "name": None, "status": None,
+        return {"ok": False, "campaign_id": None, "name": None, "status": None,
                 "issues": ["SMARTLEAD_API_KEY is not set in .env"]}
 
-    campaign_name = None
-    campaign_status = None
+    # Collect all campaign IDs from variant arms. Fall back to global .env ID
+    # if no active test is configured.
+    test_config = settings.active_test_config()
+    if test_config:
+        arms = test_config.get("arms", [])
+        campaign_ids = [
+            (arm.get("id", f"arm_{i}"), str(arm["smartlead_campaign_id"]))
+            for i, arm in enumerate(arms)
+            if arm.get("smartlead_campaign_id")
+        ]
+        missing_arms = [
+            arm.get("id", f"arm_{i}")
+            for i, arm in enumerate(arms)
+            if not arm.get("smartlead_campaign_id")
+        ]
+        for arm_id in missing_arms:
+            issues.append(f"Variant arm '{arm_id}' has no smartlead_campaign_id in settings.yaml")
+    else:
+        global_id = settings.smartlead_campaign_id
+        if not global_id:
+            return {"ok": False, "campaign_id": None, "name": None, "status": None,
+                    "issues": ["SMARTLEAD_CAMPAIGN_ID is not set in .env and no active test configured"]}
+        campaign_ids = [("global", global_id)]
+
+    first_id = campaign_ids[0][1] if campaign_ids else None
+    first_name = None
+    first_status = None
 
     try:
         async with httpx.AsyncClient(timeout=15) as client:
-            # 1. Fetch campaign details
-            r = await client.get(
-                f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}"
-            )
-            if r.status_code == 404:
-                return {"ok": False, "campaign_id": campaign_id, "name": None,
-                        "status": None, "issues": [f"Campaign {campaign_id} not found — check SMARTLEAD_CAMPAIGN_ID in .env"]}
-            if r.status_code == 401:
-                return {"ok": False, "campaign_id": campaign_id, "name": None,
-                        "status": None, "issues": ["Smartlead API key is invalid — check SMARTLEAD_API_KEY in .env"]}
-            r.raise_for_status()
-            campaign = r.json()
-            campaign_name   = campaign.get("name") or campaign.get("campaign_name") or str(campaign_id)
-            campaign_status = campaign.get("status", "UNKNOWN")
-
-            if campaign_status != "ACTIVE":
-                issues.append(
-                    f"Campaign is {campaign_status} — must be set to ACTIVE in Smartlead before pushing leads"
+            # Check every variant campaign
+            for variant_label, campaign_id in campaign_ids:
+                arm_issues = await _check_one_campaign(
+                    campaign_id, api_key, client, variant_label=variant_label
                 )
+                issues.extend(arm_issues)
 
-            # 2. Fetch email sequences / steps
-            seq_r = await client.get(
-                f"{BASE_URL}/campaigns/{campaign_id}/sequences?api_key={api_key}"
-            )
-            if not seq_r.is_success:
-                issues.append("Could not retrieve campaign sequences — check campaign permissions")
-            else:
-                seq_data = seq_r.json()
-                # Smartlead returns either a list or {"sequences": [...]}
-                sequences = seq_data if isinstance(seq_data, list) else seq_data.get("sequences", [])
-
-                if not sequences:
-                    issues.append(
-                        "Campaign has no email sequence steps — add Step 1 with "
-                        "Subject: {{custom_subject}} and Body: {{custom_body}}"
-                    )
-                else:
-                    # Check Step 1 (index 0 or seq_number == 1)
-                    step1 = sequences[0]
-                    # Sequences can nest the email template in different keys
-                    subject = (
-                        step1.get("email_subject") or
-                        step1.get("subject") or
-                        step1.get("template", {}).get("subject", "") or ""
-                    )
-                    body = (
-                        step1.get("email_body") or
-                        step1.get("body") or
-                        step1.get("template", {}).get("body", "") or ""
-                    )
-                    if "{{custom_subject}}" not in subject:
-                        issues.append(
-                            "Step 1 subject does not contain {{custom_subject}} — "
-                            "set Step 1 subject to exactly: {{custom_subject}}"
+                # Capture name/status from the first campaign for the response envelope
+                if variant_label == (campaign_ids[0][0] if campaign_ids else ""):
+                    if not arm_issues:
+                        r = await client.get(
+                            f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}"
                         )
-                    if "{{custom_body}}" not in body:
-                        issues.append(
-                            "Step 1 body does not contain {{custom_body}} — "
-                            "set Step 1 body to exactly: {{custom_body}}"
-                        )
+                        if r.is_success:
+                            c = r.json()
+                            first_name   = c.get("name") or c.get("campaign_name") or campaign_id
+                            first_status = c.get("status", "UNKNOWN")
 
     except httpx.TimeoutException:
-        issues.append("Smartlead API timed out — check your internet connection and try again")
+        issues.append("Smartlead API timed out — check internet connection and retry")
     except Exception as e:
-        issues.append(f"Unexpected error checking campaign: {type(e).__name__}: {e}")
+        issues.append(f"Unexpected error checking campaigns: {type(e).__name__}: {e}")
 
     return {
         "ok":          len(issues) == 0,
-        "campaign_id": str(campaign_id),
-        "name":        campaign_name,
-        "status":      campaign_status,
+        "campaign_id": first_id,
+        "name":        first_name,
+        "status":      first_status,
         "issues":      issues,
     }

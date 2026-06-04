@@ -549,8 +549,21 @@ async def process_lead(
         )
 
     # 11. Push to the variant arm's Smartlead campaign
-    campaign_id   = variant_arm.get("smartlead_campaign_id") or settings.smartlead_campaign_id
-    push_settings = settings.model_copy(update={"smartlead_campaign_id": campaign_id})
+    # Variant arm campaign ID takes strict priority — no silent fallback to global.
+    # A missing campaign ID here means a misconfigured settings.yaml arm, not a
+    # recoverable situation. Fail loud so it shows up as a config error, not a
+    # wrong-campaign push.
+    campaign_id = variant_arm.get("smartlead_campaign_id") or settings.smartlead_campaign_id
+    if not campaign_id:
+        raise ValueError(
+            f"[{lead_id}] No Smartlead campaign ID for variant '{variant_arm.get('id')}'. "
+            "Add smartlead_campaign_id to this arm in config/settings.yaml."
+        )
+    log.info(
+        "[%s] Pushing to Smartlead: variant=%s → campaign_id=%s",
+        lead_id, variant_arm.get("id"), campaign_id,
+    )
+    push_settings = settings.model_copy(update={"smartlead_campaign_id": str(campaign_id)})
 
     if not dry_run and not ledger.has_stage(lead_id, "smartlead"):
         tracking_url  = hosting.get("tracking_url") or hosting.get("landing_url", "")
