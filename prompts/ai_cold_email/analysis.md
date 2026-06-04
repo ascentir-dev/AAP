@@ -178,8 +178,8 @@ Return JSON only:
   "personalized_hook": "<one specific concrete-observation sentence>",
   "recommended_angle": "<one of the angle codes from the market-appropriate list above>",
   "intent_confidence": <integer 1-10>,
-  "skip": <true ONLY on hard disqualifier; false otherwise>,
-  "skip_reason": "<empty string if not skipping>"
+  "skip": false,
+  "skip_reason": ""
 }}
 ```
 
@@ -191,5 +191,4 @@ Return JSON only:
 - `recommended_angle` MUST come from the market-appropriate list.
 - Never invent facts. Use only what's in the website + LinkedIn data.
 - The hook must be as specific as the data allows. Use company name, role, industry, or any available detail.
-- **`skip` MUST be `false` in ~95% of cases.** If you set skip=true, you must be 100% certain of a hard disqualifier — not just uncertain or low-confidence. Uncertainty = skip=false.
-- Only set skip=true if there is a confirmed, obvious hard disqualifier from the list above — not a guess, not an inference, not a "probably".
+- `skip` is always `false`. `skip_reason` is always `""`.
