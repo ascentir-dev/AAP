@@ -498,7 +498,9 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
         _conn2 = sqlite3.connect(str(_db))
         _placeholders = ",".join("?" * len(_lead_ids))
         _existing = _conn2.execute(
-            f"SELECT COUNT(*) FROM leads WHERE lead_id IN ({_placeholders})", _lead_ids
+            f"SELECT COUNT(*) FROM leads WHERE lead_id IN ({_placeholders})"
+            f" AND status IN ('sent','success','dry_run','skipped')",
+            _lead_ids,
         ).fetchone()[0]
         duplicate_count_upload = _existing
         _conn2.close()
@@ -693,7 +695,7 @@ async def api_pipeline_preview(body: dict[str, Any]) -> JSONResponse:
             "existing_status": existing_status,
         }
 
-        if existing_status in ("sent", "success"):
+        if existing_status in ("sent", "success", "dry_run", "skipped"):
             duplicate_leads.append(entry)
         else:
             new_leads.append(entry)
