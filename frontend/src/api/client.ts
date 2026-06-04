@@ -40,6 +40,10 @@ export function fetchAnalytics(): Promise<AnalyticsData> {
   return get<AnalyticsData>("/analytics");
 }
 
+export function syncSmartleadAnalytics(): Promise<{ ok: boolean; campaigns_synced: number; totals: Record<string, number>; errors: string[] }> {
+  return post<{ ok: boolean; campaigns_synced: number; totals: Record<string, number>; errors: string[] }>("/analytics/sync", {});
+}
+
 // ─── Leads ────────────────────────────────────────────────────────────────
 
 export function fetchLeads(

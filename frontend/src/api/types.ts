@@ -60,12 +60,14 @@ export interface AnalyticsData {
   variants: VariantStat[];
   frameworks: FrameworkStat[];
   heatmap: HeatmapCell[];
+  icp_heatmap: HeatmapCell[];
   significance: SignificanceStatus;
   cost: CostSummary;
   total_sent: number;
   total_replied: number;
   total_booked: number;
   blended_reply_rate: number;
+  events_synced: boolean;
 }
 
 export interface Lead {

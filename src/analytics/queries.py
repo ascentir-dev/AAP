@@ -109,7 +109,12 @@ def _connect(db_path: Path) -> sqlite3.Connection:
 
 
 def variant_stats(db_path: Path, test_id: str) -> list[VariantStats]:
-    """Per-variant aggregate. Each variant joins to its framework via leads.framework."""
+    """Per-variant aggregate. Each variant joins to its framework via leads.framework.
+
+    Sent count comes from leads.status so it's accurate even before webhook events
+    arrive. Engagement counts (opened/clicked/replied/bounced/booked) come from the
+    events table which is populated by SmartLead webhooks or the manual sync endpoint.
+    """
     conn = _connect(db_path)
     cur = conn.cursor()
     cur.execute(
@@ -117,9 +122,11 @@ def variant_stats(db_path: Path, test_id: str) -> list[VariantStats]:
         SELECT
             l.variant_id,
             COALESCE(l.framework, 'unknown') AS framework,
-            SUM(CASE WHEN e.event_type = 'sent'                              THEN 1 ELSE 0 END) AS sent,
-            SUM(CASE WHEN e.event_type = 'sent' AND l.email_type = 'video'      THEN 1 ELSE 0 END) AS sent_video,
-            SUM(CASE WHEN e.event_type = 'sent' AND l.email_type = 'email_only' THEN 1 ELSE 0 END) AS sent_email_only,
+            COUNT(DISTINCT CASE WHEN l.status IN ('sent','success') THEN l.lead_id END) AS sent,
+            COUNT(DISTINCT CASE WHEN l.status IN ('sent','success') AND l.email_type = 'video'
+                                THEN l.lead_id END) AS sent_video,
+            COUNT(DISTINCT CASE WHEN l.status IN ('sent','success') AND l.email_type = 'email_only'
+                                THEN l.lead_id END) AS sent_email_only,
             SUM(CASE WHEN e.event_type = 'opened'      THEN 1 ELSE 0 END) AS opened,
             SUM(CASE WHEN e.event_type = 'clicked'     THEN 1 ELSE 0 END) AS clicked,
             SUM(CASE WHEN e.event_type = 'replied'     THEN 1 ELSE 0 END) AS replied,

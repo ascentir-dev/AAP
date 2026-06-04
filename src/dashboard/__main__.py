@@ -217,6 +217,7 @@ async def api_analytics() -> JSONResponse:
     variants = variant_stats(db_path, test["id"])
     frameworks = framework_stats(db_path, test["id"])
     heatmap_cells = framework_motion_heatmap(db_path, test["id"])
+    icp_cells = variant_vertical_heatmap(db_path, test["id"])
     sig = significance_status(variants, min_per, primary)
     cost = cost_summary(db_path, test["id"])
 
@@ -265,6 +266,14 @@ async def api_analytics() -> JSONResponse:
             "book_rate": c.book_rate,
         }
 
+    # Check if any events have been synced yet (determines "no data" vs real metrics)
+    try:
+        _econn = sqlite3.connect(str(db_path))
+        event_count = _econn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+        _econn.close()
+    except Exception:
+        event_count = 0
+
     return JSONResponse(
         {
             "test_id": test["id"],
@@ -273,14 +282,30 @@ async def api_analytics() -> JSONResponse:
             "variants": [variant_to_dict(v) for v in sorted(variants, key=lambda v: getattr(v, primary), reverse=True)],
             "frameworks": [framework_to_dict(f) for f in sorted(frameworks, key=lambda f: getattr(f, primary), reverse=True)],
             "heatmap": [cell_to_dict(c) for c in heatmap_cells],
+            "icp_heatmap": [cell_to_dict(c) for c in icp_cells],
             "significance": sig,
             "cost": cost,
             "total_sent": total_sent,
             "total_replied": total_replied,
             "total_booked": total_booked,
             "blended_reply_rate": (total_replied / total_sent * 100) if total_sent else 0,
+            "events_synced": event_count > 0,
         }
     )
+
+
+@app.post("/api/analytics/sync")
+async def api_analytics_sync() -> JSONResponse:
+    """Pull per-lead engagement stats from SmartLead API into the events table.
+
+    Call this whenever the dashboard shows zero open/reply rates. SmartLead
+    webhooks require a public URL; on localhost this endpoint is the fallback.
+    """
+    from src.ai_cold_email.smartlead.stats_sync import sync_all_campaigns
+    settings = load_settings()
+    ledger = Ledger("ledger.sqlite")
+    result = await sync_all_campaigns(settings, ledger)
+    return JSONResponse(result)
 
 
 @app.get("/api/analytics/subject-lines")
