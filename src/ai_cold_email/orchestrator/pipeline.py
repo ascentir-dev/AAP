@@ -664,8 +664,8 @@ async def run_pipeline(
                     "[%s] duplicate — already sent, skipping",
                     lead.get("email", lead["lead_id"]),
                 )
-            elif dry_run and existing_status in ("dry_run", "skipped"):
-                # Phase 1 (Personalise): already personalised or intentionally skipped —
+            elif dry_run and existing_status in ("dry_run",):
+                # Phase 1 (Personalise): already personalised —
                 # no need to re-run.  dry_run leads sit in the queue until Phase 2
                 # (Push to Smartlead) picks them up.
                 duplicate_count += 1
@@ -677,7 +677,7 @@ async def run_pipeline(
                 leads_to_run.append(lead)
 
         if resume:
-            # resume additionally skips dry_run / skipped leads (everything in is_complete)
+            # resume skips already-sent/dry_run leads (everything in is_complete)
             leads_to_run = [l for l in leads_to_run if not ledger.is_complete(l["lead_id"])]
 
     # ── Batch cap ─────────────────────────────────────────────────────────────
