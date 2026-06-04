@@ -139,7 +139,7 @@ class Ledger:
         ).fetchone()
         if row is None:
             return False
-        return row["status"] in ("sent", "dry_run", "success")
+        return row["status"] in ("sent", "dry_run", "skipped", "success")
 
     def mark_complete(self, lead_id: str, status: str = "success") -> None:
         self._execute(
