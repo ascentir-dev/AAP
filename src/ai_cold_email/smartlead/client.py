@@ -194,16 +194,16 @@ async def validate_campaign(settings: "Settings") -> dict:
                 )
                 issues.extend(arm_issues)
 
-                # Capture name/status from the first campaign for the response envelope
-                if variant_label == (campaign_ids[0][0] if campaign_ids else ""):
-                    if not arm_issues:
-                        r = await client.get(
-                            f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}"
-                        )
-                        if r.is_success:
-                            c = r.json()
-                            first_name   = c.get("name") or c.get("campaign_name") or campaign_id
-                            first_status = c.get("status", "UNKNOWN")
+                # Capture name/status from the first campaign for the response envelope.
+                # Always fetch regardless of issues so the UI has something to display.
+                if variant_label == campaign_ids[0][0] and first_name is None:
+                    r = await client.get(
+                        f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}"
+                    )
+                    if r.is_success:
+                        c = r.json()
+                        first_name   = c.get("name") or c.get("campaign_name") or campaign_id
+                        first_status = c.get("status", "UNKNOWN")
 
     except httpx.TimeoutException:
         issues.append("Smartlead API timed out — check internet connection and retry")

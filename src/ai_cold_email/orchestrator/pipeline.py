@@ -22,7 +22,7 @@ from src.ai_cold_email.video.composite.browser_frame import make_browser_frame, 
 from src.hosting.uploader import upload_video, upload_thumbnail, generate_landing_page
 from src.hosting.thumbnail import make_email_thumbnail
 from src.ai_cold_email.smartlead.client import push_to_smartlead
-from src.utils.ledger import Ledger
+from src.utils.ledger import Ledger, TERMINAL_STATUSES
 from src.utils.cost_tracker import CostTracker
 from src.utils.settings import Settings
 from src.utils.validator import pre_upload_gate, post_upload_gate, ValidationError
@@ -336,9 +336,15 @@ async def process_lead(
         ledger._execute("DELETE FROM stages WHERE lead_id=? AND stage_name='email'", (lead_id,))
         ledger._conn.commit()
         raise ValueError("email stage body is None or empty — cleared, will regenerate on retry")
-    # Normalise cached emails that may have been stored before dash-replacement was added
-    email = dict(email)
-    email["body"] = email["body"].replace("—", " - ").replace("–", "-")
+    # Normalise cached emails that may have been stored before dash-replacement was added.
+    # Save back to ledger so Gate 1's em-dash check sees the clean version.
+    normalised_body = email["body"].replace("—", " - ").replace("–", "-")
+    if normalised_body != email["body"]:
+        email = dict(email)
+        email["body"] = normalised_body
+        ledger.save_stage(lead_id, "email", email)
+    else:
+        email = dict(email)
 
     # Save framework_used + subject_line to ledger for analytics
     ledger.save_lead_metadata(
@@ -553,8 +559,12 @@ async def process_lead(
     # A missing campaign ID here means a misconfigured settings.yaml arm, not a
     # recoverable situation. Fail loud so it shows up as a config error, not a
     # wrong-campaign push.
-    campaign_id = variant_arm.get("smartlead_campaign_id") or settings.smartlead_campaign_id
-    if not campaign_id:
+    arm_campaign_id = variant_arm.get("smartlead_campaign_id")
+    if arm_campaign_id is not None and str(arm_campaign_id).strip():
+        campaign_id = str(arm_campaign_id).strip()
+    elif settings.smartlead_campaign_id:
+        campaign_id = settings.smartlead_campaign_id
+    else:
         raise ValueError(
             f"[{lead_id}] No Smartlead campaign ID for variant '{variant_arm.get('id')}'. "
             "Add smartlead_campaign_id to this arm in config/settings.yaml."
@@ -670,19 +680,23 @@ async def run_pipeline(
             ).fetchone()
             existing_status = row["status"] if row else None
 
-            if existing_status in ("sent", "success", "dry_run", "skipped"):
-                # Already processed in any form — never re-queue.
+            if existing_status in ("sent", "success", "skipped"):
+                # Permanently done — never re-queue under any mode.
                 duplicate_count += 1
                 log.debug(
                     "[%s] already processed (status=%s) — skipping",
                     lead.get("email", lead["lead_id"]), existing_status,
                 )
+            elif dry_run and existing_status == "dry_run":
+                # Phase 1 re-run: lead already personalised — skip.
+                # Phase 2 (dry_run=False): dry_run leads ARE the push queue, so let them through.
+                duplicate_count += 1
+                log.debug(
+                    "[%s] already personalised (status=dry_run) — skipping Phase 1 re-run",
+                    lead.get("email", lead["lead_id"]),
+                )
             else:
                 leads_to_run.append(lead)
-
-        if resume:
-            # resume skips already-sent/dry_run leads (everything in is_complete)
-            leads_to_run = [l for l in leads_to_run if not ledger.is_complete(l["lead_id"])]
 
     # ── Batch cap ─────────────────────────────────────────────────────────────
     # Prevent enormous runs from overwhelming the system.  The UI defaults to

@@ -478,11 +478,12 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
     reader  = _csv.reader(_io.StringIO(decoded))
     lead_count = max(0, sum(1 for _ in reader) - 1)   # -1 for header
 
-    # Count how many of these leads already exist in the DB (duplicates)
-    import csv as _csv2, io as _io2, hashlib as _hashlib
+    # Count how many of these leads already exist in the DB (duplicates).
+    # Use csv_reader._lead_id() so the hash algorithm stays in one place.
+    from src.ingestion.csv_reader import _lead_id as _compute_lead_id
+    import csv as _csv2, io as _io2
     _decoded2 = content.decode("utf-8", errors="replace")
     _reader2 = _csv2.DictReader(_io2.StringIO(_decoded2))
-    # Normalise keys
     _rows2 = [{k.strip().upper(): (v or "").strip() for k, v in row.items()} for row in _reader2]
     _emails = []
     for _row in _rows2:
@@ -491,7 +492,7 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
         if _e and "@" in _e:
             _emails.append(_e)
 
-    _lead_ids = [_hashlib.sha256(e.encode()).hexdigest()[:16] for e in _emails]
+    _lead_ids = [_compute_lead_id(e) for e in _emails]
     duplicate_count_upload = 0
     if _lead_ids:
         _db = _get_db()
@@ -499,7 +500,7 @@ async def api_pipeline_upload(file: UploadFile = File(...)) -> JSONResponse:
         _placeholders = ",".join("?" * len(_lead_ids))
         _existing = _conn2.execute(
             f"SELECT COUNT(*) FROM leads WHERE lead_id IN ({_placeholders})"
-            f" AND status IN ('sent','success','dry_run','skipped')",
+            f" AND status IN ('sent','success','skipped')",
             _lead_ids,
         ).fetchone()[0]
         duplicate_count_upload = _existing
@@ -695,7 +696,7 @@ async def api_pipeline_preview(body: dict[str, Any]) -> JSONResponse:
             "existing_status": existing_status,
         }
 
-        if existing_status in ("sent", "success", "dry_run", "skipped"):
+        if existing_status in ("sent", "success", "skipped"):
             duplicate_leads.append(entry)
         else:
             new_leads.append(entry)
