@@ -288,19 +288,6 @@ async def process_lead(
     if analysis.get("market"):
         lead["market"] = analysis["market"]
 
-    # ── Market gating — skip leads outside the 5 supported markets ───────────
-    # The email prompt has templates only for coach/agency/consultant/financial_advisor/msp.
-    # Leads classified as "other" cause Claude to refuse rather than hallucinate a template.
-    _SUPPORTED_MARKETS = {"coach", "agency", "consultant", "financial_advisor", "msp"}
-    lead_market = (lead.get("market") or "").strip().lower()
-    if lead_market and lead_market not in _SUPPORTED_MARKETS:
-        log.info(
-            "[%s] market=%r is outside supported markets — skipping lead",
-            lead_id, lead_market,
-        )
-        ledger.mark_complete(lead_id, status="skipped")
-        return {"lead_id": lead_id, "status": "skipped", "landing_url": ""}
-
     # ── Video gating — skip video for low-intent leads ────────────────────────
     intent_score     = float(analysis.get("intent_confidence") or 0)
     video_threshold  = float(settings.video.get("intent_threshold", 0.0))
