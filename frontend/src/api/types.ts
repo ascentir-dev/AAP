@@ -113,6 +113,10 @@ export interface PipelineStatus {
   start_time?:      string;
   elapsed_seconds?: number;
   cost_usd?:        number;
+  run_sent?:         number;
+  run_personalised?: number;
+  run_failed?:       number;
+  db_sent?:          number;
 }
 
 export interface UploadResponse {

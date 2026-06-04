@@ -733,6 +733,12 @@ async def run_pipeline(
                     "[%s] already personalised (status=dry_run) — skipping Phase 1 re-run",
                     lead.get("email", lead["lead_id"]),
                 )
+            elif not dry_run and existing_status is None:
+                # New lead — not yet personalised. Run Phase 1 (Personalise) first.
+                log.debug(
+                    "[%s] Phase 2: not yet personalised — needs Phase 1 first",
+                    lead.get("email", lead["lead_id"]),
+                )
             else:
                 leads_to_run.append(lead)
 
@@ -749,6 +755,9 @@ async def run_pipeline(
         status_ref["total"]           = len(leads_to_run)
         status_ref["duplicate_count"] = duplicate_count
         status_ref["recent_activity"] = []   # clear feed for this run
+        status_ref["run_sent"]         = 0
+        status_ref["run_personalised"] = 0
+        status_ref["run_failed"]       = 0
 
     log.info(
         "Processing %d leads  (%d duplicates skipped, %d in batch)",
@@ -858,6 +867,12 @@ async def run_pipeline(
                     "time":    _dt.utcnow().strftime("%H:%M:%S"),
                 })
                 del feed[50:]   # keep the 50 most recent
+                if result["status"] == "sent":
+                    status_ref["run_sent"] = (status_ref.get("run_sent") or 0) + 1
+                elif result["status"] == "dry_run":
+                    status_ref["run_personalised"] = (status_ref.get("run_personalised") or 0) + 1
+                elif result["status"] == "failed":
+                    status_ref["run_failed"] = (status_ref.get("run_failed") or 0) + 1
 
             return result
 

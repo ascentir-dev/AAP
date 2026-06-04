@@ -963,21 +963,33 @@ export function PipelinePage() {
           })()}
 
           <BigStatRow stats={[
-            { label:"THIS BATCH",               value:status.total,
-              color:"#abb3bf", sub:"leads in current run" },
-            { label:"PERSONALISED THIS BATCH",  value:status.processed,
-              color:"#4c90f0",
-              sub: lastMode === "push" ? "sent to Smartlead this run" : "awaiting push to Smartlead" },
-            { label:"SENT TO SMARTLEAD",        value: lastMode === "push" ? status.sent : (readiness?.already_sent ?? 0),
-              color:"#1D9E75", sub:"all-time across all runs" },
-            { label:"DUPLICATES SKIPPED",       value:status.duplicate_count,
-              color:"#f0b429" },
-            { label:"SKIPPED (NOT A FIT)",      value:status.skipped,
-              color:"#738091" },
-            { label:"FAILED",                   value:status.failed,
+            { label: "THIS BATCH",
+              value: status.total,
+              color: "#abb3bf",
+              sub: "leads queued this run" },
+            { label: lastMode === "push" ? "PUSHED THIS RUN" : "PERSONALISED THIS RUN",
+              value: lastMode === "push"
+                ? (status.run_sent ?? 0)
+                : (status.run_personalised ?? 0),
+              color: "#4c90f0",
+              sub: lastMode === "push"
+                ? "sent to Smartlead in this run"
+                : "awaiting push to Smartlead" },
+            { label: "SENT TO SMARTLEAD",
+              value: status.db_sent ?? readiness?.already_sent ?? 0,
+              color: "#1D9E75",
+              sub: "all-time across all runs" },
+            { label: "DUPLICATES SKIPPED",
+              value: status.duplicate_count,
+              color: "#f0b429" },
+            { label: "SKIPPED (NOT A FIT)",
+              value: status.skipped,
+              color: "#738091" },
+            { label: "FAILED",
+              value: status.failed,
               color: status.failed > 0 ? "#e63946" : "#383e47" },
             ...(status.cost_usd != null
-              ? [{ label:"COST", value:`$${status.cost_usd.toFixed(3)}`, color:"#abb3bf" }]
+              ? [{ label: "COST", value: `$${status.cost_usd.toFixed(3)}`, color: "#abb3bf" }]
               : []),
           ]} />
 

@@ -350,6 +350,40 @@ async def api_leads(
     return JSONResponse({"leads": leads, "total": total})
 
 
+@app.get("/api/leads/export")
+async def api_leads_export():
+    """Download all leads as a CSV with their current status."""
+    import csv, io
+    from fastapi.responses import Response as _Response
+    db = _get_db()
+    if not db.exists():
+        return _Response(content="", media_type="text/csv")
+
+    conn = sqlite3.connect(str(db))
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT l.email, l.first_name, l.last_name, l.company, l.role,
+               l.status, l.variant_id, l.completed_at, l.error
+        FROM leads l
+        ORDER BY l.completed_at DESC NULLS LAST
+    """).fetchall()
+    conn.close()
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["email","first_name","last_name","company","role","status","variant","completed_at","error"])
+    for r in rows:
+        writer.writerow([r["email"], r["first_name"] or "", r["last_name"] or "",
+                         r["company"] or "", r["role"] or "", r["status"] or "",
+                         r["variant_id"] or "", r["completed_at"] or "", r["error"] or ""])
+
+    return _Response(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=leads_export.csv"},
+    )
+
+
 @app.get("/api/leads/{lead_id}")
 async def api_lead_detail(lead_id: str) -> JSONResponse:
     """Single lead with all stages."""
@@ -933,7 +967,6 @@ async def api_pipeline_status() -> JSONResponse:
             conn.close()
 
             if row:
-                _pipeline_status["total"] = row[0] or 0
                 _pipeline_status["sent"] = row[1] or 0
                 _pipeline_status["skipped"] = row[2] or 0
                 _pipeline_status["failed"] = row[3] or 0
@@ -944,6 +977,12 @@ async def api_pipeline_status() -> JSONResponse:
                 )
             if cost_row:
                 _pipeline_status["cost_usd"] = round(cost_row[0] or 0, 4)
+            conn.close()
+            _conn2 = sqlite3.connect(str(db))
+            _pipeline_status["db_sent"] = _conn2.execute(
+                "SELECT COUNT(*) FROM leads WHERE status IN ('sent','success')"
+            ).fetchone()[0] or 0
+            _conn2.close()
     except Exception:
         pass
 

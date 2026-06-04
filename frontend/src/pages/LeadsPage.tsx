@@ -444,6 +444,13 @@ export function LeadsPage() {
         <span style={{ fontSize: 12, color: "#738091", marginLeft: "auto" }}>
           {total.toLocaleString()} leads total
         </span>
+        <a
+          href="/api/leads/export"
+          download="leads_export.csv"
+          style={{ textDecoration: "none" }}
+        >
+          <Button icon="download" minimal>Export CSV</Button>
+        </a>
         {hasEmailOnlyVisible && (
           <Button
             intent="danger"
