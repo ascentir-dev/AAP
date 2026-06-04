@@ -657,20 +657,11 @@ async def run_pipeline(
             ).fetchone()
             existing_status = row["status"] if row else None
 
-            if existing_status in ("sent", "success"):
-                # Already pushed to Smartlead — never re-process.
+            if existing_status in ("sent", "success", "dry_run", "skipped"):
+                # Already processed in any form — never re-queue.
                 duplicate_count += 1
                 log.debug(
-                    "[%s] duplicate — already sent, skipping",
-                    lead.get("email", lead["lead_id"]),
-                )
-            elif dry_run and existing_status in ("dry_run", "skipped"):
-                # Phase 1 (Personalise): already personalised or previously skipped —
-                # no need to re-run.  dry_run leads sit in the queue until Phase 2
-                # (Push to Smartlead) picks them up.
-                duplicate_count += 1
-                log.debug(
-                    "[%s] already personalised (status=%s) — skipping Phase 1 re-run",
+                    "[%s] already processed (status=%s) — skipping",
                     lead.get("email", lead["lead_id"]), existing_status,
                 )
             else:
