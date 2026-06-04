@@ -1,75 +1,40 @@
-# =============================================================================
-# templates.yaml — Market-specific email + SMS scaffolds
-# Structure: email.[market].[Variant N] / sms.[market].[SMS-VN]
-# Markets: coach | agency | consultant | financial_advisor | msp
-#
-# AI fills the {token} placeholders at generation time.
-# The structural copy, pain framing, and proof claims are hand-crafted
-# per market so Claude only handles lead-specific personalization.
-#
-# Bridge lines are intentionally video-neutral — they introduce {VIDEO_LINK}
-# cleanly for video emails AND let it substitute to the Reply VIDEO block
-# for email-only sends without needing regex replacement.
-#
-# Subject line formulas — one per variant, drawn from two top-performing pools:
-#   V1: "saw {company}'s {observation}"      — personalization + curiosity
-#   V2: "quick question, {first_name}"       — 1:1 feel, highest open rate
-#   V3: "{company} + Ascentir"               — partnership signal
-#   V4: "a thought on {company}'s pipeline"  — value-forward
-#   V5: "30 [market-term] in 30 days"        — specific proof number
-#   V6: "question for {first_name}"          — curiosity trigger pool
-#   V7: "taking on new clients?"             — demand-flip frame
-#   V8: "{their_state} — one spot open"      — territory + bounded scarcity
-#   V9: "{first_name}"                       — just the name, pattern interrupt
-#
-# Offer anchor: "30 qualified [market-term] in 30 days, guaranteed."
-# Guarantee mechanism: "you pay nothing unless [market-term] land on your calendar."
-# =============================================================================
-
 email:
-
-  # ---------------------------------------------------------------------------
-  # COACHES — High-ticket coaches & professional training firms
-  # Language: enrollments, qualified appointments, ideal clients, program, launch
-  # ---------------------------------------------------------------------------
   coach:
-
     Variant 1:
       framework: PPP — Praise / Picture / Push
-      subject_formula: "saw {company}'s {observation}"
+      subject_formula: saw {company}'s {observation}
       word_count: 130-160
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}'
       template: |
         Hi {first_name}, hope you're having a great week.
 
         {company} genuinely caught my eye. {personalized_hook} — and that kind of track record deserves a qualified appointment calendar that matches it.
 
-        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, driving {target_outcome}.
+        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, driving {target_outcome}.
 
-        Best part: if those qualified appointments don't land, you don't pay. 120 qualified qualified appointments in 120 days. Guaranteed.
+        Best part: if those qualified appointments don't land, you don't pay. 120 qualified appointments in 120 days. Guaranteed.
 
         By the way, this isn't an automated message. I'm a real person. I know you get a ton of these every week. This isn't one of them. See the exact system that handles this done-for-you:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        We've helped coaches and training firms add 30 qualified qualified appointments in their first 30 days, 7 new clients enrolled, without launching every quarter or running a single ad.
+        We've helped coaches and training firms add 30 qualified appointments in their first 30 days, 7 new clients enrolled, without launching every quarter or running a single ad.
 
         If {company} has room for new enrollments, reply and I'll show you exactly how many qualified appointments we'd generate.
 
         Thanks,
         Frank
 
-        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified qualified appointments land on your calendar. No qualified appointments, no cost.
-
+        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified appointments land on your calendar. No qualified appointments, no cost.
     Variant 2:
       framework: PPP — Compact Warm
-      subject_formula: "quick question, {first_name}"
+      subject_formula: quick question, {first_name}
       word_count: 70-90
-      ai_fills: "{personalized_hook}, {motion_based_pain_observation}, {their_business_description}"
+      ai_fills: '{personalized_hook}, {motion_based_pain_observation}, {their_business_description}'
       template: |
         Hey {first_name}, {personalized_hook} — but {motion_based_pain_observation}.
 
-        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
+        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
 
         Not a robot, I promise. See the exact system that handles this done-for-you:
 
@@ -79,25 +44,24 @@ email:
 
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket coaches and training firms, and you pay nothing unless qualified qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket coaches and training firms, and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 3:
       framework: PPP + Average-Lift Proof
-      subject_formula: "{company} + Ascentir"
+      subject_formula: '{company} + Ascentir'
       word_count: 100-130
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}'
       template: |
         Hi {first_name},
 
         First: {company} looks great.
 
-        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
+        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
 
         I send these personally, not from bulk software. I know you get a lot of automated emails every week. This isn't one of them. See the exact numbers before deciding anything:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        On average, we book 30 qualified qualified appointments in 30 days for every coach we work with in the first 8 weeks.
+        On average, we book 30 qualified appointments in 30 days for every coach we work with in the first 8 weeks.
 
         If {company} has room for new enrollments, reply — I'll show you exactly how many qualified appointments we'd generate.
 
@@ -105,76 +69,72 @@ email:
         Frank
 
         P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
     Variant 4:
       framework: AIDA — Niche Authority + Direct Ask
-      subject_formula: "a thought on {company}'s pipeline"
-      word_count: 80-100
-      ai_fills: "{their_industry}"
-      template: |
+      subject_formula: how we find {company}'s best buyers
+      word_count: 110-140
+      ai_fills: '{their_industry}, {personalized_hook}'
+      template: |-
         {first_name},
 
-        Saw {company} is in {their_industry}. Strong ties here. We work specifically with {their_industry} coaches who are tired of new business depending entirely on referrals and the coach's personal network.
+        Most {their_industry} businesses run outbound the same way: bought contact lists, scraped LinkedIn, the same cold databases every competitor is using. The result is predictable — low response rates, indifferent prospects, campaigns that grind instead of scale.
 
-        Most hit the same wall: enrollment is feast-or-famine — great months after a launch, quiet months in between — and there's no systematic way to fix it without a dedicated outbound engine.
+        We built something different.
 
-        See the exact system that handles this done-for-you:
+        Ascentir runs a private AI behavioral database — cross-referenced against your specific market in real time — to identify exactly who is in-market for what you sell right now. Not last quarter. Not a static list. Right now, actively looking.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        Our AROS acquisition system reaches those contacts before any competitor does. The result: qualified appointments from people who were already looking — not cold contacts you had to convince from scratch.
 
-        If {company} has room for new enrollments, reply — I'll show you exactly how many qualified appointments we'd generate.
+        {company} came up as a strong fit. I'd rather show you how it works than explain it in an email:
 
-        Cheers,
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
+
         Frank
 
-        P.S. Personal email. I'll be the one replying. And you pay nothing unless qualified appointments land on your calendar.
-
+        P.S. We're selective about partners — not because of capacity, but because signal quality degrades when too many businesses target the same contacts. If this is the right fit, I'll tell you directly. You pay nothing unless qualified appointments land on your calendar.
     Variant 5:
       framework: 3 Cs — Compliment / Case Study / CTA
-      subject_formula: "30 qualified appointments in 30 days"
-      word_count: 90-120
-      ai_fills: "{personalized_hook}"
-      template: |
+      subject_formula: results from {{their_industry}} businesses like {{company}}
+      word_count: 110-140
+      ai_fills: '{personalized_hook}, {their_industry}'
+      template: |-
         Hey {first_name},
 
-        {company} {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
+        {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
 
-        Recent results from coaches and training firms we've worked with:
+        Recent results from businesses we've worked with using the AROS system:
 
-        • High-ticket coach — referral-only pipeline, no outbound system: 30 qualified qualified appointments in 30 days, 7 new clients enrolled
-        • Professional training firm: replaced $8K/month in marketing spend with AI outbound under $500/month, 30+ qualified appointments/month
-        • Online coaching business: went from 3-4 referrals/month to 30 qualified qualified appointments in their first 30 days
+                • High-ticket coach — referral-only pipeline, no outbound: 30 qualified appointments in 30 days, 7 new clients enrolled
+                • CPA reduced from $25 to $2.80 per qualified lead using our private behavioral database — same offer, better targeting
+                • Coaching business: 23 calls booked, 3 closed one-call deals, $34K revenue from $2,983 in total spend
 
-        See if {company} qualifies to be next on this list:
+        The common thread: they weren't reaching more people. They were reaching the right people — identified by our private AI behavioral database — at the exact moment those people were in-market.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        See if {company} qualifies to be next:
 
-        If {company} has room for new enrollments, reply — I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        Thanks,
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. The system books 120 guaranteed qualified appointments in 90 days. You pay nothing unless they land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 6:
       framework: QVC — Question / Value / CTA
-      subject_formula: "120 qualified appointments in 120 days?"
-      word_count: 45-65
-      ai_fills: "none"
-      template: |
-        Hey {first_name}, quick q: if {company} could have 120 qualified qualified appointments in 120 days land on the calendar in the next 120 days, with no payment until they do, is that worth 60 seconds?
+      subject_formula: who in {their_industry} is buying right now?
+      word_count: 50-70
+      ai_fills: '{their_industry}'
+      template: |-
+        Hey {first_name}, quick question: what if you could see exactly who in your target market is actively in-market right now — identified by real-time behavioral signals — and reach them before any competitor does?
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        That's what AROS does. 120 qualified appointments in 90 days, or you don't pay.
 
-        If {company} has room for new enrollments, reply and I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
         Frank
-
     Variant 7:
       framework: Demand Flip
-      subject_formula: "taking on new clients?"
+      subject_formula: taking on new clients?
       word_count: 85-110
-      ai_fills: "{personalized_hook}, {their_state}"
+      ai_fills: '{personalized_hook}, {their_state}'
       template: |
         {first_name},
 
@@ -186,12 +146,11 @@ email:
 
         Cheers,
         Frank
-
     Variant 8:
       framework: Inverted Demand / Scarcity
-      subject_formula: "heads up — {their_industry} coach inquiry"
+      subject_formula: heads up — {their_industry} coach inquiry
       word_count: 85-110
-      ai_fills: "{their_industry}, {personalized_hook}"
+      ai_fills: '{their_industry}, {personalized_hook}'
       template: |
         Hi {first_name},
 
@@ -207,75 +166,67 @@ email:
         Frank
 
         P.S. Not automated. Real person. And if you're thinking this sounds like another AI email blaster — it isn't. Done-for-you outbound, you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds.
-
     Variant 9:
       framework: PAS — Problem / Agitate / Solve
-      subject_formula: "{first_name}"
-      word_count: 95-120
-      ai_fills: "{hook_observation_concerning}, {their_industry}, {agitation_one_liner}"
-      template: |
+      subject_formula: '{{first_name}}'
+      word_count: 110-140
+      ai_fills: '{hook_observation_concerning}, {their_industry}'
+      template: |-
         Hey {first_name},
 
         Honest observation about {company}: {hook_observation_concerning}
 
-        For {their_industry} coaches, that usually means {agitation_one_liner} — and every quiet month is 30 qualified appointments that didn't happen. It gets harder to fix every quarter you leave it.
+        Here's the real problem most {their_industry} businesses don't talk about: it's not the offer. It's not the copy. It's that outbound built on public contact databases reaches the same exhausted contacts as every competitor — at the wrong time, without knowing who's actually in-market.
 
-        See the exact 120-day fix. No commitment needed:
+        The {their_industry} businesses booking appointments consistently aren't working harder. They have access to better data. Every month without it is another 30 qualified appointments that went to whoever got there first.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        We fix this with AROS:
 
-        I run Ascentir. We get coaches and training firms 120 qualified qualified appointments in 120 days, guaranteed, done-for-you. You pay nothing unless qualified appointments land on your calendar. After looking at {company}, I'm confident we could move the needle.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        If {company} has room for new enrollments, reply — I'll walk you through exactly how we'd build your qualified appointment pipeline.
+        I run Ascentir. We built a private AI behavioral database that identifies exactly who in your target market is actively in-market right now — then reaches them before any competitor does. 120 guaranteed qualified appointments in 90 days, done-for-you. You pay nothing unless appointments land on your calendar.
 
-        Thanks,
+        After looking at {company}, I'm confident we could move the needle.
+
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. Done-for-you outbound and you pay nothing unless qualified appointments book. Reply VIDEO and I'll send it.
-
-
-  # ---------------------------------------------------------------------------
-  # AGENCIES — Marketing & advertising agencies
-  # Language: retainers, MRR, new biz, accounts, pitches, churn, clients
-  # ---------------------------------------------------------------------------
+        P.S. The demo takes 60 seconds and shows the exact mechanism. It's the fastest way to understand why the results are different from every other outbound platform you've seen. Reply VIDEO and I'll send it.
   agency:
-
     Variant 1:
       framework: PPP — Praise / Picture / Push
-      subject_formula: "saw {company}'s {observation}"
+      subject_formula: saw {company}'s {observation}
       word_count: 130-160
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}'
       template: |
         Hi {first_name}, hope you're having a great week.
 
         {company} genuinely caught my eye. {personalized_hook} — and that kind of track record deserves a appointment calendar that matches it.
 
-        My team's reviewed your {their_business_description}, and we're confident your appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, driving {target_outcome}.
+        My team's reviewed your {their_business_description}, and we're confident your appointment calendar gets 120 qualified appointments in 120 days, done-for-you, driving {target_outcome}.
 
-        Best part: if those qualified appointments don't land, you don't pay. 120 qualified qualified appointments in 120 days. Guaranteed.
+        Best part: if those qualified appointments don't land, you don't pay. 120 qualified appointments in 120 days. Guaranteed.
 
         By the way, this isn't an automated message. I'm a real person. I know you get a ton of these every week. This isn't one of them. See the exact system that handles this done-for-you:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        We've helped agencies add 30 qualified qualified appointments in their first 30 days, 6 new retainers closed, without cold calling or relying on the founder to drive all new biz.
+        We've helped agencies add 30 qualified appointments in their first 30 days, 6 new retainers closed, without cold calling or relying on the founder to drive all new biz.
 
         If {company} has room for new retainers, reply and I'll show you exactly how many qualified appointments we'd generate.
 
         Thanks,
         Frank
 
-        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified qualified appointments land on your calendar. No qualified appointments, no cost.
-
+        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified appointments land on your calendar. No qualified appointments, no cost.
     Variant 2:
       framework: PPP — Compact Warm
-      subject_formula: "quick question, {first_name}"
+      subject_formula: quick question, {first_name}
       word_count: 70-90
-      ai_fills: "{personalized_hook}, {motion_based_pain_observation}, {their_business_description}"
+      ai_fills: '{personalized_hook}, {motion_based_pain_observation}, {their_business_description}'
       template: |
         Hey {first_name}, {personalized_hook} — but {motion_based_pain_observation}.
 
-        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
+        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your appointment calendar gets 120 qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
 
         Not a robot, I promise. See the exact system that handles this done-for-you:
 
@@ -285,25 +236,24 @@ email:
 
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket agencies and creative firms, and you pay nothing unless qualified qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket agencies and creative firms, and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 3:
       framework: PPP + Average-Lift Proof
-      subject_formula: "{company} + Ascentir"
+      subject_formula: '{company} + Ascentir'
       word_count: 100-130
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}'
       template: |
         Hi {first_name},
 
         First: {company} looks great.
 
-        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
+        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
 
         I send these personally, not from bulk software. I know you get a lot of automated emails every week. This isn't one of them. See the exact numbers before deciding anything:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        On average, we book 30 qualified qualified appointments in 30 days for every agency we work with in the first 8 weeks.
+        On average, we book 30 qualified appointments in 30 days for every agency we work with in the first 8 weeks.
 
         If {company} has room for new retainers, reply — I'll show you exactly how many qualified appointments we'd generate.
 
@@ -311,76 +261,72 @@ email:
         Frank
 
         P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
     Variant 4:
       framework: AIDA — Niche Authority + Direct Ask
-      subject_formula: "a thought on {company}'s pipeline"
-      word_count: 80-100
-      ai_fills: "{their_industry}"
-      template: |
+      subject_formula: how we find {company}'s best buyers
+      word_count: 110-140
+      ai_fills: '{their_industry}, {personalized_hook}'
+      template: |-
         {first_name},
 
-        Saw {company} is in {their_industry}. Strong ties here. We work specifically with {their_industry} agency owners who are tired of new business depending entirely on referrals and the agency owner's personal network.
+        Most {their_industry} businesses run outbound the same way: bought contact lists, scraped LinkedIn, the same cold databases every competitor is using. The result is predictable — low response rates, indifferent prospects, campaigns that grind instead of scale.
 
-        Most hit the same wall: new business development falls entirely on the founder, with no predictable system behind it — and the retainer cycle stays unpredictable until that changes.
+        We built something different.
 
-        See the exact system that handles this done-for-you:
+        Ascentir runs a private AI behavioral database — cross-referenced against your specific market in real time — to identify exactly who is in-market for what you sell right now. Not last quarter. Not a static list. Right now, actively looking.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        Our AROS acquisition system reaches those contacts before any competitor does. The result: qualified appointments from people who were already looking — not cold contacts you had to convince from scratch.
 
-        If {company} has room for new retainers, reply — I'll show you exactly how many qualified appointments we'd generate.
+        {company} came up as a strong fit. I'd rather show you how it works than explain it in an email:
 
-        Cheers,
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
+
         Frank
 
-        P.S. Personal email. I'll be the one replying. And you pay nothing unless qualified appointments land on your calendar.
-
+        P.S. We're selective about partners — not because of capacity, but because signal quality degrades when too many businesses target the same contacts. If this is the right fit, I'll tell you directly. You pay nothing unless qualified appointments land on your calendar.
     Variant 5:
       framework: 3 Cs — Compliment / Case Study / CTA
-      subject_formula: "30 qualified appointments in 30 days"
-      word_count: 90-120
-      ai_fills: "{personalized_hook}"
-      template: |
+      subject_formula: results from {{their_industry}} businesses like {{company}}
+      word_count: 110-140
+      ai_fills: '{personalized_hook}, {their_industry}'
+      template: |-
         Hey {first_name},
 
-        {company} {personalized_hook} — and that kind of operation deserves a appointment calendar that matches it.
+        {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
 
-        Recent results from agencies and creative firms we've worked with:
+        Recent results from businesses we've worked with using the AROS system:
 
-        • Paid media agency — founder doing all new-biz, no system: 30 qualified qualified appointments in 30 days, 6 new retainers closed
-        • Digital marketing agency: replaced $12K/month in outsourced SDRs with AI under $1K/month, 30+ qualified appointments/month
-        • Creative agency: went from 2-3 inbounds/month to 30 qualified qualified appointments in their first 30 days
+                • Paid media agency — founder doing all new-biz: 30 qualified appointments in 30 days, 6 new retainers closed
+                • Agency: 23 calls booked, 3 closed one-call deals, $34K revenue generated from $2,983 in total spend
+                • Digital marketing agency: 24 new appointments from existing traffic — zero ad spend, just the AROS system
 
-        See if {company} qualifies to be next on this list:
+        The common thread: they weren't reaching more people. They were reaching the right people — identified by our private AI behavioral database — at the exact moment those people were in-market.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        See if {company} qualifies to be next:
 
-        If {company} has room for new retainers, reply — I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        Thanks,
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. The system books 120 guaranteed qualified appointments in 90 days. You pay nothing unless they land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 6:
       framework: QVC — Question / Value / CTA
-      subject_formula: "120 qualified appointments in 120 days?"
-      word_count: 45-65
-      ai_fills: "none"
-      template: |
-        Hey {first_name}, quick q: if {company} could have 120 qualified qualified appointments in 120 days land on the calendar in the next 120 days, with no payment until they do, is that worth 60 seconds?
+      subject_formula: who in {their_industry} is buying right now?
+      word_count: 50-70
+      ai_fills: '{their_industry}'
+      template: |-
+        Hey {first_name}, quick question: what if you could see exactly who in your target market is actively in-market right now — identified by real-time behavioral signals — and reach them before any competitor does?
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        That's what AROS does. 120 qualified appointments in 90 days, or you don't pay.
 
-        If {company} has room for new retainers, reply and I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
         Frank
-
     Variant 7:
       framework: Demand Flip
-      subject_formula: "taking on new clients?"
+      subject_formula: taking on new clients?
       word_count: 85-110
-      ai_fills: "{personalized_hook}, {their_state}"
+      ai_fills: '{personalized_hook}, {their_state}'
       template: |
         {first_name},
 
@@ -392,12 +338,11 @@ email:
 
         Cheers,
         Frank
-
     Variant 8:
       framework: Inverted Demand / Scarcity
-      subject_formula: "heads up — {their_industry} agency owner inquiry"
+      subject_formula: heads up — {their_industry} agency owner inquiry
       word_count: 85-110
-      ai_fills: "{their_industry}, {personalized_hook}"
+      ai_fills: '{their_industry}, {personalized_hook}'
       template: |
         Hi {first_name},
 
@@ -413,75 +358,67 @@ email:
         Frank
 
         P.S. Not automated. Real person. And if you're thinking this sounds like another AI email blaster — it isn't. Done-for-you outbound, you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds.
-
     Variant 9:
       framework: PAS — Problem / Agitate / Solve
-      subject_formula: "{first_name}"
-      word_count: 95-120
-      ai_fills: "{hook_observation_concerning}, {their_industry}, {agitation_one_liner}"
-      template: |
+      subject_formula: '{{first_name}}'
+      word_count: 110-140
+      ai_fills: '{hook_observation_concerning}, {their_industry}'
+      template: |-
         Hey {first_name},
 
         Honest observation about {company}: {hook_observation_concerning}
 
-        For {their_industry} agency owners, that usually means {agitation_one_liner} — and every month without a systematic outbound engine is another 30 qualified qualified appointments that didn't happen. It gets harder to fix every quarter you leave it.
+        Here's the real problem most {their_industry} businesses don't talk about: it's not the offer. It's not the copy. It's that outbound built on public contact databases reaches the same exhausted contacts as every competitor — at the wrong time, without knowing who's actually in-market.
 
-        See the exact 120-day fix. No commitment needed:
+        The {their_industry} businesses booking appointments consistently aren't working harder. They have access to better data. Every month without it is another 30 qualified appointments that went to whoever got there first.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        We fix this with AROS:
 
-        I run Ascentir. We get agencies and creative firms 120 qualified qualified appointments in 120 days, guaranteed, done-for-you. You pay nothing unless qualified appointments land on your calendar. After looking at {company}, I'm confident we could move the needle.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        If {company} has room for new retainers, reply — I'll walk you through exactly how we'd build your new-business pipeline.
+        I run Ascentir. We built a private AI behavioral database that identifies exactly who in your target market is actively in-market right now — then reaches them before any competitor does. 120 guaranteed qualified appointments in 90 days, done-for-you. You pay nothing unless appointments land on your calendar.
 
-        Thanks,
+        After looking at {company}, I'm confident we could move the needle.
+
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. Done-for-you outbound and you pay nothing unless qualified appointments book. Reply VIDEO and I'll send it.
-
-
-  # ---------------------------------------------------------------------------
-  # CONSULTANTS — Strategy / ops / fractional advisory firms
-  # Language: engagements, retainers, advisory, proposals, pipeline, C-suite
-  # ---------------------------------------------------------------------------
+        P.S. The demo takes 60 seconds and shows the exact mechanism. It's the fastest way to understand why the results are different from every other outbound platform you've seen. Reply VIDEO and I'll send it.
   consultant:
-
     Variant 1:
       framework: PPP — Praise / Picture / Push
-      subject_formula: "saw {company}'s {observation}"
+      subject_formula: saw {company}'s {observation}
       word_count: 130-160
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}'
       template: |
         Hi {first_name}, hope you're having a great week.
 
         {company} genuinely caught my eye. {personalized_hook} — and that kind of track record deserves a qualified appointment calendar that matches it.
 
-        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, driving {target_outcome}.
+        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, driving {target_outcome}.
 
-        Best part: if those qualified appointments don't land, you don't pay. 120 qualified qualified appointments in 120 days. Guaranteed.
+        Best part: if those qualified appointments don't land, you don't pay. 120 qualified appointments in 120 days. Guaranteed.
 
         By the way, this isn't an automated message. I'm a real person. I know you get a ton of these every week. This isn't one of them. See the exact system that handles this done-for-you:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        We've helped consulting firms add 30 qualified qualified appointments in their first 30 days, 3 new engagements signed, without cold outreach depending on the founding principals.
+        We've helped consulting firms add 30 qualified appointments in their first 30 days, 3 new engagements signed, without cold outreach depending on the founding principals.
 
         If {company} has room for new engagements, reply and I'll show you exactly how many qualified appointments we'd generate.
 
         Thanks,
         Frank
 
-        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified qualified appointments land on your calendar. No qualified appointments, no cost.
-
+        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified appointments land on your calendar. No qualified appointments, no cost.
     Variant 2:
       framework: PPP — Compact Warm
-      subject_formula: "quick question, {first_name}"
+      subject_formula: quick question, {first_name}
       word_count: 70-90
-      ai_fills: "{personalized_hook}, {motion_based_pain_observation}, {their_business_description}"
+      ai_fills: '{personalized_hook}, {motion_based_pain_observation}, {their_business_description}'
       template: |
         Hey {first_name}, {personalized_hook} — but {motion_based_pain_observation}.
 
-        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
+        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
 
         Not a robot, I promise. See the exact system that handles this done-for-you:
 
@@ -491,25 +428,24 @@ email:
 
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket consulting and advisory firms, and you pay nothing unless qualified qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket consulting and advisory firms, and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 3:
       framework: PPP + Average-Lift Proof
-      subject_formula: "{company} + Ascentir"
+      subject_formula: '{company} + Ascentir'
       word_count: 100-130
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}'
       template: |
         Hi {first_name},
 
         First: {company} looks great.
 
-        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
+        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
 
         I send these personally, not from bulk software. I know you get a lot of automated emails every week. This isn't one of them. See the exact numbers before deciding anything:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        On average, we book 30 qualified qualified appointments in 30 days for every consulting firm we work with in the first 8 weeks.
+        On average, we book 30 qualified appointments in 30 days for every consulting firm we work with in the first 8 weeks.
 
         If {company} has room for new engagements, reply — I'll show you exactly how many qualified appointments we'd generate.
 
@@ -517,76 +453,72 @@ email:
         Frank
 
         P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
     Variant 4:
       framework: AIDA — Niche Authority + Direct Ask
-      subject_formula: "a thought on {company}'s pipeline"
-      word_count: 80-100
-      ai_fills: "{their_industry}"
-      template: |
+      subject_formula: how we find {company}'s best buyers
+      word_count: 110-140
+      ai_fills: '{their_industry}, {personalized_hook}'
+      template: |-
         {first_name},
 
-        Saw {company} is in {their_industry}. Strong ties here. We work specifically with {their_industry} consultants who are tired of new business depending entirely on referrals and the consultant's personal network.
+        Most {their_industry} businesses run outbound the same way: bought contact lists, scraped LinkedIn, the same cold databases every competitor is using. The result is predictable — low response rates, indifferent prospects, campaigns that grind instead of scale.
 
-        Most hit the same wall: BD falls on the principals' personal networks with no systematic pipeline — and revenue stays lumpy between engagements until that changes.
+        We built something different.
 
-        See the exact system that handles this done-for-you:
+        Ascentir runs a private AI behavioral database — cross-referenced against your specific market in real time — to identify exactly who is in-market for what you sell right now. Not last quarter. Not a static list. Right now, actively looking.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        Our AROS acquisition system reaches those contacts before any competitor does. The result: qualified appointments from people who were already looking — not cold contacts you had to convince from scratch.
 
-        If {company} has room for new engagements, reply — I'll show you exactly how many qualified appointments we'd generate.
+        {company} came up as a strong fit. I'd rather show you how it works than explain it in an email:
 
-        Cheers,
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
+
         Frank
 
-        P.S. Personal email. I'll be the one replying. And you pay nothing unless qualified appointments land on your calendar.
-
+        P.S. We're selective about partners — not because of capacity, but because signal quality degrades when too many businesses target the same contacts. If this is the right fit, I'll tell you directly. You pay nothing unless qualified appointments land on your calendar.
     Variant 5:
       framework: 3 Cs — Compliment / Case Study / CTA
-      subject_formula: "30 qualified appointments in 30 days"
-      word_count: 90-120
-      ai_fills: "{personalized_hook}"
-      template: |
+      subject_formula: results from {{their_industry}} businesses like {{company}}
+      word_count: 110-140
+      ai_fills: '{personalized_hook}, {their_industry}'
+      template: |-
         Hey {first_name},
 
-        {company} {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
+        {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
 
-        Recent results from consulting and advisory firms we've worked with:
+        Recent results from businesses we've worked with using the AROS system:
 
-        • Strategy consulting firm — BD through principals only: 30 qualified qualified appointments in 30 days, 3 new engagements signed
-        • Operations consulting: replaced manual partner BD with AI outbound, 30 qualified qualified appointments in their first 30 days
-        • Management advisory: went from 2-3 warm intros/quarter to 30 qualified qualified appointments in their first 30 days
+                • Strategy consulting firm — BD through principals only: 30 qualified appointments in 30 days, 3 new engagements signed
+                • Consulting practice: 23 calls booked, 3 closed one-call deals, $34K revenue from $2,983 spent — quality of prospects was exceptional
+                • Advisory firm: 24 new appointments from existing traffic — zero ad spend required
 
-        See if {company} qualifies to be next on this list:
+        The common thread: they weren't reaching more people. They were reaching the right people — identified by our private AI behavioral database — at the exact moment those people were in-market.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        See if {company} qualifies to be next:
 
-        If {company} has room for new engagements, reply — I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        Thanks,
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. The system books 120 guaranteed qualified appointments in 90 days. You pay nothing unless they land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 6:
       framework: QVC — Question / Value / CTA
-      subject_formula: "120 qualified appointments in 120 days?"
-      word_count: 45-65
-      ai_fills: "none"
-      template: |
-        Hey {first_name}, quick q: if {company} could have 120 qualified qualified appointments in 120 days land on the calendar in the next 120 days, with no payment until they do, is that worth 60 seconds?
+      subject_formula: who in {their_industry} is buying right now?
+      word_count: 50-70
+      ai_fills: '{their_industry}'
+      template: |-
+        Hey {first_name}, quick question: what if you could see exactly who in your target market is actively in-market right now — identified by real-time behavioral signals — and reach them before any competitor does?
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        That's what AROS does. 120 qualified appointments in 90 days, or you don't pay.
 
-        If {company} has room for new engagements, reply and I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
         Frank
-
     Variant 7:
       framework: Demand Flip
-      subject_formula: "taking on new clients?"
+      subject_formula: taking on new clients?
       word_count: 85-110
-      ai_fills: "{personalized_hook}, {their_state}"
+      ai_fills: '{personalized_hook}, {their_state}'
       template: |
         {first_name},
 
@@ -598,12 +530,11 @@ email:
 
         Cheers,
         Frank
-
     Variant 8:
       framework: Inverted Demand / Scarcity
-      subject_formula: "heads up — {their_industry} consultant inquiry"
+      subject_formula: heads up — {their_industry} consultant inquiry
       word_count: 85-110
-      ai_fills: "{their_industry}, {personalized_hook}"
+      ai_fills: '{their_industry}, {personalized_hook}'
       template: |
         Hi {first_name},
 
@@ -619,75 +550,67 @@ email:
         Frank
 
         P.S. Not automated. Real person. And if you're thinking this sounds like another AI email blaster — it isn't. Done-for-you outbound, you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds.
-
     Variant 9:
       framework: PAS — Problem / Agitate / Solve
-      subject_formula: "{first_name}"
-      word_count: 95-120
-      ai_fills: "{hook_observation_concerning}, {their_industry}, {agitation_one_liner}"
-      template: |
+      subject_formula: '{{first_name}}'
+      word_count: 110-140
+      ai_fills: '{hook_observation_concerning}, {their_industry}'
+      template: |-
         Hey {first_name},
 
         Honest observation about {company}: {hook_observation_concerning}
 
-        For {their_industry} consultants, that usually means {agitation_one_liner} — and every month without a systematic BD engine is another 30 qualified qualified appointments that didn't happen. It gets harder to fix every quarter you leave it.
+        Here's the real problem most {their_industry} businesses don't talk about: it's not the offer. It's not the copy. It's that outbound built on public contact databases reaches the same exhausted contacts as every competitor — at the wrong time, without knowing who's actually in-market.
 
-        See the exact 120-day fix. No commitment needed:
+        The {their_industry} businesses booking appointments consistently aren't working harder. They have access to better data. Every month without it is another 30 qualified appointments that went to whoever got there first.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        We fix this with AROS:
 
-        I run Ascentir. We get consulting and advisory firms 120 qualified qualified appointments in 120 days, guaranteed, done-for-you. You pay nothing unless qualified appointments land on your calendar. After looking at {company}, I'm confident we could move the needle.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        If {company} has room for new engagements, reply — I'll walk you through exactly how we'd build your engagement pipeline.
+        I run Ascentir. We built a private AI behavioral database that identifies exactly who in your target market is actively in-market right now — then reaches them before any competitor does. 120 guaranteed qualified appointments in 90 days, done-for-you. You pay nothing unless appointments land on your calendar.
 
-        Thanks,
+        After looking at {company}, I'm confident we could move the needle.
+
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. Done-for-you outbound and you pay nothing unless qualified appointments book. Reply VIDEO and I'll send it.
-
-
-  # ---------------------------------------------------------------------------
-  # FINANCIAL_ADVISOR — Financial advisory / fractional CFO / wealth firms
-  # Language: AUM, clients, qualified appointments, financial planning, cash flow
-  # ---------------------------------------------------------------------------
+        P.S. The demo takes 60 seconds and shows the exact mechanism. It's the fastest way to understand why the results are different from every other outbound platform you've seen. Reply VIDEO and I'll send it.
   financial_advisor:
-
     Variant 1:
       framework: PPP — Praise / Picture / Push
-      subject_formula: "saw {company}'s {observation}"
+      subject_formula: saw {company}'s {observation}
       word_count: 130-160
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}'
       template: |
         Hi {first_name}, hope you're having a great week.
 
         {company} genuinely caught my eye. {personalized_hook} — and that kind of track record deserves a qualified appointment calendar that matches it.
 
-        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, driving {target_outcome}.
+        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, driving {target_outcome}.
 
-        Best part: if those qualified appointments don't land, you don't pay. 120 qualified qualified appointments in 120 days. Guaranteed.
+        Best part: if those qualified appointments don't land, you don't pay. 120 qualified appointments in 120 days. Guaranteed.
 
         By the way, this isn't an automated message. I'm a real person. I know you get a ton of these every week. This isn't one of them. See the exact system that handles this done-for-you:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        We've helped advisory practices add 30 qualified qualified appointments in their first 30 days, $1.2M in new AUM committed, without referral-only growth or compliance-risky outreach.
+        We've helped advisory practices add 30 qualified appointments in their first 30 days, $1.2M in new AUM committed, without referral-only growth or compliance-risky outreach.
 
         If {company} has room for new clients, reply and I'll show you exactly how many qualified appointments we'd generate.
 
         Thanks,
         Frank
 
-        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified qualified appointments land on your calendar. No qualified appointments, no cost.
-
+        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified appointments land on your calendar. No qualified appointments, no cost.
     Variant 2:
       framework: PPP — Compact Warm
-      subject_formula: "quick question, {first_name}"
+      subject_formula: quick question, {first_name}
       word_count: 70-90
-      ai_fills: "{personalized_hook}, {motion_based_pain_observation}, {their_business_description}"
+      ai_fills: '{personalized_hook}, {motion_based_pain_observation}, {their_business_description}'
       template: |
         Hey {first_name}, {personalized_hook} — but {motion_based_pain_observation}.
 
-        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
+        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
 
         Not a robot, I promise. See the exact system that handles this done-for-you:
 
@@ -697,25 +620,24 @@ email:
 
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket financial advisory and CFO practices, and you pay nothing unless qualified qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket financial advisory and CFO practices, and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 3:
       framework: PPP + Average-Lift Proof
-      subject_formula: "{company} + Ascentir"
+      subject_formula: '{company} + Ascentir'
       word_count: 100-130
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}'
       template: |
         Hi {first_name},
 
         First: {company} looks great.
 
-        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
+        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
 
         I send these personally, not from bulk software. I know you get a lot of automated emails every week. This isn't one of them. See the exact numbers before deciding anything:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        On average, we book 30 qualified qualified appointments in 30 days for every advisory practice we work with in the first 8 weeks.
+        On average, we book 30 qualified appointments in 30 days for every advisory practice we work with in the first 8 weeks.
 
         If {company} has room for new clients, reply — I'll show you exactly how many qualified appointments we'd generate.
 
@@ -723,76 +645,72 @@ email:
         Frank
 
         P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
     Variant 4:
       framework: AIDA — Niche Authority + Direct Ask
-      subject_formula: "a thought on {company}'s pipeline"
-      word_count: 80-100
-      ai_fills: "{their_industry}"
-      template: |
+      subject_formula: how we find {company}'s best buyers
+      word_count: 110-140
+      ai_fills: '{their_industry}, {personalized_hook}'
+      template: |-
         {first_name},
 
-        Saw {company} is in {their_industry}. Strong ties here. We work specifically with {their_industry} advisors who are tired of new business depending entirely on referrals and the advisor's personal network.
+        Most {their_industry} businesses run outbound the same way: bought contact lists, scraped LinkedIn, the same cold databases every competitor is using. The result is predictable — low response rates, indifferent prospects, campaigns that grind instead of scale.
 
-        Most hit the same wall: growth is referral-dependent with a ceiling that's hard to break through compliance-appropriate channels.
+        We built something different.
 
-        See the exact system that handles this done-for-you:
+        Ascentir runs a private AI behavioral database — cross-referenced against your specific market in real time — to identify exactly who is in-market for what you sell right now. Not last quarter. Not a static list. Right now, actively looking.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        Our AROS acquisition system reaches those contacts before any competitor does. The result: qualified appointments from people who were already looking — not cold contacts you had to convince from scratch.
 
-        If {company} has room for new clients, reply — I'll show you exactly how many qualified appointments we'd generate.
+        {company} came up as a strong fit. I'd rather show you how it works than explain it in an email:
 
-        Cheers,
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
+
         Frank
 
-        P.S. Personal email. I'll be the one replying. And you pay nothing unless qualified appointments land on your calendar.
-
+        P.S. We're selective about partners — not because of capacity, but because signal quality degrades when too many businesses target the same contacts. If this is the right fit, I'll tell you directly. You pay nothing unless qualified appointments land on your calendar.
     Variant 5:
       framework: 3 Cs — Compliment / Case Study / CTA
-      subject_formula: "30 qualified appointments in 30 days"
-      word_count: 90-120
-      ai_fills: "{personalized_hook}"
-      template: |
+      subject_formula: results from {{their_industry}} businesses like {{company}}
+      word_count: 110-140
+      ai_fills: '{personalized_hook}, {their_industry}'
+      template: |-
         Hey {first_name},
 
-        {company} {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
+        {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
 
-        Recent results from financial advisory and CFO practices we've worked with:
+        Recent results from businesses we've worked with using the AROS system:
 
-        • RIA — 100% referral-dependent: 30 qualified qualified appointments in 30 days, $1.2M in new AUM committed
-        • Fractional CFO practice: replaced manual networking with AI outbound, 30 qualified qualified appointments in first 30 days
-        • Wealth management firm: went from 3-4 referrals/month to 30 qualified qualified appointments in their first 30 days
+                • RIA — 100% referral-dependent: 30 qualified prospect meetings in 30 days, $1.2M in new AUM committed
+                • Advisory practice: CPA reduced from $25 to $2.80 per qualified prospect using in-market behavioral data
+                • Fractional CFO firm: 23 meetings booked, 3 closed in single calls, $34K in new engagements from $2,983 in total spend
 
-        See if {company} qualifies to be next on this list:
+        The common thread: they weren't reaching more people. They were reaching the right people — identified by our private AI behavioral database — at the exact moment those people were in-market.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        See if {company} qualifies to be next:
 
-        If {company} has room for new clients, reply — I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        Thanks,
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. The system books 120 guaranteed qualified appointments in 90 days. You pay nothing unless they land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 6:
       framework: QVC — Question / Value / CTA
-      subject_formula: "120 qualified appointments in 120 days?"
-      word_count: 45-65
-      ai_fills: "none"
-      template: |
-        Hey {first_name}, quick q: if {company} could have 120 qualified qualified appointments in 120 days land on the calendar in the next 120 days, with no payment until they do, is that worth 60 seconds?
+      subject_formula: who in {their_industry} is buying right now?
+      word_count: 50-70
+      ai_fills: '{their_industry}'
+      template: |-
+        Hey {first_name}, quick question: what if you could see exactly who in your target market is actively in-market right now — identified by real-time behavioral signals — and reach them before any competitor does?
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        That's what AROS does. 120 qualified appointments in 90 days, or you don't pay.
 
-        If {company} has room for new clients, reply and I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
         Frank
-
     Variant 7:
       framework: Demand Flip
-      subject_formula: "taking on new clients?"
+      subject_formula: taking on new clients?
       word_count: 85-110
-      ai_fills: "{personalized_hook}, {their_state}"
+      ai_fills: '{personalized_hook}, {their_state}'
       template: |
         {first_name},
 
@@ -804,12 +722,11 @@ email:
 
         Cheers,
         Frank
-
     Variant 8:
       framework: Inverted Demand / Scarcity
-      subject_formula: "heads up — {their_industry} advisor inquiry"
+      subject_formula: heads up — {their_industry} advisor inquiry
       word_count: 85-110
-      ai_fills: "{their_industry}, {personalized_hook}"
+      ai_fills: '{their_industry}, {personalized_hook}'
       template: |
         Hi {first_name},
 
@@ -825,75 +742,67 @@ email:
         Frank
 
         P.S. Not automated. Real person. And if you're thinking this sounds like another AI email blaster — it isn't. Done-for-you outbound, you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds.
-
     Variant 9:
       framework: PAS — Problem / Agitate / Solve
-      subject_formula: "{first_name}"
-      word_count: 95-120
-      ai_fills: "{hook_observation_concerning}, {their_industry}, {agitation_one_liner}"
-      template: |
+      subject_formula: '{{first_name}}'
+      word_count: 110-140
+      ai_fills: '{hook_observation_concerning}, {their_industry}'
+      template: |-
         Hey {first_name},
 
         Honest observation about {company}: {hook_observation_concerning}
 
-        For {their_industry} advisors, that usually means {agitation_one_liner} — and every year without systematic outreach is 30 qualified qualified appointments you're leaving on the table. It gets harder to fix every quarter you leave it.
+        Here's the real problem most {their_industry} businesses don't talk about: it's not the offer. It's not the copy. It's that outbound built on public contact databases reaches the same exhausted contacts as every competitor — at the wrong time, without knowing who's actually in-market.
 
-        See the exact 120-day fix. No commitment needed:
+        The {their_industry} businesses booking appointments consistently aren't working harder. They have access to better data. Every month without it is another 30 qualified appointments that went to whoever got there first.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        We fix this with AROS:
 
-        I run Ascentir. We get financial advisory and CFO practices 120 qualified qualified appointments in 120 days, guaranteed, done-for-you. You pay nothing unless qualified appointments land on your calendar. After looking at {company}, I'm confident we could move the needle.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        If {company} has room for new clients, reply — I'll walk you through exactly how we'd build your qualified appointment pipeline.
+        I run Ascentir. We built a private AI behavioral database that identifies exactly who in your target market is actively in-market right now — then reaches them before any competitor does. 120 guaranteed qualified appointments in 90 days, done-for-you. You pay nothing unless appointments land on your calendar.
 
-        Thanks,
+        After looking at {company}, I'm confident we could move the needle.
+
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. Done-for-you outbound and you pay nothing unless qualified appointments book. Reply VIDEO and I'll send it.
-
-
-  # ---------------------------------------------------------------------------
-  # MSP — Managed IT services providers & B2B cybersecurity firms
-  # Language: MRR, seats, contracts, managed services, endpoints, security stack
-  # ---------------------------------------------------------------------------
+        P.S. The demo takes 60 seconds and shows the exact mechanism. It's the fastest way to understand why the results are different from every other outbound platform you've seen. Reply VIDEO and I'll send it.
   msp:
-
     Variant 1:
       framework: PPP — Praise / Picture / Push
-      subject_formula: "saw {company}'s {observation}"
+      subject_formula: saw {company}'s {observation}
       word_count: 130-160
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}'
       template: |
         Hi {first_name}, hope you're having a great week.
 
         {company} genuinely caught my eye. {personalized_hook} — and that kind of track record deserves a qualified appointment calendar that matches it.
 
-        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, driving {target_outcome}.
+        My team's reviewed your {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, driving {target_outcome}.
 
-        Best part: if those qualified appointments don't land, you don't pay. 120 qualified qualified appointments in 120 days. Guaranteed.
+        Best part: if those qualified appointments don't land, you don't pay. 120 qualified appointments in 120 days. Guaranteed.
 
         By the way, this isn't an automated message. I'm a real person. I know you get a ton of these every week. This isn't one of them. See the exact system that handles this done-for-you:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        We've helped MSPs add 30 qualified qualified appointments in their first 30 days, 5 new MRR contracts signed, without cold calling or depending on word-of-mouth.
+        We've helped MSPs add 30 qualified appointments in their first 30 days, 5 new MRR contracts signed, without cold calling or depending on word-of-mouth.
 
         If {company} has room for new contracts, reply and I'll show you exactly how many qualified appointments we'd generate.
 
         Thanks,
         Frank
 
-        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified qualified appointments land on your calendar. No qualified appointments, no cost.
-
+        P.S. When I say pay on results, I really mean it. You pay nothing unless qualified appointments land on your calendar. No qualified appointments, no cost.
     Variant 2:
       framework: PPP — Compact Warm
-      subject_formula: "quick question, {first_name}"
+      subject_formula: quick question, {first_name}
       word_count: 70-90
-      ai_fills: "{personalized_hook}, {motion_based_pain_observation}, {their_business_description}"
+      ai_fills: '{personalized_hook}, {motion_based_pain_observation}, {their_business_description}'
       template: |
         Hey {first_name}, {personalized_hook} — but {motion_based_pain_observation}.
 
-        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
+        Quick context: my team has reviewed {company}'s {their_business_description}, and we're confident your qualified appointment calendar gets 120 qualified appointments in 120 days, done-for-you, on a complete pay-on-results basis. No qualified appointments booked, no payment. Simple.
 
         Not a robot, I promise. See the exact system that handles this done-for-you:
 
@@ -903,25 +812,24 @@ email:
 
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket MSPs and IT services firms, and you pay nothing unless qualified qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. If you're thinking this sounds like another AI email blaster, it isn't. This is done-for-you outbound built specifically for high-ticket MSPs and IT services firms, and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 3:
       framework: PPP + Average-Lift Proof
-      subject_formula: "{company} + Ascentir"
+      subject_formula: '{company} + Ascentir'
       word_count: 100-130
-      ai_fills: "{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}"
+      ai_fills: '{personalized_hook}, {their_business_description}, {target_outcome}, {motion_pain_brief}'
       template: |
         Hi {first_name},
 
         First: {company} looks great.
 
-        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
+        We've reviewed your {their_business_description} — {personalized_hook} — and we're confident we can book 120 qualified appointments in 120 days, driving {target_outcome} without relying on {motion_pain_brief} to fill the pipeline. Done-for-you, guaranteed: if we don't hit the number, you don't pay.
 
         I send these personally, not from bulk software. I know you get a lot of automated emails every week. This isn't one of them. See the exact numbers before deciding anything:
 
         Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
 
-        On average, we book 30 qualified qualified appointments in 30 days for every MSP we work with in the first 8 weeks.
+        On average, we book 30 qualified appointments in 30 days for every MSP we work with in the first 8 weeks.
 
         If {company} has room for new contracts, reply — I'll show you exactly how many qualified appointments we'd generate.
 
@@ -929,76 +837,72 @@ email:
         Frank
 
         P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
     Variant 4:
       framework: AIDA — Niche Authority + Direct Ask
-      subject_formula: "a thought on {company}'s pipeline"
-      word_count: 80-100
-      ai_fills: "{their_industry}"
-      template: |
+      subject_formula: how we find {company}'s best buyers
+      word_count: 110-140
+      ai_fills: '{their_industry}, {personalized_hook}'
+      template: |-
         {first_name},
 
-        Saw {company} is in {their_industry}. Strong ties here. We work specifically with {their_industry} MSP owners who are tired of new business depending entirely on referrals and the MSP owner's personal network.
+        Most {their_industry} businesses run outbound the same way: bought contact lists, scraped LinkedIn, the same cold databases every competitor is using. The result is predictable — low response rates, indifferent prospects, campaigns that grind instead of scale.
 
-        Most hit the same wall: new-business development is relationship-based, and every month without a systematic outbound engine is pipeline left on the table.
+        We built something different.
 
-        See the exact system that handles this done-for-you:
+        Ascentir runs a private AI behavioral database — cross-referenced against your specific market in real time — to identify exactly who is in-market for what you sell right now. Not last quarter. Not a static list. Right now, actively looking.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        Our AROS acquisition system reaches those contacts before any competitor does. The result: qualified appointments from people who were already looking — not cold contacts you had to convince from scratch.
 
-        If {company} has room for new contracts, reply — I'll show you exactly how many qualified appointments we'd generate.
+        {company} came up as a strong fit. I'd rather show you how it works than explain it in an email:
 
-        Cheers,
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
+
         Frank
 
-        P.S. Personal email. I'll be the one replying. And you pay nothing unless qualified appointments land on your calendar.
-
+        P.S. We're selective about partners — not because of capacity, but because signal quality degrades when too many businesses target the same contacts. If this is the right fit, I'll tell you directly. You pay nothing unless qualified appointments land on your calendar.
     Variant 5:
       framework: 3 Cs — Compliment / Case Study / CTA
-      subject_formula: "30 qualified appointments in 30 days"
-      word_count: 90-120
-      ai_fills: "{personalized_hook}"
-      template: |
+      subject_formula: results from {{their_industry}} businesses like {{company}}
+      word_count: 110-140
+      ai_fills: '{personalized_hook}, {their_industry}'
+      template: |-
         Hey {first_name},
 
-        {company} {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
+        {personalized_hook} — and that kind of operation deserves a qualified appointment calendar that matches it.
 
-        Recent results from MSPs and IT services firms we've worked with:
+        Recent results from businesses we've worked with using the AROS system:
 
-        • MSP — 100% referral-based: 30 qualified qualified appointments in 30 days, 5 new MRR contracts signed
-        • Managed security firm: replaced referral dependence with AI outbound, 30 qualified qualified appointments in first 30 days
-        • IT MSP: went from 4-5 word-of-mouth leads/month to 30 qualified qualified appointments in their first 30 days
+                • MSP — 100% referral-based: 30 qualified prospect calls in 30 days, 5 new MRR contracts signed
+                • IT services firm: 23 calls booked, 3 one-call closes, $34K revenue from $2,983 spent — prospect quality was exceptional
+                • Managed security firm: 24 new prospect calls from existing traffic — zero ad spend, just the AROS behavioral database
 
-        See if {company} qualifies to be next on this list:
+        The common thread: they weren't reaching more people. They were reaching the right people — identified by our private AI behavioral database — at the exact moment those people were in-market.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        See if {company} qualifies to be next:
 
-        If {company} has room for new contracts, reply — I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        Thanks,
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
-
+        P.S. The system books 120 guaranteed qualified appointments in 90 days. You pay nothing unless they land on your calendar. The demo takes 60 seconds. Reply VIDEO and I'll send it.
     Variant 6:
       framework: QVC — Question / Value / CTA
-      subject_formula: "120 qualified appointments in 120 days?"
-      word_count: 45-65
-      ai_fills: "none"
-      template: |
-        Hey {first_name}, quick q: if {company} could have 120 qualified qualified appointments in 120 days land on the calendar in the next 120 days, with no payment until they do, is that worth 60 seconds?
+      subject_formula: who in {their_industry} is buying right now?
+      word_count: 50-70
+      ai_fills: '{their_industry}'
+      template: |-
+        Hey {first_name}, quick question: what if you could see exactly who in your target market is actively in-market right now — identified by real-time behavioral signals — and reach them before any competitor does?
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        That's what AROS does. 120 qualified appointments in 90 days, or you don't pay.
 
-        If {company} has room for new contracts, reply and I'll show you exactly how many qualified appointments we'd generate.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
         Frank
-
     Variant 7:
       framework: Demand Flip
-      subject_formula: "taking on new clients?"
+      subject_formula: taking on new clients?
       word_count: 85-110
-      ai_fills: "{personalized_hook}, {their_state}"
+      ai_fills: '{personalized_hook}, {their_state}'
       template: |
         {first_name},
 
@@ -1010,12 +914,11 @@ email:
 
         Cheers,
         Frank
-
     Variant 8:
       framework: Inverted Demand / Scarcity
-      subject_formula: "heads up — {their_industry} MSP owner inquiry"
+      subject_formula: heads up — {their_industry} MSP owner inquiry
       word_count: 85-110
-      ai_fills: "{their_industry}, {personalized_hook}"
+      ai_fills: '{their_industry}, {personalized_hook}'
       template: |
         Hi {first_name},
 
@@ -1031,222 +934,214 @@ email:
         Frank
 
         P.S. Not automated. Real person. And if you're thinking this sounds like another AI email blaster — it isn't. Done-for-you outbound, you pay nothing unless qualified appointments land on your calendar. The demo takes 60 seconds.
-
     Variant 9:
       framework: PAS — Problem / Agitate / Solve
-      subject_formula: "{first_name}"
-      word_count: 95-120
-      ai_fills: "{hook_observation_concerning}, {their_industry}, {agitation_one_liner}"
-      template: |
+      subject_formula: '{{first_name}}'
+      word_count: 110-140
+      ai_fills: '{hook_observation_concerning}, {their_industry}'
+      template: |-
         Hey {first_name},
 
         Honest observation about {company}: {hook_observation_concerning}
 
-        For {their_industry} MSP owners, that usually means {agitation_one_liner} — and every month without a systematic outbound engine is another 30 qualified qualified appointments that didn't happen. It gets harder to fix every quarter you leave it.
+        Here's the real problem most {their_industry} businesses don't talk about: it's not the offer. It's not the copy. It's that outbound built on public contact databases reaches the same exhausted contacts as every competitor — at the wrong time, without knowing who's actually in-market.
 
-        See the exact 120-day fix. No commitment needed:
+        The {their_industry} businesses booking appointments consistently aren't working harder. They have access to better data. Every month without it is another 30 qualified appointments that went to whoever got there first.
 
-        Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book {company} 120 appointments in 90 days. No call, no pitch. Just the demo.
+        We fix this with AROS:
 
-        I run Ascentir. We get MSPs and IT services firms 120 qualified qualified appointments in 120 days, guaranteed, done-for-you. You pay nothing unless qualified appointments land on your calendar. After looking at {company}, I'm confident we could move the needle.
+        Reply VIDEO and I'll send you a personalized demo of the AROS AI Client Acquisition System — showing exactly how we'd book {company} 120 qualified appointments in 90 days. No call. No pitch. Just the demo.
 
-        If {company} has room for new contracts, reply — I'll walk you through exactly how we'd build your qualified appointment pipeline.
+        I run Ascentir. We built a private AI behavioral database that identifies exactly who in your target market is actively in-market right now — then reaches them before any competitor does. 120 guaranteed qualified appointments in 90 days, done-for-you. You pay nothing unless appointments land on your calendar.
 
-        Thanks,
+        After looking at {company}, I'm confident we could move the needle.
+
         Frank
 
-        P.S. If you're thinking this sounds like another AI email blaster, it isn't. Done-for-you outbound and you pay nothing unless qualified appointments book. Reply VIDEO and I'll send it.
-
-
-# =============================================================================
-# SMS VARIANTS — 6 frameworks × 5 markets
-# All under 160-170 chars. {VIDEO_LINK} required. Opt-out footer added at send time.
-# Same Kennedy principles: specific > generic, directive > soft, 30/30 numbers.
-# =============================================================================
-
+        P.S. The demo takes 60 seconds and shows the exact mechanism. It's the fastest way to understand why the results are different from every other outbound platform you've seen. Reply VIDEO and I'll send it.
 sms:
-
   coach:
     SMS-V1:
       framework: Direct Value
       char_limit: 160
-      ai_fills: "{personalized_hook}, {specific_promise}"
-      template: "{first_name}, {personalized_hook}. We book coaches 30 qualified qualified appointments in 30 days, pay-on-results. 60-sec demo: {VIDEO_LINK} Reply DEMO. Frank"
-
+      ai_fills: '{personalized_hook}, {specific_promise}'
+      template: '{first_name}, {personalized_hook}. We book coaches 30 qualified appointments in 30 days, pay-on-results.
+        60-sec demo: {VIDEO_LINK} Reply DEMO. Frank'
     SMS-V2:
       framework: Social Proof
       char_limit: 160
-      ai_fills: "{their_industry}, {proof_result}"
-      template: "{first_name}, a {their_industry} coach we worked with just booked 30 qualified qualified appointments in 30 days, 7 new clients enrolled. Demo: {VIDEO_LINK} Same for {company}? Frank"
-
+      ai_fills: '{their_industry}, {proof_result}'
+      template: '{first_name}, a {their_industry} coach we worked with just booked 30 qualified appointments in 30 days, 7
+        new clients enrolled. Demo: {VIDEO_LINK} Same for {company}? Frank'
     SMS-V3:
       framework: Question Hook
       char_limit: 160
-      ai_fills: "{specific_outcome}"
-      template: "{first_name}: is {company}'s qualified appointment pipeline still launch-dependent? 30 qualified calls in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{specific_outcome}'
+      template: '{first_name}: is {company}''s qualified appointment pipeline still launch-dependent? 30 qualified calls in
+        30 days, pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V4:
       framework: PAS
       char_limit: 170
-      ai_fills: "{hook_observation_one_line}, {agitation}"
-      template: "{first_name}, {hook_observation_one_line}. For coaches that means {agitation} — every quiet month is 30 calls that didn't happen. Fix: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_observation_one_line}, {agitation}'
+      template: '{first_name}, {hook_observation_one_line}. For coaches that means {agitation} — every quiet month is 30 calls
+        that didn''t happen. Fix: {VIDEO_LINK} Frank'
     SMS-V5:
       framework: Compliment + CTA
       char_limit: 160
-      ai_fills: "{hook_compliment}, {specific_promise}"
-      template: "{first_name}, {hook_compliment}. We get coaches 30 qualified qualified appointments in 30 days, done-for-you, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_compliment}, {specific_promise}'
+      template: '{first_name}, {hook_compliment}. We get coaches 30 qualified appointments in 30 days, done-for-you, pay-on-results.
+        Demo: {VIDEO_LINK} Frank'
     SMS-V6:
       framework: Scarcity
       char_limit: 165
-      ai_fills: "{their_state}"
-      template: "{first_name}, {company} came up as a top fit. Adding 2 coaching partners in {their_state} this quarter — 1 spot open. Demo before we go wider: {VIDEO_LINK} Frank"
-
+      ai_fills: '{their_state}'
+      template: '{first_name}, {company} came up as a top fit. Adding 2 coaching partners in {their_state} this quarter —
+        1 spot open. Demo before we go wider: {VIDEO_LINK} Frank'
   agency:
     SMS-V1:
       framework: Direct Value
       char_limit: 160
-      ai_fills: "{personalized_hook}, {specific_promise}"
-      template: "{first_name}, {personalized_hook}. We book agencies 30 qualified qualified appointments in 30 days, pay-on-results. 60-sec demo: {VIDEO_LINK} Reply DEMO. Frank"
-
+      ai_fills: '{personalized_hook}, {specific_promise}'
+      template: '{first_name}, {personalized_hook}. We book agencies 30 qualified appointments in 30 days, pay-on-results.
+        60-sec demo: {VIDEO_LINK} Reply DEMO. Frank'
     SMS-V2:
       framework: Social Proof
       char_limit: 160
-      ai_fills: "{their_industry}, {proof_result}"
-      template: "{first_name}, a {their_industry} agency we worked with just booked 30 qualified qualified appointments in 30 days, 6 retainers closed. Demo: {VIDEO_LINK} Same for {company}? Frank"
-
+      ai_fills: '{their_industry}, {proof_result}'
+      template: '{first_name}, a {their_industry} agency we worked with just booked 30 qualified appointments in 30 days,
+        6 retainers closed. Demo: {VIDEO_LINK} Same for {company}? Frank'
     SMS-V3:
       framework: Question Hook
       char_limit: 160
-      ai_fills: "{specific_outcome}"
-      template: "{first_name}: is {company}'s new-biz pipeline still founder-dependent? 30 qualified qualified appointments in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{specific_outcome}'
+      template: '{first_name}: is {company}''s new-biz pipeline still founder-dependent? 30 qualified appointments in 30 days,
+        pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V4:
       framework: PAS
       char_limit: 170
-      ai_fills: "{hook_observation_one_line}, {agitation}"
-      template: "{first_name}, {hook_observation_one_line}. For agencies that means {agitation} — every month is 30 qualified appointments that didn't happen. Fix: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_observation_one_line}, {agitation}'
+      template: '{first_name}, {hook_observation_one_line}. For agencies that means {agitation} — every month is 30 qualified
+        appointments that didn''t happen. Fix: {VIDEO_LINK} Frank'
     SMS-V5:
       framework: Compliment + CTA
       char_limit: 160
-      ai_fills: "{hook_compliment}, {specific_promise}"
-      template: "{first_name}, {hook_compliment}. We get agencies 30 qualified qualified appointments in 30 days, done-for-you, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_compliment}, {specific_promise}'
+      template: '{first_name}, {hook_compliment}. We get agencies 30 qualified appointments in 30 days, done-for-you, pay-on-results.
+        Demo: {VIDEO_LINK} Frank'
     SMS-V6:
       framework: Scarcity
       char_limit: 165
-      ai_fills: "{their_state}"
-      template: "{first_name}, {company} came up as a top fit. Adding 2 agency partners in {their_state} this quarter — 1 spot open. Demo before we go wider: {VIDEO_LINK} Frank"
-
+      ai_fills: '{their_state}'
+      template: '{first_name}, {company} came up as a top fit. Adding 2 agency partners in {their_state} this quarter — 1
+        spot open. Demo before we go wider: {VIDEO_LINK} Frank'
   consultant:
     SMS-V1:
       framework: Direct Value
       char_limit: 160
-      ai_fills: "{personalized_hook}, {specific_promise}"
-      template: "{first_name}, {personalized_hook}. We book consulting firms 30 qualified qualified appointments in 30 days, pay-on-results. 60-sec demo: {VIDEO_LINK} Reply DEMO. Frank"
-
+      ai_fills: '{personalized_hook}, {specific_promise}'
+      template: '{first_name}, {personalized_hook}. We book consulting firms 30 qualified appointments in 30 days, pay-on-results.
+        60-sec demo: {VIDEO_LINK} Reply DEMO. Frank'
     SMS-V2:
       framework: Social Proof
       char_limit: 160
-      ai_fills: "{their_industry}, {proof_result}"
-      template: "{first_name}, a {their_industry} firm we worked with just booked 30 qualified qualified appointments in 30 days, 3 new engagements. Demo: {VIDEO_LINK} Same for {company}? Frank"
-
+      ai_fills: '{their_industry}, {proof_result}'
+      template: '{first_name}, a {their_industry} firm we worked with just booked 30 qualified appointments in 30 days, 3
+        new engagements. Demo: {VIDEO_LINK} Same for {company}? Frank'
     SMS-V3:
       framework: Question Hook
       char_limit: 160
-      ai_fills: "{specific_outcome}"
-      template: "{first_name}: is {company}'s engagement pipeline still refilling through referrals? 30 qualified qualified appointments in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{specific_outcome}'
+      template: '{first_name}: is {company}''s engagement pipeline still refilling through referrals? 30 qualified appointments
+        in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V4:
       framework: PAS
       char_limit: 170
-      ai_fills: "{hook_observation_one_line}, {agitation}"
-      template: "{first_name}, {hook_observation_one_line}. For consulting firms that means {agitation} — every quiet month is 30 qualified appointments that didn't happen. Fix: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_observation_one_line}, {agitation}'
+      template: '{first_name}, {hook_observation_one_line}. For consulting firms that means {agitation} — every quiet month
+        is 30 qualified appointments that didn''t happen. Fix: {VIDEO_LINK} Frank'
     SMS-V5:
       framework: Compliment + CTA
       char_limit: 160
-      ai_fills: "{hook_compliment}, {specific_promise}"
-      template: "{first_name}, {hook_compliment}. We get consulting firms 30 qualified qualified appointments in 30 days, done-for-you, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_compliment}, {specific_promise}'
+      template: '{first_name}, {hook_compliment}. We get consulting firms 30 qualified appointments in 30 days, done-for-you,
+        pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V6:
       framework: Scarcity
       char_limit: 165
-      ai_fills: "{their_state}"
-      template: "{first_name}, {company} came up as a top fit. Adding 2 advisory partners in {their_state} this quarter — 1 spot open. Demo before we go wider: {VIDEO_LINK} Frank"
-
+      ai_fills: '{their_state}'
+      template: '{first_name}, {company} came up as a top fit. Adding 2 advisory partners in {their_state} this quarter —
+        1 spot open. Demo before we go wider: {VIDEO_LINK} Frank'
   financial_advisor:
     SMS-V1:
       framework: Direct Value
       char_limit: 160
-      ai_fills: "{personalized_hook}, {specific_promise}"
-      template: "{first_name}, {personalized_hook}. We book advisory firms 30 qualified qualified appointments in 30 days, pay-on-results. 60-sec demo: {VIDEO_LINK} Reply DEMO. Frank"
-
+      ai_fills: '{personalized_hook}, {specific_promise}'
+      template: '{first_name}, {personalized_hook}. We book advisory firms 30 qualified appointments in 30 days, pay-on-results.
+        60-sec demo: {VIDEO_LINK} Reply DEMO. Frank'
     SMS-V2:
       framework: Social Proof
       char_limit: 160
-      ai_fills: "{their_industry}, {proof_result}"
-      template: "{first_name}, a {their_industry} firm we worked with just booked 30 qualified qualified appointments in 30 days, $1.1M new AUM. Demo: {VIDEO_LINK} Same for {company}? Frank"
-
+      ai_fills: '{their_industry}, {proof_result}'
+      template: '{first_name}, a {their_industry} firm we worked with just booked 30 qualified appointments in 30 days, $1.1M
+        new AUM. Demo: {VIDEO_LINK} Same for {company}? Frank'
     SMS-V3:
       framework: Question Hook
       char_limit: 160
-      ai_fills: "{specific_outcome}"
-      template: "{first_name}: is {company}'s AUM growth still referral-dependent? 30 qualified qualified appointments in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{specific_outcome}'
+      template: '{first_name}: is {company}''s AUM growth still referral-dependent? 30 qualified appointments in 30 days,
+        pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V4:
       framework: PAS
       char_limit: 170
-      ai_fills: "{hook_observation_one_line}, {agitation}"
-      template: "{first_name}, {hook_observation_one_line}. For advisory firms that means {agitation} — every year is 30 qualified appointments/month you're leaving. Fix: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_observation_one_line}, {agitation}'
+      template: '{first_name}, {hook_observation_one_line}. For advisory firms that means {agitation} — every year is 30 qualified
+        appointments/month you''re leaving. Fix: {VIDEO_LINK} Frank'
     SMS-V5:
       framework: Compliment + CTA
       char_limit: 160
-      ai_fills: "{hook_compliment}, {specific_promise}"
-      template: "{first_name}, {hook_compliment}. We get advisory firms 30 qualified qualified appointments in 30 days, done-for-you, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_compliment}, {specific_promise}'
+      template: '{first_name}, {hook_compliment}. We get advisory firms 30 qualified appointments in 30 days, done-for-you,
+        pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V6:
       framework: Scarcity
       char_limit: 165
-      ai_fills: "{their_state}"
-      template: "{first_name}, {company} came up as a top fit. Adding 2 advisory partners in {their_state} this quarter — 1 spot open. Demo before we go wider: {VIDEO_LINK} Frank"
-
+      ai_fills: '{their_state}'
+      template: '{first_name}, {company} came up as a top fit. Adding 2 advisory partners in {their_state} this quarter —
+        1 spot open. Demo before we go wider: {VIDEO_LINK} Frank'
   msp:
     SMS-V1:
       framework: Direct Value
       char_limit: 160
-      ai_fills: "{personalized_hook}, {specific_promise}"
-      template: "{first_name}, {personalized_hook}. We book MSPs 30 qualified qualified appointments in 30 days, pay-on-results. 60-sec demo: {VIDEO_LINK} Reply DEMO. Frank"
-
+      ai_fills: '{personalized_hook}, {specific_promise}'
+      template: '{first_name}, {personalized_hook}. We book MSPs 30 qualified appointments in 30 days, pay-on-results. 60-sec
+        demo: {VIDEO_LINK} Reply DEMO. Frank'
     SMS-V2:
       framework: Social Proof
       char_limit: 160
-      ai_fills: "{their_industry}, {proof_result}"
-      template: "{first_name}, an MSP we worked with just booked 30 qualified qualified appointments in 30 days, 5 new MRR contracts. Demo: {VIDEO_LINK} Same for {company}? Frank"
-
+      ai_fills: '{their_industry}, {proof_result}'
+      template: '{first_name}, an MSP we worked with just booked 30 qualified appointments in 30 days, 5 new MRR contracts.
+        Demo: {VIDEO_LINK} Same for {company}? Frank'
     SMS-V3:
       framework: Question Hook
       char_limit: 160
-      ai_fills: "{specific_outcome}"
-      template: "{first_name}: is {company}'s new contract pipeline still referral-dependent? 30 qualified qualified appointments in 30 days, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{specific_outcome}'
+      template: '{first_name}: is {company}''s new contract pipeline still referral-dependent? 30 qualified appointments in
+        30 days, pay-on-results. Demo: {VIDEO_LINK} Frank'
     SMS-V4:
       framework: PAS
       char_limit: 170
-      ai_fills: "{hook_observation_one_line}, {agitation}"
-      template: "{first_name}, {hook_observation_one_line}. For MSPs that means {agitation} — every month is 30 qualified appointments that didn't happen. Fix: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_observation_one_line}, {agitation}'
+      template: '{first_name}, {hook_observation_one_line}. For MSPs that means {agitation} — every month is 30 qualified
+        appointments that didn''t happen. Fix: {VIDEO_LINK} Frank'
     SMS-V5:
       framework: Compliment + CTA
       char_limit: 160
-      ai_fills: "{hook_compliment}, {specific_promise}"
-      template: "{first_name}, {hook_compliment}. We get MSPs 30 qualified qualified appointments in 30 days, done-for-you, pay-on-results. Demo: {VIDEO_LINK} Frank"
-
+      ai_fills: '{hook_compliment}, {specific_promise}'
+      template: '{first_name}, {hook_compliment}. We get MSPs 30 qualified appointments in 30 days, done-for-you, pay-on-results.
+        Demo: {VIDEO_LINK} Frank'
     SMS-V6:
       framework: Scarcity
       char_limit: 165
-      ai_fills: "{their_state}"
-      template: "{first_name}, {company} came up as a top fit. Adding 2 MSP partners in {their_state} this quarter — 1 spot open. Demo before we go wider: {VIDEO_LINK} Frank"
+      ai_fills: '{their_state}'
+      template: '{first_name}, {company} came up as a top fit. Adding 2 MSP partners in {their_state} this quarter — 1 spot
+        open. Demo before we go wider: {VIDEO_LINK} Frank'
