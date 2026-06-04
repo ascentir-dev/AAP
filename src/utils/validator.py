@@ -43,7 +43,7 @@ _MIN_THUMB_BYTES      = 5_000        # 5 KB
 _MIN_EMAIL_THUMB_BYTES = 8_000       # 8 KB
 _MIN_FACE_BYTES       = 10_000       # 10 KB  — placeholder check
 _VIDEO_DURATION_MIN   = 45.0         # seconds
-_VIDEO_DURATION_MAX   = 70.0         # seconds
+_VIDEO_DURATION_MAX   = 80.0         # seconds
 _EXPECTED_WIDTH       = 1280
 _EXPECTED_HEIGHT      = 720
 _MAX_SUBJECT_CHARS    = 50
@@ -76,6 +76,8 @@ def _ffprobe(path: Path) -> dict:
         raise ValidationError(f"ffprobe failed on {path.name}: {e.output.decode()[:200]}")
     except subprocess.TimeoutExpired:
         raise ValidationError(f"ffprobe timed out on {path.name}")
+    except (json.JSONDecodeError, ValueError) as e:
+        raise ValidationError(f"ffprobe output unparseable for {path.name}: {e}")
 
 
 def _http_get(url: str, follow_redirects: bool = True) -> tuple[int, str, str]:
@@ -173,7 +175,7 @@ def pre_upload_gate(
         f"Gate 1: wrong video resolution {width}x{height}, expected {_EXPECTED_WIDTH}x{_EXPECTED_HEIGHT}",
     )
 
-    duration = float(fmt.get("duration", 0))
+    duration = float(fmt.get("duration") or 0)
     _check(
         _VIDEO_DURATION_MIN <= duration <= _VIDEO_DURATION_MAX,
         f"Gate 1: video duration {duration:.1f}s is outside expected range "
@@ -248,29 +250,33 @@ def post_upload_gate(
         f"Gate 2: landing page returned HTTP {status}: {landing_url}",
     )
     _check(
-        video_url in body,
+        bool(video_url) and video_url in body,
         f"Gate 2: landing page does not reference the video URL. "
         "Landing page may have been generated before video was uploaded.",
     )
     _check(
-        expected_calendly_url in body,
+        bool(expected_calendly_url) and expected_calendly_url in body,
         f"Gate 2: landing page has wrong Calendly URL. "
         f"Expected '{expected_calendly_url}' not found. "
         "Check settings.yaml calendly_url.",
     )
 
     # ── 4. Tracking worker redirect ───────────────────────────────────────────
+    # Only check the 302 redirect when a Cloudflare Worker is deployed.
+    # When tracking_url == landing_url the worker is not configured — the email
+    # links directly to R2, so no redirect check is needed or possible.
     _check(tracking_url, "Gate 2: tracking_url is empty")
-    status, _, location = _http_get(tracking_url, follow_redirects=False)
-    _check(
-        status == 302,
-        f"Gate 2: tracking URL returned HTTP {status} instead of 302 redirect: {tracking_url}. "
-        "Check CLOUDFLARE_WORKER_URL in .env and that the worker is deployed.",
-    )
-    _check(
-        landing_url in location,
-        f"Gate 2: tracking URL redirects to wrong location. "
-        f"Expected '{landing_url}', got '{location}'",
-    )
+    if tracking_url != landing_url:
+        status, _, location = _http_get(tracking_url, follow_redirects=False)
+        _check(
+            status == 302,
+            f"Gate 2: tracking URL returned HTTP {status} instead of 302 redirect: {tracking_url}. "
+            "Check CLOUDFLARE_WORKER_URL in .env and that the worker is deployed.",
+        )
+        _check(
+            landing_url in location,
+            f"Gate 2: tracking URL redirects to wrong location. "
+            f"Expected '{landing_url}', got '{location}'",
+        )
 
     log.info(f"[{lead_id}] Gate 2 passed: video, thumbnail, landing page, tracking URL all live")

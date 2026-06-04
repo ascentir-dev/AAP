@@ -114,6 +114,7 @@ async def analyze_fit(
     """
     static_instructions = _load_static_instructions()
 
+    enrichment = enrichment or {}
     website_summary = _format_website_summary(enrichment)
     linkedin_data = _format_linkedin(enrichment.get("linkedin", {}))
 
@@ -161,7 +162,9 @@ async def analyze_fit(
         ],
     )
 
-    raw = response.content[0].text.strip()
+    if not response.content:
+        raise _AnalysisParseError("Claude returned empty content block — will retry")
+    raw = (response.content[0].text or "").strip()
 
     # Detect Claude content refusals — model says prose instead of JSON.
     # These are transient; retry with the same prompt (model re-samples).

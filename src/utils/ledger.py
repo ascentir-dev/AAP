@@ -123,7 +123,12 @@ class Ledger:
         ).fetchone()
         if row is None:
             return None
-        return json.loads(row["data_json"])
+        try:
+            return json.loads(row["data_json"])
+        except (json.JSONDecodeError, TypeError) as e:
+            log.error("Corrupt stage data for lead=%s stage=%s — returning None. Error: %s",
+                      lead_id, stage_name, e)
+            return None
 
     # ------------------------------------------------------------------
     # Lead lifecycle

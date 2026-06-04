@@ -254,7 +254,7 @@ async def process_lead(
             "linkedin": linkedin_data,
         })
 
-    enrichment = ledger.get_stage(lead_id, "enrichment")
+    enrichment = ledger.get_stage(lead_id, "enrichment") or {}
 
     # 2. Fit analysis (Claude Haiku)
     if not ledger.has_stage(lead_id, "analysis"):
@@ -262,6 +262,11 @@ async def process_lead(
         ledger.save_stage(lead_id, "analysis", analysis)
 
     analysis = ledger.get_stage(lead_id, "analysis")
+    if not analysis:
+        # Corrupt or missing analysis stage — clear it so it regenerates on retry
+        log.warning("[%s] analysis stage missing or corrupt — clearing for retry", lead_id)
+        raise ValueError("analysis stage is None after save — ledger may be corrupt, retrying")
+
     # Skip logic disabled — every lead is processed regardless of AI analysis output.
     # If Claude returned skip=true, log it for visibility but continue processing.
     if analysis.get("skip"):
@@ -282,6 +287,19 @@ async def process_lead(
     # Propagate confirmed market back into lead dict for downstream market-aware steps
     if analysis.get("market"):
         lead["market"] = analysis["market"]
+
+    # ── Market gating — skip leads outside the 5 supported markets ───────────
+    # The email prompt has templates only for coach/agency/consultant/financial_advisor/msp.
+    # Leads classified as "other" cause Claude to refuse rather than hallucinate a template.
+    _SUPPORTED_MARKETS = {"coach", "agency", "consultant", "financial_advisor", "msp"}
+    lead_market = (lead.get("market") or "").strip().lower()
+    if lead_market and lead_market not in _SUPPORTED_MARKETS:
+        log.info(
+            "[%s] market=%r is outside supported markets — skipping lead",
+            lead_id, lead_market,
+        )
+        ledger.mark_complete(lead_id, status="skipped")
+        return {"lead_id": lead_id, "status": "skipped", "landing_url": ""}
 
     # ── Video gating — skip video for low-intent leads ────────────────────────
     intent_score     = float(analysis.get("intent_confidence") or 0)
@@ -325,10 +343,15 @@ async def process_lead(
         ledger.save_stage(lead_id, "email", email)
 
     email = ledger.get_stage(lead_id, "email")
+    if not email or not email.get("body"):
+        # Corrupt or empty email stage — clear it so it regenerates
+        log.warning("[%s] email stage missing/corrupt body — clearing for retry", lead_id)
+        ledger._execute("DELETE FROM stages WHERE lead_id=? AND stage_name='email'", (lead_id,))
+        ledger._conn.commit()
+        raise ValueError("email stage body is None or empty — cleared, will regenerate on retry")
     # Normalise cached emails that may have been stored before dash-replacement was added
-    if email.get("body"):
-        email = dict(email)
-        email["body"] = email["body"].replace("—", " - ").replace("–", "-")
+    email = dict(email)
+    email["body"] = email["body"].replace("—", " - ").replace("–", "-")
 
     # Save framework_used + subject_line to ledger for analytics
     ledger.save_lead_metadata(
@@ -371,14 +394,15 @@ async def process_lead(
             )
 
         # 7. Scroll capture — records their actual website, captures thumbnail
-        W = settings.video["resolution"]["width"]
-        H = settings.video["resolution"]["height"]
+        _res = settings.video.get("resolution") or {}
+        W = _res.get("width", 1280)
+        H = _res.get("height", 720)
         content_h = H - CHROME_HEADER_HEIGHT   # 624px — content area below Chrome header
         scroll_result = None
         if not scroll_path.exists():
             scroll_result = await record_scroll(
                 url=lead["website"],
-                duration_seconds=settings.video["duration_seconds"],
+                duration_seconds=settings.video.get("duration_seconds", 55),
                 output_path=scroll_path,
                 settings=settings,
                 viewport_height=content_h,
@@ -425,7 +449,7 @@ async def process_lead(
                     width=W,
                     height=H,
                     out_path=frame_path,
-                    page_title=scroll_result.page_title or lead["company"],
+                    page_title=(scroll_result.page_title if scroll_result else None) or lead.get("company", ""),
                 )
 
             # 9. Composite — scroll + Chrome frame + face circle + CTA + audio
@@ -438,7 +462,7 @@ async def process_lead(
                     settings=settings,
                     browser_frame=frame_path,
                     content_y=CHROME_HEADER_HEIGHT,
-                    thumbnail_path=scroll_result.thumbnail_path,
+                    thumbnail_path=scroll_result.thumbnail_path if scroll_result else None,
                 )
 
             # 10. Generate email thumbnail BEFORE the gate
@@ -479,7 +503,7 @@ async def process_lead(
                 tracking_url = (
                     f"{worker_url}/v/{lead_id}"
                     if worker_url
-                    else f"{settings.base_url}/v/{lead_id}"
+                    else landing_url  # no worker configured → link directly to R2 landing page
                 )
 
                 ledger.save_stage(lead_id, "hosting", {
@@ -523,8 +547,8 @@ async def process_lead(
             )
             log.info(f"[{lead_id}] email-only hosting record saved (tracking_url → Calendly)")
 
-    hosting = ledger.get_stage(lead_id, "hosting")
-    email   = ledger.get_stage(lead_id, "email")
+    hosting = ledger.get_stage(lead_id, "hosting") or {}
+    email   = ledger.get_stage(lead_id, "email") or {}
 
     # ── Gate 2: validate all remote URLs before sending anything ─────────────
     if not skip_video:
@@ -547,7 +571,9 @@ async def process_lead(
 
         # Start from the raw Claude-generated body every time.
         # email_body is defined here so all branches below can build on it safely.
-        raw_body = email["body"]
+        raw_body = email.get("body") or ""
+        if not raw_body:
+            raise ValueError(f"Email body is empty or None for lead {lead_id} — email stage may be corrupt. Clear the email stage and retry.")
 
         # Build the email body.
         #

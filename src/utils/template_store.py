@@ -31,8 +31,13 @@ def load_templates() -> dict[str, Any]:
     """Return the full templates dict, or empty dict if file doesn't exist."""
     if not _TEMPLATES_PATH.exists():
         return {}
-    with open(_TEMPLATES_PATH, encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+    try:
+        with open(_TEMPLATES_PATH, encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Failed to load templates.yaml: %s", e)
+        return {}
 
 
 def get_template(

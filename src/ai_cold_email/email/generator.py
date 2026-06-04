@@ -117,8 +117,8 @@ def _parse_response(raw: str) -> dict[str, Any]:
             log.warning("Unparseable email JSON — retrying. Raw[:200]: %s", raw[:200])
             raise _EmailParseError(f"Unparseable JSON: {e}") from e
 
-    if "body" in result:
-        result["body"] = _normalise_body(result["body"])
+    if result.get("body") is not None:
+        result["body"] = _normalise_body(str(result["body"]))
     return result
 
 
@@ -218,7 +218,9 @@ async def generate_email(
         client, settings.anthropic_generation_model,
         static_instructions, lead_data_block,
     )
-    raw = response.content[0].text
+    if not response.content:
+        raise _EmailParseError("Claude returned empty content block — will retry")
+    raw = response.content[0].text or ""
 
     result = _parse_response(raw)
 
