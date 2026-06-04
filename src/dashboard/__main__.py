@@ -581,16 +581,17 @@ async def api_pipeline_readiness() -> JSONResponse:
     conn = sqlite3.connect(str(db))
     conn.row_factory = sqlite3.Row
 
-    # Leads that were personalized (have an email stage) but not yet live-pushed
-    # (no smartlead stage) — these are the leads from a prior Personalize run.
+    # All leads that Phase 2 (Push to Smartlead) will actually process:
+    # - Not yet sent/succeeded (any other status, including NULL)
+    # - No smartlead stage yet
+    # This matches the pipeline dedup logic exactly so the count shown = leads pushed.
     rows = conn.execute(
         """
         SELECT l.lead_id, h.data_json AS hosting_json
         FROM   leads l
-        INNER JOIN stages e  ON e.lead_id  = l.lead_id AND e.stage_name  = 'email'
         LEFT  JOIN stages h  ON h.lead_id  = l.lead_id AND h.stage_name  = 'hosting'
         LEFT  JOIN stages sm ON sm.lead_id = l.lead_id AND sm.stage_name = 'smartlead'
-        WHERE  l.status IN ('dry_run', 'failed', 'skipped')
+        WHERE  (l.status NOT IN ('sent', 'success') OR l.status IS NULL)
           AND  sm.lead_id IS NULL
         """
     ).fetchall()
@@ -727,7 +728,13 @@ async def api_pipeline_run(body: dict[str, Any]) -> JSONResponse:
 
     dry_run: bool     = body.get("dry_run", True)
     single_lead: Optional[int] = body.get("single_lead")
-    batch_size: int   = int(body.get("batch_size", 100))   # default 100 leads per run
+    # Phase 1 (Personalize): batch 100 at a time — video gen is slow.
+    # Phase 2 (Push to Smartlead): process ALL ready leads at once so the
+    # count shown equals the count pushed. batch_size=0 means unlimited.
+    if dry_run:
+        batch_size: int = int(body.get("batch_size", 100))
+    else:
+        batch_size = 0
 
     # Count total leads in CSV so the UI can show "X of N total" progress
     try:
