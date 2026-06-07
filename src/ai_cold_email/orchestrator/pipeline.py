@@ -237,15 +237,17 @@ async def process_lead(
 
     # Save basic identity fields immediately so the lead row always shows name/company
     # even if it gets skipped or fails early (before save_lead_metadata is reached).
-    ledger.save_lead_metadata(
-        lead_id,
-        email=lead.get("email", ""),
-        first_name=lead.get("first_name", ""),
-        last_name=lead.get("last_name", ""),
-        company=lead.get("company", ""),
-        website=lead.get("website", ""),
-        role=lead.get("role", ""),
-    )
+    _identity: dict[str, Any] = {
+        "email":      lead.get("email", ""),
+        "first_name": lead.get("first_name", ""),
+        "last_name":  lead.get("last_name", ""),
+        "company":    lead.get("company", ""),
+        "website":    lead.get("website", ""),
+        "role":       lead.get("role", ""),
+    }
+    if lead.get("csv_upload_id") is not None:
+        _identity["csv_upload_id"] = lead["csv_upload_id"]
+    ledger.save_lead_metadata(lead_id, **_identity)
 
     # 1. Enrichment — fast-path skips Playwright/Apify for pre-enriched leads
     if not ledger.has_stage(lead_id, "enrichment"):
@@ -376,13 +378,28 @@ async def process_lead(
         raise ValueError("email stage body is None or empty — cleared, will regenerate on retry")
     # Normalise cached emails that may have been stored before dash-replacement was added.
     # Save back to ledger so Gate 1's em-dash check sees the clean version.
-    normalised_body = email["body"].replace("—", " - ").replace("–", "-")
-    if normalised_body != email["body"]:
-        email = dict(email)
+    original_body = email["body"]
+    original_subj = email.get("subject", "")
+    email = dict(email)
+
+    normalised_body = original_body.replace("—", " - ").replace("–", "-")
+    if normalised_body != original_body:
         email["body"] = normalised_body
+
+    # ── Subject auto-trim — clamp to 60 chars at word boundary before Gate 1 ──
+    # Prevents hard-fails when company/industry names make the subject too long.
+    _SUBJ_LIMIT = 60
+    if len(original_subj) > _SUBJ_LIMIT:
+        trimmed = original_subj[:_SUBJ_LIMIT].rsplit(" ", 1)[0].rstrip(",;: ")
+        log.warning(
+            "[%s] subject auto-trimmed %d→%d chars: '%s' → '%s'",
+            lead_id, len(original_subj), len(trimmed), original_subj, trimmed,
+        )
+        email["subject"] = trimmed
+
+    # Persist any normalisation changes so Gate 1 sees the clean version
+    if email.get("body") != original_body or email.get("subject") != original_subj:
         ledger.save_stage(lead_id, "email", email)
-    else:
-        email = dict(email)
 
     # Save framework_used + subject_line to ledger for analytics
     ledger.save_lead_metadata(
@@ -700,7 +717,17 @@ async def run_pipeline(
     ledger = Ledger("ledger.sqlite")
     cost_tracker = CostTracker(daily_budget_usd=settings.max_daily_budget_usd)
 
+    # Look up which csv_upload row this CSV belongs to so we can tag each lead.
+    _upload_row = ledger._execute(
+        "SELECT id FROM csv_uploads WHERE csv_path=? ORDER BY id DESC LIMIT 1",
+        (str(csv_path),),
+    ).fetchone()
+    _csv_upload_id: int | None = _upload_row["id"] if _upload_row else None
+
     all_leads = read_leads(csv_path)
+    if _csv_upload_id is not None:
+        for _l in all_leads:
+            _l["csv_upload_id"] = _csv_upload_id
 
     if single_lead_index is not None:
         leads_to_run = [all_leads[single_lead_index]]

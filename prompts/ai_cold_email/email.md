@@ -2,7 +2,7 @@
 
 You are writing a cold email on behalf of Frank, founder of Ascentir. The recipient is a founder, owner, or principal of a high-ticket B2B service business in one of five target markets.
 
-**The Offer:** 120 qualified appointments in 120 days. Guaranteed. Done-for-you AI outbound. Pay on results only.
+**The Offer:** 120 qualified appointments in 120 days. Guaranteed, or a full refund plus $3K. Done-for-you AI outbound. Zero upfront.
 
 **Check `has_video` in the Lead section before writing anything.**
 
@@ -12,7 +12,7 @@ You are writing a cold email on behalf of Frank, founder of Ascentir. The recipi
   1. Do NOT include `{VIDEO_LINK}` anywhere. The system does NOT insert a video or link for these leads.
   2. Do NOT mention a video, recording, screen share, or "watch" ANYWHERE in the body — not in the bridge line, not in the P.S., nowhere.
   3. The email pitches directly to a reply CTA. Replace the bridge line (where video would go) with a direct action line, e.g.: "See the exact system we'd run for [Company]:" followed immediately by a blank line and the reply CTA.
-  4. The P.S. MUST be: "P.S. — Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book [Company] 120 appointments in 90 days. No call. No pitch. Just the demo."
+  4. The P.S. MUST be: "P.S. — Reply VIDEO and I'll send you a personalized demo of the AI Client Acquisition System showing exactly how we'll book [Company] 120 qualified appointments in 120 days, guaranteed or a full refund plus $3K. No call. No pitch. Just the demo."
   5. End the email with: "Reply VIDEO" as the single CTA.
 
 ---
@@ -35,12 +35,12 @@ You are writing a cold email on behalf of Frank, founder of Ascentir. The recipi
 |---|---|---|
 | Variant 1 | PPP — Praise / Picture / Push (full) | Warm, risk-reversal heavy, 130-160w |
 | Variant 2 | PPP — Compact Warm | Sub-90w, time-poor recipients |
-| Variant 3 | PPP + Average-Lift Proof | PPP with social proof stat injected at close |
+| Variant 3 | Quick Idea — Proof + Guarantee | Short observation + comparable client win + zero-friction CTA |
 | Variant 4 | AIDA — Attention / Interest / Desire / Action | Niche authority claim drives Attention beat |
 | Variant 5 | 3 Cs — Compliment / Case Study / CTA (Berman) | Case study list is the proof mechanism |
 | Variant 6 | QVC — Question / Value / CTA | Shortest variant, under 65w |
 | Variant 7 | Demand Flip — "Taking on New Clients?" | Ask if they're taking on new clients; position Frank as having demand to send them |
-| Variant 8 | Inverted Demand / Scarcity | You're the constrained resource |
+| Variant 8 | Right Person — Cost Contrast + Routing | Qualification question + $15K–$40K cost contrast + routing ask |
 | Variant 9 | PAS — Problem / Agitate / Solve | Concerning observation as the Problem beat |
 
 ---
@@ -66,6 +66,8 @@ Use the EXACT promise language below based on the lead's `market` field.
 **big_result (V1):** "30 qualified qualified appointments in their first 30 days, without a single launch or ad spend"
 **average_lift (V3):** "30 qualified qualified appointments in 30 days"
 **binary_cta:** "If that looks right for [Company], reply — I'll walk you through exactly how we'd fill your discovery calendar."
+**comparable_client_result (V3):** "A coaching firm swapped their 6-tool stack for it and booked 30 qualified appointments in their first 30 days, 7 new clients enrolled."
+**market_outcome (V8):** "keeping your discovery calendar full of qualified enrollments"
 **pipeline_or_revenue:** "enrollment pipeline"
 **motion_appropriate_pain_one_liner (V4):** "enrollment is feast-or-famine: great months after a launch, quiet months in between — and there's no systematic way to fix it"
 **motion_appropriate_results_list (V5):**
@@ -88,6 +90,8 @@ Use the EXACT promise language below based on the lead's `market` field.
 **big_result (V1):** "30 qualified qualified appointments in their first 30 days, 6 new retainers closed"
 **average_lift (V3):** "30 qualified qualified appointments in 30 days"
 **binary_cta:** "If [Company] has room for new retainers, reply — I'll show you exactly how many calls we'd generate."
+**comparable_client_result (V3):** "An agency swapped their 6-tool stack and two setters for it and booked 30 qualified appointments in their first 30 days, 6 new retainers closed."
+**market_outcome (V8):** "keeping your new-business pipeline full of retainer calls"
 **pipeline_or_revenue:** "new-business pipeline"
 **motion_appropriate_pain_one_liner (V4):** "new business development falls entirely on the founder, with no predictable system behind it — and the retainer cycle stays unpredictable until that changes"
 **motion_appropriate_results_list (V5):**
@@ -110,6 +114,8 @@ Use the EXACT promise language below based on the lead's `market` field.
 **big_result (V1):** "30 qualified qualified appointments in their first 30 days, with no principals doing any prospecting"
 **average_lift (V3):** "30 qualified qualified appointments in 30 days"
 **binary_cta:** "If that's a fit for [Company], reply — I'll walk through exactly how we'd fill your engagement pipeline."
+**comparable_client_result (V3):** "A consulting firm swapped their 6-tool stack and two setters for it and booked 30 qualified engagements in 30 days, 3 new $100K+ contracts."
+**market_outcome (V8):** "keeping your engagement pipeline full of qualified consulting prospects"
 **pipeline_or_revenue:** "engagement pipeline"
 **motion_appropriate_pain_one_liner (V4):** "the pipeline empties between engagements and there's no systematic way to refill it without principals back on prospecting calls"
 **motion_appropriate_results_list (V5):**
@@ -132,6 +138,8 @@ Use the EXACT promise language below based on the lead's `market` field.
 **big_result (V1):** "30 qualified qualified appointments in their first 30 days, without compliance-risky cold calling"
 **average_lift (V3):** "30 qualified qualified appointments in 30 days"
 **binary_cta:** "If [Company] has room for new prospects, reply — I'll show you exactly how many qualified meetings we'd generate."
+**comparable_client_result (V3):** "An RIA swapped their 6-tool stack for it and booked 30 qualified prospect meetings in 30 days, $1.1M in new AUM sourced."
+**market_outcome (V8):** "keeping your prospect pipeline full of qualified advisory meetings"
 **pipeline_or_revenue:** "prospect pipeline"
 **motion_appropriate_pain_one_liner (V4):** "AUM growth is tied entirely to referrals and your personal network, with no systematic way to accelerate it"
 **motion_appropriate_results_list (V5):**
@@ -154,6 +162,8 @@ Use the EXACT promise language below based on the lead's `market` field.
 **big_result (V1):** "30 qualified qualified appointments in their first 30 days, 5 new MRR contracts signed"
 **average_lift (V3):** "30 qualified qualified appointments in 30 days"
 **binary_cta:** "If [Company] has room for new contracts, reply — I'll walk through exactly how many calls we'd generate."
+**comparable_client_result (V3):** "An MSP swapped their 6-tool stack and two setters for it and booked 30 qualified calls in 30 days, 5 new MRR contracts signed."
+**market_outcome (V8):** "keeping your contract pipeline full of qualified managed services calls"
 **pipeline_or_revenue:** "new contract pipeline"
 **motion_appropriate_pain_one_liner (V4):** "new contract acquisition is all relationship-based, which means MRR growth is capped by the relationships you already have"
 **motion_appropriate_results_list (V5):**
@@ -219,7 +229,7 @@ Write as a directive question that names their specific outcome — no "worth," 
 
 ## Subject Line Formulas by Variant
 
-Subject lines must be lowercase, under 6 words, and follow the formula for the variant being written. Each variant is assigned a specific subject line TYPE drawn from the two highest-performing pools below.
+Subject lines must be lowercase and follow the formula for the variant being written. Hard limit: **50 characters after tokens are filled** (server validates at 60 chars and auto-trims — stay under 50 to avoid any truncation). Short subjects outperform — aim for 2–5 words. Each variant is assigned a specific subject line TYPE drawn from the two highest-performing pools below.
 
 ## Top-Performing Subject Line Pool
 
@@ -250,9 +260,9 @@ Every variant is assigned a specific formula. Match it exactly.
 | V1 (PPP Full) | `saw [company]'s [observation]` | Proves homework, creates curiosity about what was noticed | `saw disruptive advertising's growth` |
 | V2 (PPP Compact) | `quick question, [first_name]` | Highest open rate, 1:1 feel, low pressure | `quick question, jordan` |
 | V3 (PPP + Proof) | `[company] + Ascentir` | Partnership implication, reads relevant not salesy | `disruptive advertising + ascentir` |
-| V4 (AIDA) | `a thought on [company]'s pipeline` | Value-forward, specific to their situation | `a thought on disruptive's pipeline` |
-| V5 (3 Cs) | `30 [market-term] in 30 days` | Specific proof number, stops scrollers | `30 qualified appointments in 30 days` |
-| V6 (QVC) | `question for [first_name]` | From the curiosity trigger pool, ultra-clean | `question for jordan` |
+| V4 (AIDA) | `your best buyers` | Ultra-short, curiosity-gap, no token length risk | `your best buyers` |
+| V5 (3 Cs) | `a few results, [first_name]` | Personal, short, proof implied | `a few results, jordan` |
+| V6 (QVC) | `who's buying now?` | Static, 17 chars, never fails length gate | `who's buying now?` |
 | V7 (Demand Flip) | `taking on new clients?` | Matches the demand-flip frame exactly | `taking on new clients?` |
 | V8 (Inverted Demand) | `[their state] — one spot open` | Territory + bounded scarcity | `utah — one spot open` |
 | V9 (PAS) | `[first_name]` | Just the name — extreme pattern interrupt, signals personal urgency | `jordan` |
@@ -276,12 +286,12 @@ When no TEMPLATE OVERRIDE is provided, write the email following the variant's f
 
 **Variant 1 (PPP Full):** Compliment → business description → guarantee → `{VIDEO_LINK}` → social proof → CTA → p.s. reinforcing pay-on-results. 130-160w.
 **Variant 2 (PPP Compact):** Compliment + business description + guarantee + `{VIDEO_LINK}` + CTA in one tight flow. 70-90w.
-**Variant 3 (PPP + Proof):** Compliment → business description → guarantee → `{VIDEO_LINK}` → average lift stat → CTA. 100-130w.
+**Variant 3 (Quick Idea):** Personalized hook ("worth a quick note") → done-for-you offer + guarantee (120 calls / 120 days / refund + $3K) → comparable client win → "Worth a quick look?" CTA. 75-100w. No video bridge — reply CTA only.
 **Variant 4 (AIDA):** Industry niche claim (Attention) → pain one-liner (Interest) → `{VIDEO_LINK}` as Desire → binary CTA (Action) → p.s. 80-100w.
 **Variant 5 (3 Cs):** Compliment → case study list from the market's results → `{VIDEO_LINK}` → CTA. 90-120w.
 **Variant 6 (QVC):** One specific question → value → `{VIDEO_LINK}` → CTA. 45-65w.
 **Variant 7 (Demand Flip):** Location/niche ID ("I saw that {company} is in {their_industry} in {their_state}") → "strong ties here" → human proof / not-a-robot → `{VIDEO_LINK}` → demand-flip question ("are you taking on new {market_clients_term}?") → STAY IN THE DEMAND-FLIP FRAME: "I've been routing [market] clients in [their state] to partners with capacity. If you've got room, let me know." → ultra-soft reply CTA. DO NOT pivot to "I have a proven system" — that breaks the frame. 85-110w.
-**Variant 8 (Inverted Demand):** Scarcity must be SPECIFIC and MECHANISTIC — not "we're near capacity." Write it as: "We're adding [2] new [market] partners in [their state] this quarter — [X] spots are currently open." Territory + number + timeframe. Open question → `{VIDEO_LINK}` → reply CTA → p.s. reinforcing the specific scarcity mechanism. 85-110w.
+**Variant 8 (Right Person):** Qualification question ("Are you the right person at {company} to talk to about {market_outcome}?") → cost contrast ("$15K–$40K/mo stitching together tools, lead data, and setters") → guarantee mechanism (120 calls / 120 days / refund + $3K) → routing CTA ("If not, who should I point this to?"). 80-105w. No video link. Direct reply CTA only.
 **Variant 9 (PAS):** Specific hook observation (Problem) — must reference something observable about their business from the lead data, not a generic industry pain. Agitation beat: name the pain AND quantify the cost of inaction ("every month without a system is another 30 [market-term] that didn't happen"). `{VIDEO_LINK}` → solve with specific promise + mechanism ("the exact 5-step outbound system we'd run for [Company]") → CTA → p.s. 95-120w.
 
 ---
@@ -326,7 +336,7 @@ Return JSON only:
   "subject": "<lowercase, under 50 chars, ideally under 6 words>",
   "body": "<plain text body following the variant scaffold, MUST contain literal {{VIDEO_LINK}} placeholder, MUST use market-appropriate language>",
   "variant_id": "{variant_id}",
-  "framework_used": "<PPP | CompactPPP | PPPProof | AIDA | 3Cs | QVC | Authority | InvertedDemand | PAS>",
+  "framework_used": "<PPP | CompactPPP | QuickIdea | AIDA | 3Cs | QVC | DemandFlip | RightPerson | PAS>",
   "motion_used": "{motion}"
 }}
 ```
@@ -342,7 +352,7 @@ Return JSON only:
 - Single binary CTA. No calendar links in the email body.
 - Never invent client names or fabricated results not in the template.
 - Never use the banned phrases.
-- **Guarantee must state the mechanism.** Never write just "Guaranteed." Write: "you pay nothing unless [market-term] land on your calendar." The mechanism is what makes the guarantee credible.
+- **Guarantee must state the mechanism.** Never write just "Guaranteed." Write: "120 appointments in 120 days or a full refund plus $3K — you pay nothing unless [market-term] land on your calendar." The penalty clause is what makes it credible.
 - **P.S. rule (has_video: yes):** Pre-answer the biggest objection. Template: "P.S. — If you're thinking this sounds like another AI email blaster — it isn't. This is done-for-you outbound and you pay nothing unless calls book. The demo takes 60 seconds. Reply VIDEO and I'll send it." Adapt the wording naturally but keep the objection-first structure.
 - **P.S. rule (has_video: no):** MUST use the exact email-only P.S. format specified above. Do not use the video P.S. for email-only leads.
 - **Opening sentence must be specific to this company.** If you cannot write a first sentence that could only apply to this lead's business, you are not personalizing — you are templating. Use the personalized hook from the lead data.

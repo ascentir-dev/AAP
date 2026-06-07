@@ -5,6 +5,7 @@ import {
   Tag,
   Spinner,
   NonIdealState,
+  Tooltip,
 } from "@blueprintjs/core";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,6 +22,9 @@ interface SMSLead {
   variant_id: string;
   last_message?: string;
   last_message_at?: number;
+  last_direction?: "outbound" | "inbound";
+  has_reply?: boolean;
+  inbound_count?: number;
   unread?: boolean;
 }
 
@@ -76,6 +80,13 @@ function maskPhone(phone: string) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+interface SyncStatus {
+  last_sync_at:    string | null;
+  last_result:     string | null;
+  worker_running:  boolean;
+  poll_interval_s: number;
+}
+
 export function SMSConversationsPage() {
   const [leads, setLeads] = useState<SMSLead[]>([]);
   const [selectedLead, setSelectedLead] = useState<SMSLead | null>(null);
@@ -87,6 +98,8 @@ export function SMSConversationsPage() {
   const [error, setError] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [syncing, setSyncing] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
   // Load leads list
@@ -105,20 +118,52 @@ export function SMSConversationsPage() {
 
   useEffect(() => {
     loadLeads();
-    const id = setInterval(loadLeads, 15_000);
+    const id = setInterval(loadLeads, selectedLead ? 5_000 : 15_000);
     return () => clearInterval(id);
-  }, [loadLeads]);
+  }, [loadLeads, selectedLead]);
+
+  // Sync status — poll every 30 s to show last-synced timestamp
+  const loadSyncStatus = useCallback(async () => {
+    try {
+      const r = await fetch("/api/sms/sync/status");
+      if (r.ok) setSyncStatus(await r.json());
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    loadSyncStatus();
+    const id = setInterval(loadSyncStatus, 30_000);
+    return () => clearInterval(id);
+  }, [loadSyncStatus]);
+
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    try {
+      await fetch("/api/sms/sync", { method: "POST" });
+      await loadSyncStatus();
+      await loadLeads();
+      if (selectedLead) await loadConversation(selectedLead);
+    } catch { /* ignore */ }
+    finally { setSyncing(false); }
+  };
 
   // Load conversation for selected lead
   const loadConversation = useCallback(async (lead: SMSLead) => {
-    setMsgsLoading(true);
+    // Suppress the loading spinner on background refreshes (only show on first load)
+    setMsgsLoading((prev) => prev);
     try {
       const r = await fetch(
         `/api/sms/conversations/${encodeURIComponent(lead.lead_id)}`
       );
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       const d: { messages: SMSMessage[] } = await r.json();
-      setMessages(d.messages);
+      setMessages((prev) => {
+        // Only update + scroll if the message list actually changed
+        const prevIds = prev.map((m) => m.id).join(",");
+        const nextIds = d.messages.map((m: SMSMessage) => m.id).join(",");
+        if (prevIds === nextIds) return prev;
+        return d.messages;
+      });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -128,8 +173,10 @@ export function SMSConversationsPage() {
 
   useEffect(() => {
     if (!selectedLead) return;
+    setMsgsLoading(true);
     loadConversation(selectedLead);
-    const id = setInterval(() => loadConversation(selectedLead), 10_000);
+    // 3 s poll when a conversation is open — feels near-instant for replies
+    const id = setInterval(() => loadConversation(selectedLead), 3_000);
     return () => clearInterval(id);
   }, [selectedLead, loadConversation]);
 
@@ -229,9 +276,67 @@ export function SMSConversationsPage() {
         }}
       >
         <div style={{ padding: "16px 12px 8px" }}>
-          <h2 style={{ margin: "0 0 10px", fontSize: 16, color: "#f6f7f9" }}>
-            SMS Conversations
-          </h2>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <h2 style={{ margin: 0, fontSize: 16, color: "#f6f7f9" }}>
+              SMS Conversations
+            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Tooltip content="Download full SMS tracking sheet (all leads, statuses, phones)" placement="bottom">
+                <Button
+                  minimal small icon="download"
+                  style={{ color: "#738091" }}
+                  onClick={() => {
+                    const a = document.createElement("a");
+                    a.href = "/api/export/sms-leads";
+                    a.download = "";
+                    a.click();
+                  }}
+                />
+              </Tooltip>
+              <Tooltip
+                content={
+                  syncStatus?.last_sync_at
+                    ? `Last checked: ${new Date(syncStatus.last_sync_at).toLocaleTimeString()} · ${syncStatus.last_result || ""}`
+                    : "Check Twilio for new replies"
+                }
+                placement="bottom"
+              >
+                <Button
+                  minimal small
+                  icon={syncing ? undefined : "refresh"}
+                  loading={syncing}
+                  onClick={handleSyncNow}
+                  style={{ color: syncStatus?.worker_running ? "#1D9E75" : "#738091" }}
+                >
+                  {syncStatus?.worker_running ? "auto" : "sync"}
+                </Button>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* Sync status strip */}
+          <div style={{
+            fontSize: 10, color: "#5f6b7c",
+            marginBottom: 8, display: "flex", alignItems: "center", gap: 6,
+          }}>
+            {syncStatus?.worker_running ? (
+              <>
+                <span style={{ color: "#1D9E75", fontWeight: 700 }}>●</span>
+                <span>Checking Twilio every {syncStatus.poll_interval_s}s</span>
+              </>
+            ) : (
+              <>
+                <span style={{ color: "#738091" }}>○</span>
+                <span>Auto-sync inactive — click sync to check now</span>
+              </>
+            )}
+            {syncStatus?.last_sync_at && (
+              <span style={{ marginLeft: "auto" }}>
+                {new Date(syncStatus.last_sync_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+
           <InputGroup
             placeholder="Search leads…"
             leftIcon="search"
@@ -261,7 +366,8 @@ export function SMSConversationsPage() {
         ) : (
           <div style={{ flex: 1, overflowY: "auto" }}>
             {filteredLeads.map((lead) => {
-              const isActive = selectedLead?.lead_id === lead.lead_id;
+              const isActive  = selectedLead?.lead_id === lead.lead_id;
+              const hasReply  = lead.has_reply || lead.last_direction === "inbound";
               return (
                 <button
                   key={lead.lead_id}
@@ -269,10 +375,15 @@ export function SMSConversationsPage() {
                   style={{
                     width: "100%",
                     textAlign: "left",
-                    background: isActive ? "#253545" : "transparent",
+                    background: isActive
+                      ? "#253545"
+                      : hasReply && !isActive
+                      ? "#1a2e1a"   // subtle green tint for unread reply
+                      : "transparent",
                     border: "none",
                     borderBottom: "1px solid #1e2d3d",
-                    padding: "10px 14px",
+                    borderLeft: hasReply && !isActive ? "3px solid #1D9E75" : "3px solid transparent",
+                    padding: "10px 14px 10px 11px",
                     cursor: "pointer",
                     transition: "background 0.1s",
                   }}
@@ -284,75 +395,49 @@ export function SMSConversationsPage() {
                   onMouseLeave={(e) => {
                     if (!isActive)
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        "transparent";
+                        hasReply ? "#1a2e1a" : "transparent";
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 600,
-                        color: "#f6f7f9",
-                        fontSize: 13,
-                      }}
-                    >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontWeight: hasReply ? 700 : 600, color: "#f6f7f9", fontSize: 13 }}>
                       {lead.first_name} {lead.last_name}
                     </span>
-                    {lead.last_message_at && (
-                      <span style={{ color: "#738091", fontSize: 11 }}>
-                        {formatTime(lead.last_message_at)}
-                      </span>
-                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {hasReply && (
+                        <span style={{
+                          background: "#1D9E75", color: "#fff",
+                          borderRadius: 10, fontSize: 9, fontWeight: 700,
+                          padding: "1px 5px",
+                        }}>
+                          {lead.inbound_count && lead.inbound_count > 1 ? `${lead.inbound_count} replies` : "replied"}
+                        </span>
+                      )}
+                      {lead.last_message_at && (
+                        <span style={{ color: "#738091", fontSize: 11 }}>
+                          {formatTime(lead.last_message_at)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      color: "#738091",
-                      fontSize: 12,
-                      marginTop: 2,
-                    }}
-                  >
-                    {lead.company}
-                    {lead.role ? ` · ${lead.role}` : ""}
+                  <div style={{ color: "#738091", fontSize: 12, marginTop: 2 }}>
+                    {lead.company}{lead.role ? ` · ${lead.role}` : ""}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 6,
-                      marginTop: 4,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Tag
-                      minimal
-                      intent={statusIntent(lead.status)}
-                      style={{ fontSize: 10 }}
-                    >
+                  <div style={{ display: "flex", gap: 6, marginTop: 4, alignItems: "center" }}>
+                    <Tag minimal intent={statusIntent(lead.status)} style={{ fontSize: 10 }}>
                       {lead.status}
                     </Tag>
                     {lead.variant_id && (
-                      <Tag minimal style={{ fontSize: 10 }}>
-                        {lead.variant_id}
-                      </Tag>
+                      <Tag minimal style={{ fontSize: 10 }}>{lead.variant_id}</Tag>
                     )}
                   </div>
                   {lead.last_message && (
-                    <div
-                      style={{
-                        color: "#5f6b7c",
-                        fontSize: 11,
-                        marginTop: 4,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: 240,
-                      }}
-                    >
-                      {lead.last_message}
+                    <div style={{
+                      color: hasReply && lead.last_direction === "inbound" ? "#86efac" : "#5f6b7c",
+                      fontSize: 11, marginTop: 4,
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                      maxWidth: 240,
+                    }}>
+                      {lead.last_direction === "inbound" ? "← " : ""}{lead.last_message}
                     </div>
                   )}
                 </button>

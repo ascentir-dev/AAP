@@ -21,6 +21,11 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 _SCHEMA = """
+CREATE TABLE IF NOT EXISTS sms_sync_state (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS sms_leads (
     lead_id         TEXT PRIMARY KEY,
     first_name      TEXT,
@@ -35,20 +40,29 @@ CREATE TABLE IF NOT EXISTS sms_leads (
     test_id         TEXT,
     framework       TEXT,
     status          TEXT DEFAULT 'pending',
+    error           TEXT,
+    -- timestamp columns ---------------------------------------------------------
+    sent_at         REAL,   -- actual Twilio send time (NULL until Phase 2 confirms)
     created_at      REAL,
-    updated_at      REAL
+    updated_at      REAL,
+    -- cost columns ---------------------------------------------------------------
+    ai_cost_usd     REAL DEFAULT 0.0,   -- Claude API spend for this lead's body
+    twilio_cost_usd REAL DEFAULT 0.0    -- actual Twilio charge (filled via reconcile)
 );
 
 CREATE TABLE IF NOT EXISTS sms_messages (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    lead_id     TEXT    NOT NULL,
-    direction   TEXT    NOT NULL,  -- 'outbound' | 'inbound'
-    from_number TEXT,
-    to_number   TEXT,
-    body        TEXT    NOT NULL,
-    twilio_sid  TEXT    UNIQUE,
-    variant_id  TEXT,
-    sent_at     REAL    NOT NULL,
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id           TEXT    NOT NULL,
+    direction         TEXT    NOT NULL,  -- 'outbound' | 'inbound'
+    from_number       TEXT,
+    to_number         TEXT,
+    body              TEXT    NOT NULL,
+    twilio_sid        TEXT    UNIQUE,
+    variant_id        TEXT,
+    sent_at           REAL    NOT NULL,
+    -- Twilio billing (often null at creation; populated via status callback / reconcile)
+    twilio_price      REAL,
+    twilio_price_unit TEXT,
     FOREIGN KEY (lead_id) REFERENCES sms_leads(lead_id)
 );
 
@@ -73,7 +87,24 @@ class SMSLedger:
         self._conn = sqlite3.connect(path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.executescript(_SCHEMA)
-        self._conn.commit()
+        # Migrate: add any columns that may be missing from older DBs.
+        # Each ALTER is safe to run multiple times — errors mean "already exists".
+        _lead_migrations = [
+            "ALTER TABLE sms_leads ADD COLUMN error TEXT",
+            "ALTER TABLE sms_leads ADD COLUMN sent_at REAL",
+            "ALTER TABLE sms_leads ADD COLUMN ai_cost_usd REAL DEFAULT 0.0",
+            "ALTER TABLE sms_leads ADD COLUMN twilio_cost_usd REAL DEFAULT 0.0",
+        ]
+        _msg_migrations = [
+            "ALTER TABLE sms_messages ADD COLUMN twilio_price REAL",
+            "ALTER TABLE sms_messages ADD COLUMN twilio_price_unit TEXT",
+        ]
+        for stmt in _lead_migrations + _msg_migrations:
+            try:
+                self._conn.execute(stmt)
+                self._conn.commit()
+            except Exception:
+                pass  # column already exists
 
     # ------------------------------------------------------------------
     # Lead management
@@ -84,7 +115,8 @@ class SMSLedger:
         allowed = {
             "first_name", "last_name", "phone", "company", "role",
             "vertical", "motion", "assigned_number", "variant_id",
-            "test_id", "framework", "status",
+            "test_id", "framework", "status", "error",
+            "sent_at", "ai_cost_usd", "twilio_cost_usd",
         }
         valid = {k: v for k, v in fields.items() if k in allowed}
         now = time.time()
@@ -184,9 +216,18 @@ class SMSLedger:
         return cur.lastrowid
 
     def get_conversation(self, lead_id: str) -> list[dict[str, Any]]:
-        """Return all messages for a lead, oldest first."""
+        """Return all sent/received messages for a lead, oldest first.
+
+        Excludes 'outbound_pending' direction — those are pre-generated bodies
+        stored before Twilio sends them.  Only 'outbound' (confirmed sent, has
+        a twilio_sid) and 'inbound' (replies from the lead) are shown.
+        """
         rows = self._conn.execute(
-            "SELECT * FROM sms_messages WHERE lead_id=? ORDER BY sent_at ASC",
+            """
+            SELECT * FROM sms_messages
+            WHERE lead_id=? AND direction IN ('outbound', 'inbound')
+            ORDER BY sent_at ASC
+            """,
             (lead_id,),
         ).fetchall()
         return [dict(r) for r in rows]
@@ -203,7 +244,11 @@ class SMSLedger:
     # ------------------------------------------------------------------
 
     def variant_stats(self, test_id: str | None = None) -> list[dict[str, Any]]:
-        """Per-variant sent/replied/booked counts."""
+        """Per-variant sent/replied/booked counts.
+
+        'sent' = leads actually delivered via Twilio (status IN sent/replied/booked/opted_out).
+        'generated' = all records that have a body (ready + above), for reference.
+        """
         where = "WHERE l.test_id = ?" if test_id else ""
         params = (test_id,) if test_id else ()
         rows = self._conn.execute(
@@ -211,10 +256,13 @@ class SMSLedger:
             SELECT
                 l.variant_id,
                 l.framework,
-                COUNT(DISTINCT l.lead_id)                                          AS sent,
-                SUM(CASE WHEN l.status IN ('replied','booked') THEN 1 ELSE 0 END) AS replied,
-                SUM(CASE WHEN l.status = 'booked' THEN 1 ELSE 0 END)              AS booked,
-                SUM(CASE WHEN l.status = 'opted_out' THEN 1 ELSE 0 END)           AS opted_out
+                -- only count rows that Twilio actually sent
+                SUM(CASE WHEN l.status IN ('sent','replied','booked','opted_out') THEN 1 ELSE 0 END) AS sent,
+                SUM(CASE WHEN l.status IN ('replied','booked')                    THEN 1 ELSE 0 END) AS replied,
+                SUM(CASE WHEN l.status = 'booked'                                 THEN 1 ELSE 0 END) AS booked,
+                SUM(CASE WHEN l.status = 'opted_out'                              THEN 1 ELSE 0 END) AS opted_out,
+                -- generation count (includes ready leads not yet sent)
+                SUM(CASE WHEN l.status IN ('ready','sent','replied','booked','opted_out') THEN 1 ELSE 0 END) AS generated
             FROM sms_leads l
             {where}
             GROUP BY l.variant_id, l.framework
@@ -225,16 +273,19 @@ class SMSLedger:
         return [dict(r) for r in rows]
 
     def number_stats(self) -> list[dict[str, Any]]:
-        """Per-phone-number sent/replied counts."""
+        """Per-phone-number sent/replied counts.
+
+        'sent' counts only messages Twilio actually delivered, NOT generated-but-unsent.
+        """
         rows = self._conn.execute(
             """
             SELECT
                 assigned_number,
-                COUNT(*)                                                           AS total_leads,
-                SUM(CASE WHEN status NOT IN ('pending','failed') THEN 1 ELSE 0 END) AS sent,
-                SUM(CASE WHEN status IN ('replied','booked') THEN 1 ELSE 0 END)   AS replied,
-                SUM(CASE WHEN status = 'booked' THEN 1 ELSE 0 END)               AS booked,
-                SUM(CASE WHEN status = 'opted_out' THEN 1 ELSE 0 END)            AS opted_out
+                COUNT(*)                                                                              AS total_leads,
+                SUM(CASE WHEN status IN ('sent','replied','booked','opted_out') THEN 1 ELSE 0 END)   AS sent,
+                SUM(CASE WHEN status IN ('replied','booked')                    THEN 1 ELSE 0 END)   AS replied,
+                SUM(CASE WHEN status = 'booked'                                 THEN 1 ELSE 0 END)   AS booked,
+                SUM(CASE WHEN status = 'opted_out'                              THEN 1 ELSE 0 END)   AS opted_out
             FROM sms_leads
             WHERE assigned_number IS NOT NULL
             GROUP BY assigned_number
@@ -244,25 +295,114 @@ class SMSLedger:
         return [dict(r) for r in rows]
 
     def kpi_summary(self) -> dict[str, Any]:
-        """Top-level KPI numbers for the dashboard header."""
+        """Top-level KPI numbers for the dashboard header.
+
+        'sent'      = messages Twilio actually delivered (status IN sent/replied/booked/opted_out).
+        'generated' = bodies written and stored (ready + above) — useful for pipeline progress.
+        """
         row = self._conn.execute(
             """
             SELECT
-                COUNT(*)                                                           AS total,
-                SUM(CASE WHEN status NOT IN ('pending','failed') THEN 1 ELSE 0 END) AS sent,
-                SUM(CASE WHEN status IN ('replied','booked') THEN 1 ELSE 0 END)   AS replied,
-                SUM(CASE WHEN status = 'booked' THEN 1 ELSE 0 END)               AS booked,
-                SUM(CASE WHEN status = 'opted_out' THEN 1 ELSE 0 END)            AS opted_out
+                COUNT(*)                                                                            AS total,
+                -- actually sent via Twilio
+                SUM(CASE WHEN status IN ('sent','replied','booked','opted_out') THEN 1 ELSE 0 END) AS sent,
+                -- generated/ready (bodies written, may not be sent yet)
+                SUM(CASE WHEN status IN ('ready','sent','replied','booked','opted_out') THEN 1 ELSE 0 END) AS generated,
+                SUM(CASE WHEN status IN ('replied','booked')  THEN 1 ELSE 0 END) AS replied,
+                SUM(CASE WHEN status = 'booked'               THEN 1 ELSE 0 END) AS booked,
+                SUM(CASE WHEN status = 'opted_out'            THEN 1 ELSE 0 END) AS opted_out,
+                SUM(CASE WHEN status = 'failed'               THEN 1 ELSE 0 END) AS failed,
+                -- cost aggregates
+                COALESCE(SUM(ai_cost_usd),     0.0) AS total_ai_cost_usd,
+                COALESCE(SUM(twilio_cost_usd), 0.0) AS total_twilio_cost_usd
             FROM sms_leads
             """
         ).fetchone()
         d = dict(row)
-        sent = d["sent"] or 0
+        sent    = d["sent"]    or 0
         replied = d["replied"] or 0
-        booked = d["booked"] or 0
+        booked  = d["booked"]  or 0
         d["reply_rate"] = round(replied / sent * 100, 2) if sent else 0.0
         d["book_rate"]  = round(booked  / sent * 100, 2) if sent else 0.0
         return d
+
+    def mark_sent(self, lead_id: str, sent_at: float | None = None) -> None:
+        """Mark a lead as sent-via-Twilio with an accurate timestamp.
+
+        Using a dedicated method (rather than update_status) ensures sent_at
+        is only ever populated after Twilio confirms the send, not at generation
+        time.
+        """
+        now = time.time()
+        self._conn.execute(
+            "UPDATE sms_leads SET status='sent', updated_at=?, sent_at=? WHERE lead_id=?",
+            (now, sent_at or now, lead_id),
+        )
+        self._conn.commit()
+
+    def set_message_price(
+        self,
+        twilio_sid: str,
+        price: float | None,
+        price_unit: str | None = "USD",
+    ) -> None:
+        """Record the Twilio price for a sent message.
+
+        Called either at send time (price is usually null then) or via the
+        reconcile endpoint once the message reaches a final Twilio status.
+        Also rolls the price into the parent lead's twilio_cost_usd.
+        """
+        if price is None:
+            return
+        price_abs = abs(float(price))   # Twilio returns negative values
+        self._conn.execute(
+            "UPDATE sms_messages SET twilio_price=?, twilio_price_unit=? WHERE twilio_sid=?",
+            (price_abs, price_unit or "USD", twilio_sid),
+        )
+        # Roll cost into the lead record
+        self._conn.execute(
+            """
+            UPDATE sms_leads
+               SET twilio_cost_usd = COALESCE(twilio_cost_usd, 0.0) + ?
+             WHERE lead_id = (
+                SELECT lead_id FROM sms_messages WHERE twilio_sid = ? LIMIT 1
+             )
+            """,
+            (price_abs, twilio_sid),
+        )
+        self._conn.commit()
+
+    def cost_summary(self) -> dict[str, float]:
+        """Aggregate AI + Twilio costs across all leads."""
+        row = self._conn.execute(
+            """
+            SELECT
+                COALESCE(SUM(ai_cost_usd),     0.0) AS ai_cost,
+                COALESCE(SUM(twilio_cost_usd), 0.0) AS twilio_cost
+            FROM sms_leads
+            """
+        ).fetchone()
+        d = dict(row)
+        d["total_cost"] = d["ai_cost"] + d["twilio_cost"]
+        return d
+
+    def fetch_unsettled_sids(self, limit: int = 100) -> list[str]:
+        """Return SIDs of outbound messages whose Twilio price is still null.
+
+        Used by the /api/sms/reconcile-costs endpoint to fetch prices in bulk.
+        """
+        rows = self._conn.execute(
+            """
+            SELECT twilio_sid FROM sms_messages
+             WHERE direction = 'outbound'
+               AND twilio_sid IS NOT NULL
+               AND twilio_price IS NULL
+             ORDER BY sent_at DESC
+             LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [r["twilio_sid"] for r in rows]
 
     # ------------------------------------------------------------------
     # Opt-out
@@ -272,6 +412,31 @@ class SMSLedger:
         row = self._conn.execute(
             "SELECT 1 FROM sms_leads WHERE phone=? AND status='opted_out' LIMIT 1",
             (phone,),
+        ).fetchone()
+        return row is not None
+
+    # ------------------------------------------------------------------
+    # Sync state — used by the Twilio polling worker
+    # ------------------------------------------------------------------
+
+    def get_sync_state(self, key: str) -> str | None:
+        row = self._conn.execute(
+            "SELECT value FROM sms_sync_state WHERE key=?", (key,)
+        ).fetchone()
+        return row["value"] if row else None
+
+    def set_sync_state(self, key: str, value: str) -> None:
+        self._conn.execute(
+            "INSERT INTO sms_sync_state (key, value) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (key, value),
+        )
+        self._conn.commit()
+
+    def sid_exists(self, twilio_sid: str) -> bool:
+        """Fast check — has this Twilio SID already been recorded?"""
+        row = self._conn.execute(
+            "SELECT 1 FROM sms_messages WHERE twilio_sid=? LIMIT 1", (twilio_sid,)
         ).fetchone()
         return row is not None
 

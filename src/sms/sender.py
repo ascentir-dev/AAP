@@ -49,8 +49,14 @@ def _send_sync(
     from_number: str,
     to_number: str,
     body: str,
-) -> str:
-    """Synchronous Twilio send — run via asyncio.to_thread."""
+) -> tuple[str, float | None, str]:
+    """Synchronous Twilio send — run via asyncio.to_thread.
+
+    Returns (sid, price, price_unit).
+    price is typically None at creation time; Twilio populates it once the
+    message reaches a final status.  Callers should reconcile later via
+    /api/sms/reconcile-costs or a Twilio status-callback webhook.
+    """
     from twilio.rest import Client
     client = Client(account_sid, auth_token)
     msg = client.messages.create(
@@ -58,7 +64,11 @@ def _send_sync(
         to=to_number,
         body=body,
     )
-    return msg.sid
+    # price is a string like "-0.00790" or None; normalise to float | None
+    raw_price  = getattr(msg, "price", None)
+    price      = abs(float(raw_price)) if raw_price is not None else None
+    price_unit = getattr(msg, "price_unit", None) or "USD"
+    return msg.sid, price, price_unit
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -67,16 +77,18 @@ async def send_sms(
     to_number: str,
     body: str,
     settings: Any,
-) -> str:
-    """Send an SMS and return the Twilio message SID.
+) -> tuple[str, float | None, str]:
+    """Send an SMS and return (sid, price, price_unit).
 
     The from_number is deterministically chosen from settings.twilio_numbers
     based on lead_id so the same lead always receives from the same number.
+    price is usually None at creation time — reconcile later via the
+    /api/sms/reconcile-costs endpoint once messages reach final Twilio status.
     """
     numbers = settings.twilio_numbers
     from_number = assign_number(lead_id, numbers)
 
-    sid = await asyncio.to_thread(
+    sid, price, price_unit = await asyncio.to_thread(
         _send_sync,
         settings.twilio_account_sid,
         settings.twilio_auth_token,
@@ -85,10 +97,11 @@ async def send_sms(
         body,
     )
     log.info(
-        "SMS sent lead=%s from=%s to=%s sid=%s chars=%d",
+        "SMS sent lead=%s from=%s to=%s sid=%s chars=%d price=%s%s",
         lead_id, from_number, to_number, sid, len(body),
+        price if price is not None else "pending", price_unit,
     )
-    return sid
+    return sid, price, price_unit
 
 
 async def send_reply(
@@ -98,7 +111,7 @@ async def send_reply(
     settings: Any,
 ) -> str:
     """Send a manual reply from the dashboard.  Uses the explicit from_number."""
-    sid = await asyncio.to_thread(
+    sid, _price, _price_unit = await asyncio.to_thread(
         _send_sync,
         settings.twilio_account_sid,
         settings.twilio_auth_token,

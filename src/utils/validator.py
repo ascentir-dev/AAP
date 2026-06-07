@@ -36,17 +36,23 @@ log = logging.getLogger(__name__)
 _SSL_CTX = ssl.create_default_context()
 
 # Thresholds
-_MIN_AUDIO_BYTES      = 200_000      # 200 KB  — silence/empty TTS would be smaller
+# NOTE: _MIN_AUDIO_BYTES was 200 KB — calibrated for ElevenLabs (128 kbps → ~700 KB/44s).
+# Edge TTS runs at ~33 kbps, so a valid 44s file is naturally ~180 KB. Lowered to 80 KB
+# which still catches truly empty/silent files (silence at 33 kbps for 5s ≈ 20 KB).
+_MIN_AUDIO_BYTES      = 80_000       # 80 KB   — covers Edge TTS (~33 kbps) + ElevenLabs
 _MIN_SCROLL_BYTES     = 500_000      # 500 KB
 _MIN_FINAL_BYTES      = 1_000_000    # 1 MB
 _MIN_THUMB_BYTES      = 5_000        # 5 KB
 _MIN_EMAIL_THUMB_BYTES = 8_000       # 8 KB
 _MIN_FACE_BYTES       = 10_000       # 10 KB  — placeholder check
-_VIDEO_DURATION_MIN   = 45.0         # seconds
+# NOTE: _VIDEO_DURATION_MIN was 45.0s. Edge TTS can run ~5-10% faster than the 165 WPM
+# estimate, producing 43-44s output for scripts that estimate at 45-46s. Lowered to 42s —
+# still catches genuinely short scripts while allowing for TTS speed variation.
+_VIDEO_DURATION_MIN   = 42.0         # seconds (was 45.0 — Edge TTS speed variation)
 _VIDEO_DURATION_MAX   = 80.0         # seconds
 _EXPECTED_WIDTH       = 1280
 _EXPECTED_HEIGHT      = 720
-_MAX_SUBJECT_CHARS    = 50
+_MAX_SUBJECT_CHARS    = 60
 _HTTP_TIMEOUT         = 15           # seconds for remote checks
 
 

@@ -64,6 +64,19 @@ CREATE TABLE IF NOT EXISTS csv_uploads (
     new_leads       INTEGER DEFAULT 0,
     duplicate_leads INTEGER DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS campaign_stats (
+    campaign_id   TEXT PRIMARY KEY,
+    variant_id    TEXT NOT NULL,
+    in_queue      INTEGER DEFAULT 0,
+    delivered     INTEGER DEFAULT 0,
+    opened        INTEGER DEFAULT 0,
+    replied       INTEGER DEFAULT 0,
+    bounced       INTEGER DEFAULT 0,
+    clicked       INTEGER DEFAULT 0,
+    drafted       INTEGER DEFAULT 0,
+    synced_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
 """
 
 
@@ -91,6 +104,12 @@ class Ledger:
         # Migration: add subject_line for per-lead subject tracking + analytics.
         try:
             self._conn.execute("ALTER TABLE leads ADD COLUMN subject_line TEXT DEFAULT ''")
+            self._conn.commit()
+        except Exception:
+            pass
+        # Migration: add csv_upload_id so we can show per-CSV sent/pending counts.
+        try:
+            self._conn.execute("ALTER TABLE leads ADD COLUMN csv_upload_id INTEGER")
             self._conn.commit()
         except Exception:
             pass
@@ -179,6 +198,7 @@ class Ledger:
             "email", "first_name", "last_name", "company", "website", "role",
             "vertical", "motion", "intent_confidence", "variant_id", "test_id",
             "framework", "recommended_angle", "email_type", "subject_line", "status",
+            "csv_upload_id",
         }
         valid = {k: v for k, v in fields.items() if k in allowed}
         # Ensure email is always present (required NOT NULL column)
@@ -216,6 +236,41 @@ class Ledger:
             VALUES (?, ?, ?, ?)
             """,
             (lead_id, event_type, occurred_at.isoformat(), json.dumps(smartlead_payload)),
+        )
+        self._conn.commit()
+
+    def save_campaign_stats(
+        self,
+        campaign_id: str,
+        variant_id: str,
+        in_queue: int,
+        delivered: int,
+        opened: int,
+        replied: int,
+        bounced: int,
+        clicked: int,
+        drafted: int,
+    ) -> None:
+        """Upsert campaign-level analytics from SmartLead into campaign_stats."""
+        self._execute(
+            """
+            INSERT INTO campaign_stats
+                (campaign_id, variant_id, in_queue, delivered, opened, replied,
+                 bounced, clicked, drafted, synced_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            ON CONFLICT(campaign_id) DO UPDATE SET
+                variant_id = excluded.variant_id,
+                in_queue   = excluded.in_queue,
+                delivered  = excluded.delivered,
+                opened     = excluded.opened,
+                replied    = excluded.replied,
+                bounced    = excluded.bounced,
+                clicked    = excluded.clicked,
+                drafted    = excluded.drafted,
+                synced_at  = excluded.synced_at
+            """,
+            (campaign_id, variant_id, in_queue, delivered, opened,
+             replied, bounced, clicked, drafted),
         )
         self._conn.commit()
 

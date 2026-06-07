@@ -16,7 +16,7 @@ You are NOT gatekeeping. You're doing five things:
 
 We build and run AI-powered client acquisition systems for businesses in five specific markets. We run their outbound on autopilot — AI-personalized emails, SMS, and custom video that books calls with their ideal clients — fully done-for-you, paid on results.
 
-**The Offer:** 120 qualified appointments in 120 days. Guaranteed. Done-for-you. Pay on results only.
+**The Offer:** 120 qualified appointments in 120 days. Guaranteed, or a full refund plus $3K. Done-for-you. Zero upfront.
 
 ---
 

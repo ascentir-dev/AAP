@@ -217,6 +217,17 @@ def _parse_skiptrace_row(row: dict, row_num: int) -> dict | None:
         row.get("DIRECT_NUMBER", ""),
         row.get("DIRECT_NUMBER_DNC", ""),
     )
+    # Raw multi-value phone columns preserved for the SMS pipeline to extract
+    # ALL verified numbers (not just the first non-DNC one).
+    _mobile_raw         = row.get("MOBILE_PHONE", "")
+    _mobile_dnc_raw     = row.get("MOBILE_PHONE_DNC", "")
+    _direct_raw         = row.get("DIRECT_NUMBER", "")
+    _direct_dnc_raw     = row.get("DIRECT_NUMBER_DNC", "")
+    _personal_raw       = row.get("PERSONAL_PHONE", "")
+    _personal_dnc_raw   = row.get("PERSONAL_PHONE_DNC", "")
+    _valid_phones_raw   = row.get("VALID_PHONES", "")
+    _wireless_raw       = row.get("SKIPTRACE_WIRELESS_NUMBERS", "")
+    _wireless_dnc_raw   = row.get("SKIPTRACE_DNC", "")
 
     # ── Pre-enrichment fields ─────────────────────────────────────────────────
     company_desc = row.get("COMPANY_DESCRIPTION", "").strip()
@@ -240,11 +251,22 @@ def _parse_skiptrace_row(row: dict, row_num: int) -> dict | None:
         "industry":     industry,
         "company_size": company_size,
         "market":       market,          # pre-detected — confirmed/refined by analysis
-        # Contact + DNC
+        # Contact + DNC — best single number (first valid non-DNC)
         "mobile_phone":     mobile_phone,
         "mobile_phone_dnc": mobile_dnc,
         "direct_number":    direct_number,
         "direct_number_dnc": direct_dnc,
+        # Raw multi-value phone columns — SMS pipeline expands these into
+        # one send per verified number per lead.
+        "mobile_phone_raw":     _mobile_raw,
+        "mobile_phone_dnc_raw": _mobile_dnc_raw,
+        "direct_number_raw":    _direct_raw,
+        "direct_number_dnc_raw": _direct_dnc_raw,
+        "personal_phone_raw":   _personal_raw,
+        "personal_phone_dnc_raw": _personal_dnc_raw,
+        "valid_phones_raw":       _valid_phones_raw,
+        "skiptrace_wireless_raw": _wireless_raw,
+        "skiptrace_dnc_raw":      _wireless_dnc_raw,   # SKIPTRACE_DNC — Y = do not contact
         # Seniority / qualification
         "seniority_level":  row.get("SENIORITY_LEVEL", "").strip(),
         "company_revenue":  row.get("COMPANY_REVENUE", "").strip(),

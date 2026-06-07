@@ -134,6 +134,106 @@ async def _check_one_campaign(
     return issues
 
 
+async def apply_daily_limits(
+    settings: "Settings",
+    total_daily: int = 900,
+) -> dict[str, Any]:
+    """Set per-campaign daily send limits so all 9 variant campaigns share
+    exactly `total_daily` emails per day.
+
+    Distribution: base = total // n_campaigns; the first (total % n_campaigns)
+    campaigns receive base+1 so the sum equals total exactly.
+
+    Returns {"ok": bool, "results": [{variant, campaign_id, limit, status}], "errors": [...]}
+    """
+    api_key = settings.smartlead_api_key
+    if not api_key:
+        return {"ok": False, "results": [], "errors": ["SMARTLEAD_API_KEY not set"]}
+
+    test_config = settings.active_test_config()
+    if not test_config:
+        return {"ok": False, "results": [], "errors": ["No active test config in settings.yaml"]}
+
+    arms = test_config.get("arms", [])
+    campaign_pairs: list[tuple[str, str]] = [
+        (arm.get("id", f"arm_{i}"), str(arm["smartlead_campaign_id"]))
+        for i, arm in enumerate(arms)
+        if arm.get("smartlead_campaign_id")
+    ]
+
+    n = len(campaign_pairs)
+    if n == 0:
+        return {"ok": False, "results": [], "errors": ["No campaign IDs found in arms"]}
+
+    base = total_daily // n
+    extra = total_daily % n   # first `extra` campaigns get base+1
+
+    results: list[dict[str, Any]] = []
+    errors: list[str] = []
+
+    async with httpx.AsyncClient(timeout=20) as client:
+        for idx, (variant_label, campaign_id) in enumerate(campaign_pairs):
+            limit = base + (1 if idx < extra else 0)
+            try:
+                # Step 1: GET existing schedule so we don't overwrite timezone/days
+                get_r = await client.get(
+                    f"{BASE_URL}/campaigns/{campaign_id}?api_key={api_key}"
+                )
+                get_r.raise_for_status()
+                campaign = get_r.json()
+                cron = campaign.get("scheduler_cron_value") or {}
+
+                schedule_payload: dict[str, Any] = {
+                    "timezone":           cron.get("tz", "America/New_York"),
+                    "days_of_the_week":   cron.get("days", [1, 2, 3, 4, 5]),
+                    "start_hour":         cron.get("startHour", "08:00"),
+                    "end_hour":           cron.get("endHour", "17:00"),
+                    "min_time_btw_emails": campaign.get("min_time_btwn_emails", 20),
+                    "max_new_leads_per_day": limit,
+                }
+
+                # Step 2: POST updated schedule
+                set_r = await client.post(
+                    f"{BASE_URL}/campaigns/{campaign_id}/schedule?api_key={api_key}",
+                    json=schedule_payload,
+                )
+                if set_r.is_success:
+                    results.append({
+                        "variant": variant_label,
+                        "campaign_id": campaign_id,
+                        "limit": limit,
+                        "status": "ok",
+                    })
+                    log.info("[daily-limits] %s (campaign %s) → %d/day", variant_label, campaign_id, limit)
+                else:
+                    msg = f"{variant_label} (campaign {campaign_id}): HTTP {set_r.status_code} — {set_r.text[:120]}"
+                    errors.append(msg)
+                    results.append({
+                        "variant": variant_label,
+                        "campaign_id": campaign_id,
+                        "limit": limit,
+                        "status": f"error HTTP {set_r.status_code}",
+                    })
+                    log.warning("[daily-limits] %s", msg)
+            except Exception as exc:
+                msg = f"{variant_label} (campaign {campaign_id}): {exc}"
+                errors.append(msg)
+                results.append({
+                    "variant": variant_label,
+                    "campaign_id": campaign_id,
+                    "limit": limit,
+                    "status": f"error: {exc}",
+                })
+
+    return {
+        "ok": len(errors) == 0,
+        "total_daily": total_daily,
+        "campaigns_configured": len(campaign_pairs),
+        "results": results,
+        "errors": errors,
+    }
+
+
 async def validate_campaign(settings: "Settings") -> dict:
     """Check ALL variant campaign IDs are correctly configured for personalised sends.
 

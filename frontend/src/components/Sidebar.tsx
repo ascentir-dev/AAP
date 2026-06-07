@@ -3,10 +3,13 @@ import type { IconName } from "@blueprintjs/icons";
 
 type Page =
   | "dashboard"
+  | "sms-analytics"
   | "leads"
+  | "audience"
   | "pipeline"
   | "costs"
   | "sms-dashboard"
+  | "sms-leads"
   | "sms-conversations"
   | "video-analytics"
   | "testing-dashboard"
@@ -54,19 +57,36 @@ export function Sidebar({ current, onChange }: SidebarProps) {
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-section-header">Email Outreach</div>
+
+        <div className="nav-section-header">Analytics</div>
         <NavItem
-          icon="dashboard"
-          label="Dashboard"
+          icon="chart"
+          label="Cold Email"
           page="dashboard"
           active={current === "dashboard"}
           onClick={onChange}
         />
         <NavItem
+          icon="mobile-phone"
+          label="SMS"
+          page="sms-analytics"
+          active={current === "sms-analytics"}
+          onClick={onChange}
+        />
+
+        <div className="nav-section-header" style={{ marginTop: 12 }}>Email Outreach</div>
+        <NavItem
           icon="people"
           label="Leads"
           page="leads"
           active={current === "leads"}
+          onClick={onChange}
+        />
+        <NavItem
+          icon="database"
+          label="Audience"
+          page="audience"
+          active={current === "audience"}
           onClick={onChange}
         />
 
@@ -92,10 +112,10 @@ export function Sidebar({ current, onChange }: SidebarProps) {
           SMS Outreach
         </div>
         <NavItem
-          icon="mobile-phone"
-          label="SMS Dashboard"
-          page="sms-dashboard"
-          active={current === "sms-dashboard"}
+          icon="people"
+          label="SMS Leads"
+          page="sms-leads"
+          active={current === "sms-leads"}
           onClick={onChange}
         />
         <NavItem
